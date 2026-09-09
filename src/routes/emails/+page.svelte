@@ -221,9 +221,9 @@
 					<input
 						id="email-subject"
 						type="text"
-						placeholder={"e.g. Exclusive Payjeezy Rates for {{businessName}}"}
+						placeholder={"e.g. Exclusive NBMS Rates for {{businessName}}"}
 						bind:value={customSubject}
-						class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-purple-600 shadow-xs"
+						class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-[#1f71c1] shadow-xs"
 					/>
 				</div>
 

@@ -59,16 +59,16 @@
 
 <div class="space-y-6">
 	<!-- Hero Header -->
-	<div class="glass-panel p-6 rounded-2xl relative overflow-hidden border border-purple-200 dark:border-purple-500/20 bg-white/90 dark:bg-slate-900/60 shadow-sm">
-		<div class="absolute -right-12 -top-12 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+	<div class="glass-panel p-6 rounded-2xl relative overflow-hidden border border-[#dbe7f1] dark:border-slate-800/80 bg-white/95 dark:bg-[#0a192f]/80 shadow-sm">
+		<div class="absolute -right-12 -top-12 w-64 h-64 bg-[#1f71c1]/10 rounded-full blur-3xl pointer-events-none"></div>
 		<div class="absolute -left-12 -bottom-12 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
 		<div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
 			<div>
 				<div class="flex items-center gap-2">
-					<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30 flex items-center gap-1.5">
-						<Sparkles class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-						Payjeezy Rocket CRM Engine
+					<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-800 border border-sky-200 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30 flex items-center gap-1.5">
+						<Sparkles class="w-3.5 h-3.5 text-[#1f71c1] dark:text-[#6ec1e4]" />
+						NBMS Intelligent CRM Engine
 					</span>
 				</div>
 				<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight mt-2 font-display text-slate-900 dark:text-white">

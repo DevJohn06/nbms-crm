@@ -11,7 +11,7 @@ export async function seedDemoData() {
 		return;
 	}
 
-	console.log('Seeding demo data for Payjeezy CRM...');
+	console.log('Seeding demo data for NBMS CRM...');
 
 	const now = new Date().toISOString();
 	const daysAgo = (d: number) => new Date(Date.now() - d * 86400000).toISOString();
@@ -33,7 +33,7 @@ export async function seedDemoData() {
 			email: 'billing@apexfitness.com',
 			phone: '+1 (555) 876-5432',
 			status: 'EMAILED',
-			notes: 'Sent welcome email with Payjeezy Merchant package options.',
+			notes: 'Sent welcome email with NBMS Merchant package options.',
 			customFields: JSON.stringify({ MonthlyVolume: '$120,000', CurrentProcessor: 'Square' }),
 			createdAt: daysAgo(5),
 			updatedAt: daysAgo(4)
@@ -88,10 +88,10 @@ export async function seedDemoData() {
 			{
 				leadId: insertedLeads[1].id,
 				templateId: 1,
-				sender: 'onboarding@payjeezy.com',
+				sender: 'onboarding@nbmsinc.com',
 				recipient: insertedLeads[1].email,
-				subject: 'Exclusive Partnership Opportunity with Payjeezy',
-				bodyHtml: `<p>Hi ${insertedLeads[1].businessName},</p><p>Welcome to Payjeezy! We help growing businesses streamline payment processing and boost customer retention.</p>`,
+				subject: 'Exclusive Partnership Opportunity with NBMS',
+				bodyHtml: `<p>Hi ${insertedLeads[1].businessName},</p><p>Welcome to NBMS! We help growing businesses streamline payment processing and boost customer retention.</p>`,
 				status: 'DELIVERED',
 				direction: 'OUTBOUND',
 				sentAt: daysAgo(4)
@@ -99,9 +99,9 @@ export async function seedDemoData() {
 			{
 				leadId: insertedLeads[3].id,
 				templateId: 2,
-				sender: 'sales@payjeezy.com',
+				sender: 'sales@nbmsinc.com',
 				recipient: insertedLeads[3].email,
-				subject: 'Your Payjeezy Merchant Service Agreement',
+				subject: 'Your NBMS Merchant Service Agreement',
 				bodyHtml: `<p>Hello ${insertedLeads[3].businessName},</p><p>Your merchant onboarding agreement is ready for review.</p>`,
 				status: 'DELIVERED',
 				direction: 'OUTBOUND',
@@ -112,14 +112,14 @@ export async function seedDemoData() {
 		// 3. Seed sample signed contract
 		await db.insert(contracts).values([
 			{
-				id: 'PAY-CON-883921',
+				id: 'NBMS-CON-883921',
 				leadId: insertedLeads[5].id,
 				clientName: 'Sarah Jenkins (Owner)',
 				clientEmail: insertedLeads[5].email,
 				servicePackage: 'Growth Pro Merchant Package',
 				monthlyFee: '$199 / mo',
 				contractTerms: '12-Month Merchant Processing Agreement at 1.45% + $0.10 per transaction rate.',
-				signatureData: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="100"><path d="M 10 50 Q 50 10 90 50 T 170 50 T 250 50" stroke="%238b5cf6" stroke-width="3" fill="none"/></svg>',
+				signatureData: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="100"><path d="M 10 50 Q 50 10 90 50 T 170 50 T 250 50" stroke="%231f71c1" stroke-width="3" fill="none"/></svg>',
 				status: 'SIGNED',
 				createdAt: daysAgo(10),
 				signedAt: daysAgo(1)

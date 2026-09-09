@@ -160,23 +160,23 @@
 </script>
 
 <svelte:head>
-	<title>User Management & Dev Console | Payjeezy CRM</title>
+	<title>User Management & Dev Console | NBMS CRM</title>
 </svelte:head>
 
 <div class="space-y-6">
 	<!-- Page Header Banner -->
-	<div class="glass-panel p-6 rounded-2xl border border-purple-200 dark:border-purple-500/30 bg-gradient-to-r from-white via-purple-50 to-slate-50 dark:from-purple-950/40 dark:via-slate-900/60 dark:to-slate-950/80 relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
+	<div class="glass-panel p-6 rounded-2xl border border-[#dbe7f1] dark:border-sky-500/30 bg-gradient-to-r from-white via-sky-50 to-slate-50 dark:from-[#0a192f] dark:via-slate-900/60 dark:to-slate-950/80 relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
 		<div class="space-y-1 relative z-10">
 			<div class="flex items-center gap-2">
-				<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-900 border border-purple-200 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30 flex items-center gap-1.5">
-					<Terminal class="w-3 h-3 text-purple-600 dark:text-purple-400" />
+				<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-sky-100 text-sky-900 border border-sky-200 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30 flex items-center gap-1.5">
+					<Terminal class="w-3 h-3 text-[#1f71c1] dark:text-sky-400" />
 					DEV SUPER ADMIN CONSOLE
 				</span>
 				<span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-cyan-100 text-cyan-900 border border-cyan-200 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/30">System Access: Full</span>
 			</div>
 			<h1 class="text-2xl font-black tracking-tight font-display text-slate-900 dark:text-slate-100">User Access & Role Management</h1>
 			<p class="text-xs text-slate-600 dark:text-slate-400 max-w-2xl">
-				Manage authentication accounts, developer privileges, system administrators, and sales agents for Payjeezy CRM.
+				Manage authentication accounts, developer privileges, system administrators, and sales agents for NBMS CRM.
 			</p>
 		</div>
 
@@ -451,17 +451,17 @@
 
 				<div class="space-y-1.5">
 					<label for="new-email" class="block text-xs font-bold text-slate-700 dark:text-slate-300">Email Address *</label>
-					<input id="new-email" name="email" type="email" required placeholder="alex@payjeezy.com" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600 focus:outline-none" />
+					<input id="new-email" name="email" type="email" required placeholder="alex@nbmsinc.com" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-[#1f71c1] focus:outline-none" />
 				</div>
 
 				<div class="space-y-1.5">
 					<label for="new-pass" class="block text-xs font-bold text-slate-700 dark:text-slate-300">Initial Password *</label>
-					<input id="new-pass" name="password" type="password" required placeholder="••••••••••••" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600 focus:outline-none" />
+					<input id="new-pass" name="password" type="password" required placeholder="••••••••••••" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-[#1f71c1] focus:outline-none" />
 				</div>
 
 				<div class="space-y-1.5">
 					<label for="new-role" class="block text-xs font-bold text-slate-700 dark:text-slate-300">System Role *</label>
-					<select id="new-role" name="role" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600 focus:outline-none font-semibold">
+					<select id="new-role" name="role" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-[#1f71c1] focus:outline-none font-semibold">
 						<option value="AGENT">SALES AGENT (Standard CRM access)</option>
 						<option value="ADMIN">CRM ADMIN (Full lead & team management)</option>
 						<option value="SUPER_ADMIN">SUPER ADMIN (Full system & developer console)</option>
@@ -483,7 +483,7 @@
 		<div class="glass-panel w-full max-w-md p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl space-y-4">
 			<div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
 				<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 font-display flex items-center gap-2">
-					<Edit3 class="w-5 h-5 text-purple-600 dark:text-purple-400" />
+					<Edit3 class="w-5 h-5 text-[#1f71c1] dark:text-sky-400" />
 					Edit User Profile & Credentials
 				</h3>
 				<button onclick={closeEditModal} class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
@@ -492,7 +492,7 @@
 			</div>
 
 			<p class="text-xs text-slate-600 dark:text-slate-400">
-				Update full name, email address, or password for <strong class="text-purple-700 dark:text-purple-300 font-bold">{editUser.name}</strong>.
+				Update full name, email address, or password for <strong class="text-sky-700 dark:text-sky-300 font-bold">{editUser.name}</strong>.
 			</p>
 
 			<form method="POST" action="?/updateUser" use:enhance={() => {
@@ -512,7 +512,7 @@
 						required
 						bind:value={editName}
 						placeholder="Full Name"
-						class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600 focus:outline-none font-semibold shadow-xs"
+						class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-[#1f71c1] focus:outline-none font-semibold shadow-xs"
 					/>
 				</div>
 
@@ -524,8 +524,8 @@
 						type="email"
 						required
 						bind:value={editEmail}
-						placeholder="user@payjeezy.com"
-						class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600 focus:outline-none font-semibold shadow-xs"
+						placeholder="user@nbmsinc.com"
+						class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-[#1f71c1] focus:outline-none font-semibold shadow-xs"
 					/>
 				</div>
 

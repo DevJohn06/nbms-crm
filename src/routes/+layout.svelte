@@ -27,7 +27,8 @@
 	let currentPath = $derived($page.url.pathname);
 	let isDispensaryHost = $derived(
 		typeof window !== 'undefined' &&
-			(window.location.hostname.startsWith('dispensary.') || window.location.hostname.includes('dispensary.payjeezy.com'))
+			(window.location.hostname.startsWith('dispensary.') ||
+				window.location.hostname.includes('dispensary.nbmsinc.com'))
 	);
 	let isPublicFunnel = $derived(currentPath.startsWith('/funnel') || isDispensaryHost);
 	let isLoginPage = $derived(currentPath.startsWith('/login'));
@@ -42,7 +43,7 @@
 			if (isPublicFunnel) {
 				document.documentElement.classList.remove('dark');
 			} else {
-				const saved = localStorage.getItem('payjeezy_theme');
+				const saved = localStorage.getItem('nbms_theme');
 				if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
 					themeMode = 'dark';
 					document.documentElement.classList.add('dark');
@@ -58,36 +59,38 @@
 		if (themeMode === 'light') {
 			themeMode = 'dark';
 			document.documentElement.classList.add('dark');
-			localStorage.setItem('payjeezy_theme', 'dark');
+			localStorage.setItem('nbms_theme', 'dark');
 		} else {
 			themeMode = 'light';
 			document.documentElement.classList.remove('dark');
-			localStorage.setItem('payjeezy_theme', 'light');
+			localStorage.setItem('nbms_theme', 'light');
 		}
 	}
 </script>
 
 {#if isPublicFunnel}
 	<!-- Public Client Funnel Layout (Pure Light Theme, No Dark Mode) -->
-	<div class="min-h-screen bg-[#F4F7FF] text-slate-900 flex flex-col">
+	<div class="min-h-screen bg-[#F4F8FB] text-slate-900 flex flex-col">
 		{@render children()}
 	</div>
 {:else if isLoginPage}
 	<!-- Login Page Layout -->
-	<div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-150">
+	<div class="min-h-screen bg-[#f4f8fb] dark:bg-[#06101e] text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-150">
 		{@render children()}
 	</div>
 {:else}
 	<!-- Admin CRM Layout -->
-	<div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col md:flex-row transition-colors duration-150">
+	<div class="min-h-screen bg-[#f4f8fb] dark:bg-[#06101e] text-slate-900 dark:text-slate-100 flex flex-col md:flex-row transition-colors duration-150">
 		<!-- Sidebar Navigation -->
-		<aside class="w-full md:w-64 glass-panel border-r border-slate-200 dark:border-slate-800/60 flex-shrink-0 flex flex-col justify-between bg-white/90 dark:bg-slate-900/90 shadow-sm">
+		<aside class="w-full md:w-64 glass-panel border-r border-[#dbe7f1] dark:border-slate-800/60 flex-shrink-0 flex flex-col justify-between bg-white/95 dark:bg-[#0a192f]/95 shadow-sm">
 			<div>
 				<!-- Brand Header -->
-				<div class="p-4 border-b border-slate-200 dark:border-slate-800/60 flex items-center justify-between">
+				<div class="p-4 border-b border-[#dbe7f1] dark:border-slate-800/60 flex items-center justify-between">
 					<a href="/" class="flex items-center gap-2">
-						<img src="/images/payjeezy_logo.png" alt="PAYJEEZY" class="h-9 w-auto object-contain" />
-						<span class="px-1.5 py-0.5 text-[10px] font-bold bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 rounded">CRM</span>
+						<div class="bg-white px-2 py-1 rounded-lg border border-slate-200/70 shadow-2xs">
+							<img src="/images/nbms_logo.png" alt="NBMS" class="h-7 w-auto object-contain" />
+						</div>
+						<span class="px-1.5 py-0.5 text-[10px] font-bold bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30 rounded">CRM</span>
 					</a>
 				</div>
 
@@ -95,23 +98,23 @@
 				<nav class="p-3 space-y-1">
 					<a
 						href="/"
-						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath === '/' ? 'bg-purple-100/90 text-purple-900 border border-purple-200/90 dark:bg-purple-600/20 dark:text-purple-300 dark:border-purple-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
+						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath === '/' ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
 					>
-						<LayoutDashboard class="w-4 h-4 text-purple-600 dark:text-purple-400" />
+						<LayoutDashboard class="w-4 h-4 text-[#1f71c1] dark:text-[#6ec1e4]" />
 						Dashboard
 					</a>
 
 					<a
 						href="/leads"
-						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/leads') ? 'bg-purple-100/90 text-purple-900 border border-purple-200/90 dark:bg-purple-600/20 dark:text-purple-300 dark:border-purple-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
+						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/leads') ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
 					>
-						<Users class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+						<Users class="w-4 h-4 text-[#15528d] dark:text-sky-400" />
 						Master Lead List
 					</a>
 
 					<a
 						href="/calls"
-						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/calls') ? 'bg-purple-100/90 text-purple-900 border border-purple-200/90 dark:bg-purple-600/20 dark:text-purple-300 dark:border-purple-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
+						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/calls') ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
 					>
 						<PhoneCall class="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
 						Booked Strategy Calls
@@ -119,7 +122,7 @@
 
 					<a
 						href="/emails"
-						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath === '/emails' ? 'bg-purple-100/90 text-purple-900 border border-purple-200/90 dark:bg-purple-600/20 dark:text-purple-300 dark:border-purple-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
+						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath === '/emails' ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
 					>
 						<Mail class="w-4 h-4 text-amber-600 dark:text-amber-400" />
 						Inbox & Logs
@@ -127,7 +130,7 @@
 
 					<a
 						href="/emails/templates"
-						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath === '/emails/templates' ? 'bg-purple-100/90 text-purple-900 border border-purple-200/90 dark:bg-purple-600/20 dark:text-purple-300 dark:border-purple-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
+						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath === '/emails/templates' ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
 					>
 						<Layers class="w-4 h-4 text-blue-600 dark:text-blue-400" />
 						Email Scripts
@@ -135,7 +138,7 @@
 
 					<a
 						href="/cms/intake"
-						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/cms') ? 'bg-purple-100/90 text-purple-900 border border-purple-200/90 dark:bg-purple-600/20 dark:text-purple-300 dark:border-purple-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
+						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/cms') ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
 					>
 						<Globe class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
 						Intake Page CMS
@@ -143,17 +146,17 @@
 
 					{#if user?.role === 'SUPER_ADMIN'}
 						<div class="pt-3 pb-1 px-3">
-							<p class="text-[11px] font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400 flex items-center gap-1.5">
-								<Terminal class="w-3 h-3 text-purple-600 dark:text-purple-400" />
+							<p class="text-[11px] font-bold uppercase tracking-wider text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+								<Terminal class="w-3 h-3 text-[#1f71c1] dark:text-[#6ec1e4]" />
 								Developer Admin
 							</p>
 						</div>
 
 						<a
 							href="/users"
-							class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/users') ? 'bg-purple-100/90 text-purple-900 border border-purple-200/90 dark:bg-purple-600/20 dark:text-purple-300 dark:border-purple-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
+							class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/users') ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
 						>
-							<ShieldCheck class="w-4 h-4 text-purple-600 dark:text-purple-400" />
+							<ShieldCheck class="w-4 h-4 text-[#1f71c1] dark:text-[#6ec1e4]" />
 							User & Dev Console
 						</a>
 					{/if}
@@ -178,12 +181,12 @@
 			</div>
 
 			<!-- Footer User Profile & Status Card -->
-			<div class="p-4 border-t border-slate-200 dark:border-slate-800/60 space-y-3">
+			<div class="p-4 border-t border-[#dbe7f1] dark:border-slate-800/60 space-y-3">
 				{#if user}
-					<div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 space-y-2">
+					<div class="p-3 rounded-xl bg-[#f0f7fc] dark:bg-slate-900/90 border border-[#dbe7f1] dark:border-slate-800/80 space-y-2">
 						<div class="flex items-center justify-between">
 							<div class="flex items-center gap-2.5 overflow-hidden">
-								<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-xs">
+								<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#15528d] to-[#1f71c1] text-white font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-xs">
 									{user.name.charAt(0).toUpperCase()}
 								</div>
 								<div class="truncate">
@@ -193,10 +196,10 @@
 							</div>
 						</div>
 
-						<div class="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800/60">
+						<div class="flex items-center justify-between pt-2 border-t border-[#dbe7f1] dark:border-slate-800/60">
 							{#if user.role === 'SUPER_ADMIN'}
-								<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-purple-100 text-purple-800 border border-purple-200 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30 flex items-center gap-1">
-									<ShieldCheck class="w-3 h-3 text-purple-600 dark:text-purple-400" />
+								<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-sky-100 text-sky-800 border border-sky-200 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30 flex items-center gap-1">
+									<ShieldCheck class="w-3 h-3 text-[#1f71c1] dark:text-[#6ec1e4]" />
 									SUPER ADMIN
 								</span>
 							{:else if user.role === 'ADMIN'}
@@ -221,7 +224,7 @@
 					</div>
 				{/if}
 
-				<div class="p-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/60 flex items-center gap-2.5">
+				<div class="p-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-900/60 border border-[#dbe7f1] dark:border-slate-800/60 flex items-center gap-2.5">
 					<div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
 					<div>
 						<p class="text-[11px] font-semibold text-slate-700 dark:text-slate-300">Auth & SQLite Engine</p>
@@ -233,7 +236,7 @@
 
 		<!-- Main Content Area -->
 		<main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
-			<header class="h-16 glass-panel border-b border-slate-200 dark:border-slate-800/60 px-6 flex items-center justify-between sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md">
+			<header class="h-16 glass-panel border-b border-[#dbe7f1] dark:border-slate-800/60 px-6 flex items-center justify-between sticky top-0 z-30 bg-white/95 dark:bg-[#0a192f]/95 backdrop-blur-md">
 				<div class="flex items-center gap-3">
 					<h1 class="text-lg font-bold text-slate-900 dark:text-slate-100 font-display">
 						{#if currentPath === '/'}
@@ -251,7 +254,7 @@
 						{:else if currentPath.startsWith('/users')}
 							Developer User Console
 						{:else}
-							Payjeezy Workspace
+							NBMS Workspace
 						{/if}
 					</h1>
 				</div>

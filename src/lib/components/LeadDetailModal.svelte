@@ -88,7 +88,7 @@
 	let clientEmailInput = $state('');
 	let servicePackageInput = $state('Growth Pro Merchant Package');
 	let monthlyFeeInput = $state('$199 / month');
-	let contractTermsInput = $state('Standard Payjeezy 12-Month Merchant Processing Agreement at 1.45% + $0.10 per transaction rate with Next-Day Direct Bank Settlements.');
+	let contractTermsInput = $state('Standard NBMS 12-Month Merchant Processing Agreement at 1.45% + $0.10 per transaction rate with Next-Day Direct Bank Settlements.');
 	let showContractForm = $state(false);
 
 	interface NoteComment {

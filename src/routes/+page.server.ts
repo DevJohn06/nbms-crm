@@ -12,9 +12,10 @@ export const load: PageServerLoad = async ({ request, url }) => {
 		'';
 
 	const isDispensarySubdomain =
-		host.startsWith('dispensary.') || host.includes('dispensary.payjeezy.com');
+		host.startsWith('dispensary.') ||
+		host.includes('dispensary.nbmsinc.com');
 
-	// If accessing dispensary.payjeezy.com at root "/", redirect immediately to the public intake landing page (/funnel)
+	// If accessing dispensary subdomain at root "/", redirect immediately to the public intake landing page (/funnel)
 	if (isDispensarySubdomain) {
 		throw redirect(302, '/funnel');
 	}

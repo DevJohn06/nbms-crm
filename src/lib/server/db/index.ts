@@ -118,7 +118,7 @@ export async function initDatabase() {
 		`);
 
 		// Seed initial Developer Super Admin if target email does not exist
-		const initialEmail = (process.env.SUPERADMIN_EMAIL || 'wet.johnt@gmail.com').toLowerCase();
+		const initialEmail = (process.env.SUPERADMIN_EMAIL || 'admin').toLowerCase();
 		const existingAdmin = await client.execute({
 			sql: `SELECT id FROM users WHERE email = ?`,
 			args: [initialEmail]
@@ -128,7 +128,7 @@ export async function initDatabase() {
 			const { hashPassword } = await import('../auth/auth');
 			const now = new Date().toISOString();
 			const superAdminId = 'user_super_admin_dev';
-			const initialPassword = process.env.SUPERADMIN_PASSWORD || 'devpass';
+			const initialPassword = process.env.SUPERADMIN_PASSWORD || 'admin';
 			const passwordHash = hashPassword(initialPassword);
 
 			await client.execute({
@@ -137,7 +137,7 @@ export async function initDatabase() {
 					superAdminId,
 					initialEmail,
 					passwordHash,
-					'devadmin',
+					'admin',
 					'SUPER_ADMIN',
 					now,
 					now
@@ -183,7 +183,7 @@ export async function initDatabase() {
 			},
 			{
 				id: 'how_it_works',
-				title: 'Payjeezy Pin Debit Cashless ATM Terminals',
+				title: 'NBMS Pin Debit Cashless ATM Terminals',
 				subtitle: 'State-of-the-art EMV & PCI compliant payment terminals engineered for countertop checkout, home delivery, and zero merchant fees.',
 				content: {
 					hideSection: true,
@@ -233,8 +233,8 @@ export async function initDatabase() {
 				subtitle: 'Our dedicated account management team is here to answer all your processing questions.',
 				content: {
 					hideSection: true,
-					email: 'support@payjeezy.com',
-					phone: '+1 (800) 555-PAYJ',
+					email: 'sales@nbmsinc.com',
+					phone: '(877) 817-2257',
 					hours: 'Mon - Sun: 24/7 Priority Desk',
 					helpNotice: 'Ready to get started or compare your current rates? Reach out to our underwriting team today.'
 				}
@@ -250,9 +250,9 @@ export async function initDatabase() {
 				        subtitle = excluded.subtitle,
 				        content_json = excluded.content_json,
 				        updated_at = excluded.updated_at
-				      WHERE intake_cms.title LIKE '%Why Process With Payjeezy%'
+				      WHERE intake_cms.title LIKE '%Why Process%'
 				         OR intake_cms.title LIKE '%3-Step Merchant Onboarding%'
-				         OR intake_cms.title LIKE '%Complete Your Payjeezy Merchant Setup%';`,
+				         OR intake_cms.title LIKE '%Merchant Setup%';`,
 				args: [
 					entry.id,
 					entry.title,
@@ -273,8 +273,8 @@ export async function initDatabase() {
 				sql: `INSERT INTO email_templates (name, subject, body_html, trigger_stage, created_at) VALUES (?, ?, ?, ?, ?)`,
 				args: [
 					'Welcome & Introduction',
-					'Exclusive Partnership Opportunity with Payjeezy',
-					'<p>Hi {{businessName}},</p><p>Welcome to Payjeezy! We help growing businesses streamline payment processing and boost customer retention.</p><p>Check out your custom proposal & onboarding funnel here: <a href="{{funnelLink}}">{{funnelLink}}</a></p><p>Best regards,<br>Payjeezy Onboarding Team</p>',
+					'Exclusive Partnership Opportunity with NBMS',
+					'<p>Hi {{businessName}},</p><p>Welcome to NBMS! We help growing businesses streamline payment processing and boost customer retention.</p><p>Check out your custom proposal & onboarding funnel here: <a href="{{funnelLink}}">{{funnelLink}}</a></p><p>Best regards,<br>NBMS Onboarding Team</p>',
 					'NEW',
 					now
 				]
@@ -284,8 +284,8 @@ export async function initDatabase() {
 				sql: `INSERT INTO email_templates (name, subject, body_html, trigger_stage, created_at) VALUES (?, ?, ?, ?, ?)`,
 				args: [
 					'Contract Offer & Funnel Onboarding',
-					'Your Payjeezy Merchant Service Agreement',
-					'<p>Hello {{businessName}},</p><p>Your Payjeezy merchant onboarding agreement is ready for review and digital signature!</p><p>Please access your contract portal here: <a href="{{funnelLink}}">{{funnelLink}}</a></p><p>Questions? Simply reply directly to this email.</p><p>Cheers,<br>Payjeezy Sales</p>',
+					'Your NBMS Merchant Service Agreement',
+					'<p>Hello {{businessName}},</p><p>Your NBMS merchant onboarding agreement is ready for review and digital signature!</p><p>Please access your contract portal here: <a href="{{funnelLink}}">{{funnelLink}}</a></p><p>Questions? Simply reply directly to this email.</p><p>Cheers,<br>NBMS Sales</p>',
 					'EMAILED',
 					now
 				]

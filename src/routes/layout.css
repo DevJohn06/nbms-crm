@@ -7,6 +7,28 @@
 	--font-display: 'Outfit', 'Inter', sans-serif;
 	--shadow-2xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 	--shadow-xs: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+
+	/* NBMS Official Brand Colors from nbmsinc.com */
+	--color-nbms-navy: #00345a;
+	--color-nbms-ocean: #15528d;
+	--color-nbms-blue: #1f71c1;
+	--color-nbms-sky: #4899be;
+	--color-nbms-lightsky: #6ec1e4;
+	--color-nbms-green: #61ce70;
+	--color-nbms-gold: #fbe344;
+
+	/* Seamless mapping of legacy purple classes to NBMS brand blue tones */
+	--color-purple-50: #f0f7fc;
+	--color-purple-100: #e0f0fa;
+	--color-purple-200: #b9e0f6;
+	--color-purple-300: #7dc5ee;
+	--color-purple-400: #4899be;
+	--color-purple-500: #1f71c1;
+	--color-purple-600: #15528d;
+	--color-purple-700: #0f4070;
+	--color-purple-800: #0c3359;
+	--color-purple-900: #00345a;
+	--color-purple-950: #061e33;
 }
 
 @layer base {
@@ -14,36 +36,36 @@
 		--font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 		--font-display: 'Outfit', 'Inter', sans-serif;
 		
-		/* Light Mode Tokens (Default Admin Theme) */
-		--bg-app: #f8fafc;
+		/* Light Mode Tokens (NBMS Admin Theme) */
+		--bg-app: #f4f8fb;
 		--bg-surface: #ffffff;
-		--bg-surface-hover: #f1f5f9;
+		--bg-surface-hover: #eaf3f9;
 		--bg-glass: #ffffff;
-		--border-color: #e2e8f0;
-		--border-color-strong: #cbd5e1;
-		--text-primary: #0f172a;
-		--text-secondary: #334155;
-		--text-muted: #64748b;
+		--border-color: #dbe7f1;
+		--border-color-strong: #bfd6e8;
+		--text-primary: #00223b;
+		--text-secondary: #1e415e;
+		--text-muted: #537694;
 		--text-inverse: #ffffff;
 
-		--color-rocket-primary: #7c3aed;
-		--color-rocket-primary-hover: #6d28d9;
-		--color-rocket-secondary: #0284c7;
-		--color-rocket-accent: #e11d48;
+		--color-brand-primary: #1f71c1;
+		--color-brand-primary-hover: #15528d;
+		--color-brand-secondary: #4899be;
+		--color-brand-accent: #61ce70;
 	}
 
 	html.dark {
-		/* Dark Mode Tokens */
-		--bg-app: #090d16;
-		--bg-surface: #0f172a;
-		--bg-surface-hover: #1e293b;
-		--bg-glass: rgba(15, 23, 42, 0.95);
-		--border-color: rgba(255, 255, 255, 0.12);
-		--border-color-strong: rgba(255, 255, 255, 0.2);
-		--text-primary: #f8fafc;
-		--text-secondary: #cbd5e1;
-		--text-muted: #94a3b8;
-		--text-inverse: #0f172a;
+		/* Dark Mode Tokens (NBMS Sleek Ocean Slate) */
+		--bg-app: #06101e;
+		--bg-surface: #0a192f;
+		--bg-surface-hover: #102644;
+		--bg-glass: rgba(10, 25, 47, 0.95);
+		--border-color: rgba(110, 193, 228, 0.16);
+		--border-color-strong: rgba(110, 193, 228, 0.28);
+		--text-primary: #f0f7fc;
+		--text-secondary: #c2daf0;
+		--text-muted: #7ca5cb;
+		--text-inverse: #00223b;
 	}
 
 	html {
@@ -76,40 +98,55 @@
 }
 .glass-panel-hover:hover {
 	background: var(--bg-surface-hover);
-	border-color: rgba(124, 58, 237, 0.35);
-	box-shadow: 0 8px 24px -4px rgba(124, 58, 237, 0.12);
+	border-color: rgba(31, 113, 193, 0.4);
+	box-shadow: 0 8px 24px -4px rgba(31, 113, 193, 0.18);
 }
 
-.rocket-gradient-text {
-	background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 40%, #0284c7 100%);
+.rocket-gradient-text, .nbms-gradient-text {
+	background: linear-gradient(135deg, #00345a 0%, #15528d 40%, #1f71c1 70%, #4899be 100%);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
-html.dark .rocket-gradient-text {
-	background: linear-gradient(135deg, #a78bfa 0%, #c084fc 40%, #38bdf8 100%);
+html.dark .rocket-gradient-text, html.dark .nbms-gradient-text {
+	background: linear-gradient(135deg, #6ec1e4 0%, #38bdf8 45%, #61ce70 100%);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
 
 .btn-primary {
-	background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+	background: linear-gradient(135deg, #1f71c1 0%, #15528d 100%);
 	color: #ffffff !important;
 	font-weight: 700;
 	padding: 0.5rem 1.25rem;
 	border-radius: 0.75rem;
-	box-shadow: 0 4px 14px 0 rgba(124, 58, 237, 0.3);
+	box-shadow: 0 4px 14px 0 rgba(31, 113, 193, 0.35);
 	transition: all 0.2s ease;
 }
 .btn-primary:hover {
-	background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
-	box-shadow: 0 6px 20px 0 rgba(124, 58, 237, 0.45);
+	background: linear-gradient(135deg, #15528d 0%, #00345a 100%);
+	box-shadow: 0 6px 20px 0 rgba(21, 82, 141, 0.45);
+	transform: translateY(-1px);
+}
+
+.btn-accent {
+	background: linear-gradient(135deg, #61ce70 0%, #3bb24c 100%);
+	color: #ffffff !important;
+	font-weight: 700;
+	padding: 0.5rem 1.25rem;
+	border-radius: 0.75rem;
+	box-shadow: 0 4px 14px 0 rgba(97, 206, 112, 0.35);
+	transition: all 0.2s ease;
+}
+.btn-accent:hover {
+	background: linear-gradient(135deg, #3bb24c 0%, #298d37 100%);
+	box-shadow: 0 6px 20px 0 rgba(59, 178, 76, 0.45);
 	transform: translateY(-1px);
 }
 
 .btn-secondary {
 	background: #ffffff;
-	color: #0f172a !important;
-	border: 1px solid #cbd5e1;
+	color: #00223b !important;
+	border: 1px solid #bfd6e8;
 	font-weight: 700;
 	padding: 0.5rem 1.25rem;
 	border-radius: 0.75rem;
@@ -117,22 +154,22 @@ html.dark .rocket-gradient-text {
 	transition: all 0.2s ease;
 }
 .btn-secondary:hover {
-	background: #f1f5f9;
-	border-color: #94a3b8;
-	color: #000000 !important;
+	background: #f0f7fc;
+	border-color: #7dc5ee;
+	color: #00345a !important;
 }
 html.dark .btn-secondary {
 	background: rgba(255, 255, 255, 0.08);
-	color: #f8fafc !important;
-	border: 1px solid rgba(255, 255, 255, 0.18);
+	color: #f0f7fc !important;
+	border: 1px solid rgba(110, 193, 228, 0.25);
 }
 html.dark .btn-secondary:hover {
-	background: rgba(255, 255, 255, 0.15);
-	border-color: rgba(255, 255, 255, 0.3);
+	background: rgba(110, 193, 228, 0.15);
+	border-color: rgba(110, 193, 228, 0.4);
 	color: #ffffff !important;
 }
 
-.badge-rocket {
+.badge-rocket, .badge-nbms {
 	padding: 0.25rem 0.65rem;
 	border-radius: 9999px;
 	font-size: 0.75rem;
@@ -149,34 +186,34 @@ html.dark .btn-secondary:hover {
 	height: 8px;
 }
 ::-webkit-scrollbar-track {
-	background: #f1f5f9;
+	background: #f0f7fc;
 }
 html.dark ::-webkit-scrollbar-track {
-	background: #090d16;
+	background: #06101e;
 }
 ::-webkit-scrollbar-thumb {
-	background: #cbd5e1;
+	background: #bfd6e8;
 	border-radius: 4px;
 }
 html.dark ::-webkit-scrollbar-thumb {
-	background: #1e293b;
+	background: #142f52;
 	border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-	background: #94a3b8;
+	background: #7dc5ee;
 }
 html.dark ::-webkit-scrollbar-thumb:hover {
-	background: #334155;
+	background: #1f71c1;
 }
 
 /* Custom Stylized Horizontal Kanban Scrollbar */
 .kanban-horizontal-scroll {
 	scrollbar-width: thin;
-	scrollbar-color: #7c3aed #f1f5f9;
+	scrollbar-color: #1f71c1 #f0f7fc;
 	scroll-behavior: smooth;
 }
 html.dark .kanban-horizontal-scroll {
-	scrollbar-color: #8b5cf6 rgba(15, 23, 42, 0.8);
+	scrollbar-color: #4899be rgba(10, 25, 47, 0.85);
 }
 
 .kanban-horizontal-scroll::-webkit-scrollbar {
@@ -184,46 +221,46 @@ html.dark .kanban-horizontal-scroll {
 }
 
 .kanban-horizontal-scroll::-webkit-scrollbar-track {
-	background: #e2e8f0;
+	background: #dbe7f1;
 	border-radius: 9999px;
 	margin-left: 0.5rem;
 	margin-right: 0.5rem;
-	border: 1px solid #cbd5e1;
+	border: 1px solid #bfd6e8;
 }
 html.dark .kanban-horizontal-scroll::-webkit-scrollbar-track {
-	background: rgba(15, 23, 42, 0.75);
-	border: 1px solid rgba(139, 92, 246, 0.2);
+	background: rgba(10, 25, 47, 0.8);
+	border: 1px solid rgba(72, 153, 190, 0.25);
 }
 
 .kanban-horizontal-scroll::-webkit-scrollbar-thumb {
-	background: linear-gradient(90deg, #7c3aed 0%, #4f46e5 50%, #0284c7 100%);
+	background: linear-gradient(90deg, #15528d 0%, #1f71c1 50%, #4899be 100%);
 	border-radius: 9999px;
 	border: 2px solid #ffffff;
-	box-shadow: 0 2px 6px rgba(124, 58, 237, 0.25);
+	box-shadow: 0 2px 6px rgba(31, 113, 193, 0.3);
 	transition: all 0.2s ease;
 }
 html.dark .kanban-horizontal-scroll::-webkit-scrollbar-thumb {
-	background: linear-gradient(90deg, #8b5cf6 0%, #6366f1 50%, #06b6d4 100%);
-	border: 2px solid rgba(15, 23, 42, 0.9);
-	box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+	background: linear-gradient(90deg, #1f71c1 0%, #4899be 50%, #61ce70 100%);
+	border: 2px solid rgba(10, 25, 47, 0.9);
+	box-shadow: 0 0 10px rgba(72, 153, 190, 0.4);
 }
 
 .kanban-horizontal-scroll::-webkit-scrollbar-thumb:hover {
-	background: linear-gradient(90deg, #6d28d9 0%, #4338ca 50%, #0369a1 100%);
+	background: linear-gradient(90deg, #00345a 0%, #15528d 50%, #1f71c1 100%);
 	cursor: pointer;
 }
 html.dark .kanban-horizontal-scroll::-webkit-scrollbar-thumb:hover {
-	background: linear-gradient(90deg, #a78bfa 0%, #818cf8 50%, #22d3ee 100%);
+	background: linear-gradient(90deg, #4899be 0%, #6ec1e4 50%, #61ce70 100%);
 }
 
 /* Custom Stylized Vertical Notes Scrollbar */
 .custom-notes-scrollbar {
 	scrollbar-width: thin;
-	scrollbar-color: #9333ea rgba(241, 245, 249, 0.5);
+	scrollbar-color: #1f71c1 rgba(240, 247, 252, 0.6);
 	scroll-behavior: smooth;
 }
 html.dark .custom-notes-scrollbar {
-	scrollbar-color: #a855f7 rgba(15, 23, 42, 0.6);
+	scrollbar-color: #4899be rgba(10, 25, 47, 0.6);
 }
 
 .custom-notes-scrollbar::-webkit-scrollbar {
@@ -231,28 +268,28 @@ html.dark .custom-notes-scrollbar {
 }
 
 .custom-notes-scrollbar::-webkit-scrollbar-track {
-	background: rgba(241, 245, 249, 0.6);
+	background: rgba(240, 247, 252, 0.6);
 	border-radius: 9999px;
 }
 html.dark .custom-notes-scrollbar::-webkit-scrollbar-track {
-	background: rgba(15, 23, 42, 0.5);
+	background: rgba(10, 25, 47, 0.5);
 	border-radius: 9999px;
 }
 
 .custom-notes-scrollbar::-webkit-scrollbar-thumb {
-	background: linear-gradient(180deg, #9333ea 0%, #7c3aed 100%);
+	background: linear-gradient(180deg, #1f71c1 0%, #15528d 100%);
 	border-radius: 9999px;
-	box-shadow: 0 1px 4px rgba(147, 51, 234, 0.3);
+	box-shadow: 0 1px 4px rgba(31, 113, 193, 0.35);
 }
 html.dark .custom-notes-scrollbar::-webkit-scrollbar-thumb {
-	background: linear-gradient(180deg, #a855f7 0%, #8b5cf6 100%);
+	background: linear-gradient(180deg, #4899be 0%, #1f71c1 100%);
 	border-radius: 9999px;
-	box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+	box-shadow: 0 0 8px rgba(72, 153, 190, 0.4);
 }
 
 .custom-notes-scrollbar::-webkit-scrollbar-thumb:hover {
-	background: linear-gradient(180deg, #7e22ce 0%, #6d28d9 100%);
+	background: linear-gradient(180deg, #15528d 0%, #00345a 100%);
 }
 html.dark .custom-notes-scrollbar::-webkit-scrollbar-thumb:hover {
-	background: linear-gradient(180deg, #c084fc 0%, #a78bfa 100%);
+	background: linear-gradient(180deg, #6ec1e4 0%, #4899be 100%);
 }

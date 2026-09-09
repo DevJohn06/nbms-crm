@@ -96,7 +96,7 @@ async function main() {
 			sql: `INSERT OR REPLACE INTO intake_cms (id, title, subtitle, content_json, updated_at) VALUES (?, ?, ?, ?, ?)`,
 			args: [
 				'how_it_works',
-				'Payjeezy Pin Debit Cashless ATM Terminals',
+				'NBMS Pin Debit Cashless ATM Terminals',
 				'State-of-the-art EMV & PCI compliant payment terminals engineered for countertop checkout, home delivery, and zero merchant fees.',
 				JSON.stringify({
 					features: [
@@ -148,11 +148,11 @@ async function main() {
 			sql: `INSERT OR REPLACE INTO intake_cms (id, title, subtitle, content_json, updated_at) VALUES (?, ?, ?, ?, ?)`,
 			args: [
 				'about',
-				'Why Process With Payjeezy?',
+				'Why Process With NBMS?',
 				'Transparent interchange-plus rates, instant settlements, and dedicated 24/7 support.',
 				JSON.stringify({
 					description:
-						'Payjeezy provides industry-leading payment processing infrastructure for thousands of retail, ecommerce, and mobile merchants nationwide.',
+						'NBMS provides industry-leading payment processing infrastructure for thousands of retail, ecommerce, and mobile merchants nationwide.',
 					features: [
 						{
 							title: 'Interchange-Plus Pricing',
@@ -181,8 +181,8 @@ async function main() {
 				'Merchant Support & Assistance',
 				'Our dedicated account management team is here to assist you.',
 				JSON.stringify({
-					email: 'support@payjeezy.com',
-					phone: '+1 (800) 555-PAYJ',
+					email: 'sales@nbmsinc.com',
+					phone: '(877) 817-2257',
 					hours: 'Mon - Fri: 8:00 AM - 8:00 PM EST',
 					helpNotice: 'Questions about processing rates or equipment? Contact your onboarding specialist directly.'
 				}),

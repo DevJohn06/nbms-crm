@@ -10,9 +10,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 		'';
 
 	const isDispensarySubdomain =
-		host.startsWith('dispensary.') || host.includes('dispensary.payjeezy.com');
+		host.startsWith('dispensary.') ||
+		host.includes('dispensary.nbmsinc.com');
 
-	// Domain Redirect: If accessing /funnel from crm.payjeezy.com or main domain, redirect to https://dispensary.payjeezy.com/funnel
+	// Domain Redirect: If accessing /funnel from crm domain or main domain, redirect to https://dispensary.nbmsinc.com/funnel
 	if (
 		!isDispensarySubdomain &&
 		event.url.pathname.startsWith('/funnel') &&
@@ -20,7 +21,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 		!host.includes('127.0.0.1')
 	) {
 		const subpath = event.url.pathname.replace(/^\/funnel/, '');
-		const redirectTarget = `https://dispensary.payjeezy.com${subpath || '/funnel'}`;
+		const targetDomain = 'dispensary.nbmsinc.com';
+		const redirectTarget = `https://${targetDomain}${subpath || '/funnel'}`;
 		throw redirect(307, redirectTarget);
 	}
 

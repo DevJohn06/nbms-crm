@@ -10,7 +10,7 @@ export function getR2Config() {
 	const accountId = env.CLOUDFLARE_ACCOUNT_ID || env.R2_ACCOUNT_ID || process.env.CLOUDFLARE_ACCOUNT_ID || process.env.R2_ACCOUNT_ID || '';
 	const accessKeyId = env.CLOUDFLARE_R2_ACCESS_KEY_ID || env.R2_ACCESS_KEY_ID || process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID || '';
 	const secretAccessKey = env.CLOUDFLARE_R2_SECRET_ACCESS_KEY || env.R2_SECRET_ACCESS_KEY || process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY || process.env.R2_SECRET_ACCESS_KEY || '';
-	const bucketName = env.CLOUDFLARE_R2_BUCKET_NAME || env.R2_BUCKET_NAME || process.env.CLOUDFLARE_R2_BUCKET_NAME || process.env.R2_BUCKET_NAME || 'payjeezy-crm';
+	const bucketName = env.CLOUDFLARE_R2_BUCKET_NAME || env.R2_BUCKET_NAME || process.env.CLOUDFLARE_R2_BUCKET_NAME || process.env.R2_BUCKET_NAME || 'nbms-crm';
 	const publicDomain = env.CLOUDFLARE_R2_PUBLIC_URL || env.R2_PUBLIC_URL || process.env.CLOUDFLARE_R2_PUBLIC_URL || process.env.R2_PUBLIC_URL || '';
 
 	return { accountId, accessKeyId, secretAccessKey, bucketName, publicDomain };
@@ -127,7 +127,7 @@ export async function backupDatabaseToR2(databasePath?: string) {
 	const dateFolder = new Date().toISOString().split('T')[0];
 
 	// 1. Save timestamped backup snapshot
-	const snapshotKey = `db-backups/${dateFolder}/payjeezy-db-${timestamp}.db`;
+	const snapshotKey = `db-backups/${dateFolder}/nbms-db-${timestamp}.db`;
 	const snapshotResult = await uploadToR2({
 		key: snapshotKey,
 		body: dbBuffer,

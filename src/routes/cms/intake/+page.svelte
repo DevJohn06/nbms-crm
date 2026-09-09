@@ -31,8 +31,8 @@
 	type SectionId = 'hero' | 'about' | 'how_it_works' | 'process_flow' | 'contact' | 'faqs' | 'footer';
 
 	const sectionMeta: Record<SectionId, { name: string; icon: any; colorClass: string }> = {
-		hero: { name: 'Hero Section', icon: Sparkles, colorClass: 'text-purple-600 dark:text-purple-400' },
-		process_flow: { name: 'How Payjeezy Works & Key Points', icon: CheckCircle2, colorClass: 'text-emerald-600 dark:text-emerald-400' },
+		hero: { name: 'Hero Section', icon: Sparkles, colorClass: 'text-[#1f71c1] dark:text-sky-400' },
+		process_flow: { name: 'How NBMS Works & Key Points', icon: CheckCircle2, colorClass: 'text-emerald-600 dark:text-emerald-400' },
 		how_it_works: { name: 'Product Showcase & Services', icon: Layers, colorClass: 'text-amber-600 dark:text-amber-400' },
 		about: { name: 'About Section', icon: Info, colorClass: 'text-cyan-600 dark:text-cyan-400' },
 		contact: { name: 'Contact & Support', icon: Phone, colorClass: 'text-purple-600 dark:text-purple-400' },
@@ -223,7 +223,7 @@
 	let faqsHideSection = $state(false);
 
 	let footerCtaBanner = $state({
-		title: 'Ready to Get Started with Payjeezy?',
+		title: 'Ready to Get Started with NBMS?',
 		subtitle: 'Start processing cashless Pin Debit payments with zero merchant fees and daily direct bank deposits.',
 		primaryCta: 'Get Info',
 		secondaryCta: 'Book A Call'
@@ -273,7 +273,7 @@
 
 				const hw = data.sections.how_it_works;
 				if (hw) {
-					howTitle = hw.title || 'Payjeezy Pin Debit Cashless ATM Terminals';
+					howTitle = hw.title || 'NBMS Pin Debit Cashless ATM Terminals';
 					howSubtitle = hw.subtitle || '';
 					if (hw.content?.features && Array.isArray(hw.content.features) && hw.content.features.length > 0) {
 						howFeatures = hw.content.features;
@@ -344,13 +344,13 @@
 				if (ft) {
 					if (ft.content?.ctaBanner) {
 						footerCtaBanner = {
-							title: ft.content.ctaBanner.title || 'Ready to Get Started with Payjeezy?',
+							title: ft.content.ctaBanner.title || 'Ready to Get Started with NBMS?',
 							subtitle: ft.content.ctaBanner.subtitle || 'Start processing cashless Pin Debit payments with zero merchant fees and daily direct bank deposits.',
 							primaryCta: ft.content.ctaBanner.primaryCta || 'Get Info',
 							secondaryCta: ft.content.ctaBanner.secondaryCta || 'Book A Call'
 						};
 					}
-					footerCopyright = ft.content?.copyright || '© 2026 Payjeezy LLC. All rights reserved.';
+					footerCopyright = ft.content?.copyright || '© 2026 NBMS INC. All rights reserved.';
 					footerHideCtaBanner = !!ft.content?.hideCtaBanner;
 					footerHideSection = !!ft.content?.hideSection;
 				}
@@ -473,7 +473,7 @@
 </script>
 
 <svelte:head>
-	<title>Intake Page CMS - Payjeezy CRM</title>
+	<title>Intake Page CMS - NBMS CRM</title>
 </svelte:head>
 
 <div class="space-y-6 max-w-7xl mx-auto pb-12">
@@ -1156,7 +1156,7 @@
 										{/if}
 									</button>
 								</div>
-								<input id="contact-email" type="email" bind:value={contactEmail} placeholder="support@payjeezy.com" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 font-bold {contactHideEmail ? 'opacity-50' : ''}" />
+								<input id="contact-email" type="email" bind:value={contactEmail} placeholder="sales@nbmsinc.com" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 font-bold {contactHideEmail ? 'opacity-50' : ''}" />
 							</div>
 
 							<div class="space-y-1">
@@ -1354,7 +1354,7 @@
 					<div class="space-y-4 text-xs">
 						<div class="space-y-3">
 							<div class="flex items-center justify-between">
-								<h4 class="font-black text-sm text-slate-900 dark:text-slate-100">"Ready to Get Started with Payjeezy?" Footer Banner</h4>
+								<h4 class="font-black text-sm text-slate-900 dark:text-slate-100">"Ready to Get Started with NBMS?" Footer Banner</h4>
 								<button
 									type="button"
 									onclick={() => (footerHideCtaBanner = !footerHideCtaBanner)}
@@ -1381,7 +1381,7 @@
 
 						<div class="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
 							<label for="footer-copyright" class="font-bold text-slate-800 dark:text-slate-300 block mb-1">Footer Copyright Line</label>
-							<input id="footer-copyright" type="text" bind:value={footerCopyright} placeholder="© 2026 Payjeezy LLC. All rights reserved." class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 font-bold" />
+							<input id="footer-copyright" type="text" bind:value={footerCopyright} placeholder="© 2026 NBMS INC. All rights reserved." class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 font-bold" />
 						</div>
 					</div>
 				</form>

@@ -149,7 +149,7 @@
 		},
 		{
 			question: 'Why Choose a Cashless ATM?',
-			answer: 'Payjeezy created a payment processing solution that would allow high risk types of establishments to accept card payments, simplify the checkout experience for customers, and provide greater security by reducing the large amounts of cash being held and handled on location by these merchants.'
+			answer: 'NBMS created a payment processing solution that would allow high risk types of establishments to accept card payments, simplify the checkout experience for customers, and provide greater security by reducing the large amounts of cash being held and handled on location by these merchants.'
 		},
 		{
 			question: 'Tired of submitting applications and not getting approved?',
@@ -165,7 +165,7 @@
 		},
 		{
 			question: 'Who do I contact for support?',
-			answer: 'We not only provide support from our US based support teams, but we always recommend contacting your Payjeezy Agent first. We constantly focus on building longstanding partnerships with each one of our Merchants plus we know more about your account than anyone else. Always contact your Agent first and they’ll take care of you. Plus, each terminal is backed with a one year manufacturer’s warranty, so if they break we will replace them.'
+			answer: 'We not only provide support from our US based support teams, but we always recommend contacting your NBMS Agent first. We constantly focus on building longstanding partnerships with each one of our Merchants plus we know more about your account than anyone else. Always contact your Agent first and they’ll take care of you. Plus, each terminal is backed with a one year manufacturer’s warranty, so if they break we will replace them.'
 		},
 		{
 			question: 'How am I able to accept card purchases with this solution?',
@@ -234,16 +234,16 @@
 </script>
 
 <svelte:head>
-	<title>{heroCms?.title || 'ATM Payment Processing Solutions | Payjeezy'}</title>
+	<title>{heroCms?.title || 'ATM Payment Processing Solutions | NBMS'}</title>
 </svelte:head>
 
 <div class="min-h-screen font-sans selection:bg-[#FFCC00] selection:text-black bg-[#F8FAFC] text-slate-900">
 	<!-- Top Navigation Header -->
 	<header class="sticky top-0 z-40 transition-colors duration-300 backdrop-blur-md bg-white/95 border-b border-slate-200/90 shadow-sm">
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
-			<!-- Logo Branding: PAYJEEZY -->
+			<!-- Logo Branding: NBMS -->
 			<a href="/funnel" class="flex items-center gap-3">
-				<img src="/images/payjeezy_logo.png" alt="PAYJEEZY - ITS EASY WITH PAYJEEZY" class="h-10 sm:h-12 w-auto object-contain" />
+				<img src="/images/nbms_logo.png" alt="NBMS - National Business Merchant Solutions" class="h-10 sm:h-12 w-auto object-contain" />
 			</a>
 
 			<!-- Header Navigation Links & Actions -->
@@ -428,7 +428,7 @@
 						{:else if form.actionType === 'bookCall'}
 							Call Booked for {form.clientName}!
 						{:else}
-							Welcome to Payjeezy, {form.businessName}!
+							Welcome to NBMS, {form.businessName}!
 						{/if}
 					</h1>
 					<p class="text-sm max-w-xl mx-auto text-slate-700 font-medium">
@@ -463,12 +463,12 @@
 			<!-- DYNAMICALLY ORDERED CMS SECTIONS -->
 			{#each sectionOrder as secId}
 				{#if secId === 'how_it_works' && !productCms?.content?.hideSection}
-					<!-- SECTION: PRODUCT SHOWCASE – PAYJEEZY PIN DEBIT CASHLESS ATM -->
+					<!-- SECTION: PRODUCT SHOWCASE – NBMS PIN DEBIT CASHLESS ATM -->
 					<section id="how_it_works" class="space-y-8 pt-6 border-t border-slate-200 w-full scroll-mt-20">
 						<div class="text-center space-y-3 w-full">
 							{#if !productCms?.content?.hideTitle}
 								<h2 class="text-3xl sm:text-4xl font-black font-display text-slate-950">
-									{productCms?.title || 'Payjeezy Pin Debit Cashless ATM'}
+									{productCms?.title || 'NBMS Pin Debit Cashless ATM'}
 								</h2>
 							{/if}
 							{#if !productCms?.content?.hideSubtitle}
@@ -593,7 +593,7 @@
 										<span>Key Advantages</span>
 									</div>
 									<h3 class="text-2xl sm:text-3xl font-serif text-slate-900 font-normal">
-										Why Cash-Only Businesses Choose Payjeezy
+										Why Cash-Only Businesses Choose NBMS
 									</h3>
 								</div>
 								<div class="text-left sm:text-right">
@@ -909,7 +909,7 @@
 					<section id="footer-cta" class="w-full my-8 scroll-mt-20 space-y-6">
 						{#if !footerCms?.content?.hideCtaBanner}
 							<div class="pt-6 p-8 rounded-3xl border text-center space-y-4 w-full bg-gradient-to-r from-yellow-50/80 via-white to-yellow-50/80 border-yellow-300 shadow-md text-slate-900">
-								<h3 class="font-black text-xl sm:text-2xl text-slate-950">{footerCms?.content?.ctaBanner?.title || 'Ready to Get Started with Payjeezy?'}</h3>
+								<h3 class="font-black text-xl sm:text-2xl text-slate-950">{footerCms?.content?.ctaBanner?.title || 'Ready to Get Started with NBMS?'}</h3>
 								<p class="text-sm font-semibold max-w-2xl mx-auto text-slate-700">
 									{footerCms?.content?.ctaBanner?.subtitle || 'Start processing cashless Pin Debit payments with zero merchant fees and daily direct bank deposits.'}
 								</p>
@@ -937,8 +937,8 @@
 
 						<footer class="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium pb-8">
 							<div class="flex items-center gap-3">
-								<img src="/images/payjeezy_logo.png" alt="Payjeezy Logo" class="h-8 w-auto object-contain" />
-								<span>{footerCms?.content?.copyright || '© 2026 Payjeezy LLC. All rights reserved.'}</span>
+								<img src="/images/nbms_logo.png" alt="NBMS Logo" class="h-8 w-auto object-contain" />
+								<span>{footerCms?.content?.copyright || '© 2026 NBMS INC. All rights reserved.'}</span>
 							</div>
 							<div class="flex items-center gap-6">
 								<a href="#top" onclick={(e) => scrollToSection(e, 'top')} class="hover:text-[#CA8A04] transition-colors">Home</a>
@@ -1042,7 +1042,7 @@
 					</div>
 					<div>
 						<h3 class="font-extrabold text-lg sm:text-xl text-slate-950">Book A Strategy Session</h3>
-						<p class="text-xs font-medium text-slate-600">Powered by Calendly & Payjeezy CRM Scheduling.</p>
+						<p class="text-xs font-medium text-slate-600">Powered by Calendly & NBMS CRM Scheduling.</p>
 					</div>
 				</div>
 				<button onclick={() => (isBookCallOpen = false)} class="p-1 rounded-lg cursor-pointer text-slate-500 hover:text-slate-900">

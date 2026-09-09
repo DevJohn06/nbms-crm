@@ -1,4 +1,5 @@
 import { fail, type Actions } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
 import { db } from '$lib/server/db';
 import { contracts, bookedCalls } from '$lib/server/db/schema';
 import { getIntakeCmsSections } from '$lib/server/cms';
@@ -48,22 +49,23 @@ export const actions: Actions = {
 			const leadId = leadRes.id;
 
 			// 2. Send instant automated confirmation email citing receipt & promised follow-up
-			const emailSubject = `We've received your request – Payjeezy Merchant Services`;
+			const emailSubject = `We've received your request – NBMS Merchant Services`;
 			const clientName = representativeName || businessName;
+			const fromEmail = env.RESEND_FROM_EMAIL || 'sales@nbmsinc.com';
 			const emailBody = `
 				<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; background: #ffffff;">
-					<div style="text-align: center; padding-bottom: 20px; border-b: 2px solid #8b5cf6;">
-						<h2 style="color: #6d28d9; margin: 0;">Payjeezy Merchant Services</h2>
+					<div style="text-align: center; padding-bottom: 20px; border-bottom: 2px solid #1f71c1;">
+						<h2 style="color: #1f71c1; margin: 0;">NBMS Merchant Services</h2>
 						<p style="font-size: 12px; color: #64748b; margin-top: 4px;">Next-Day Settlement & Transparent Interchange Processing</p>
 					</div>
 
 					<div style="padding: 20px 0;">
 						<h3 style="color: #0f172a; margin-top: 0;">Inquiry Received!</h3>
 						<p>Hi <strong>${clientName}</strong>,</p>
-						<p>Thank you for reaching out to Payjeezy! We have successfully received your information request for <strong>${businessName}</strong>.</p>
+						<p>Thank you for reaching out to NBMS! We have successfully received your information request for <strong>${businessName}</strong>.</p>
 						<p>Our dedicated onboarding specialist is currently reviewing your merchant profile and will reach out to you directly at <strong>${phone}</strong> or <strong>${email}</strong> within 1 business hour to provide your customized processing rate quote.</p>
 
-						<div style="background-color: #f8fafc; border-left: 4px solid #8b5cf6; padding: 12px 16px; margin: 20px 0; border-radius: 4px;">
+						<div style="background-color: #f8fafc; border-left: 4px solid #1f71c1; padding: 12px 16px; margin: 20px 0; border-radius: 4px;">
 							<p style="margin: 0; font-size: 13px; font-weight: bold; color: #334155;">Inquiry Summary:</p>
 							<ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 13px; color: #475569;">
 								<li><strong>Business Name:</strong> ${businessName}</li>
@@ -72,18 +74,18 @@ export const actions: Actions = {
 							</ul>
 						</div>
 
-						<p style="font-size: 13px; color: #475569;">Need immediate assistance? Reply directly to this email or call our priority onboarding desk at +1 (800) 555-PAYJ.</p>
+						<p style="font-size: 13px; color: #475569;">Need immediate assistance? Reply directly to this email or call our priority onboarding desk at (877) 817-2257.</p>
 					</div>
 
-					<div style="text-align: center; border-t: 1px solid #e2e8f0; pt: 16px; font-size: 11px; color: #94a3b8;">
-						Payjeezy CRM & Merchant Solutions © 2026. All rights reserved.
+					<div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 11px; color: #94a3b8;">
+						NBMS CRM & Merchant Solutions © 2026. All rights reserved.
 					</div>
 				</div>
 			`;
 
 			await sendEmailToLead({
 				leadId,
-				sender: 'info@payjeezy.com',
+				sender: fromEmail,
 				subject: emailSubject,
 				bodyHtml: emailBody,
 				newStatusOnSend: 'NEW'
@@ -163,28 +165,29 @@ export const actions: Actions = {
 				});
 
 			// 3. Send confirmation email
-			const emailSubject = `Call Confirmed: ${meetingType} with Payjeezy Specialist`;
+			const emailSubject = `Call Confirmed: ${meetingType} with NBMS Specialist`;
+			const fromEmail = env.RESEND_FROM_EMAIL || 'sales@nbmsinc.com';
 			const connectionInstruction = callPreference === 'Zoom Call'
 				? `A video conference link will be sent to <strong>${clientEmail}</strong> prior to the meeting.`
 				: `Our consultant will call you directly at <strong>${clientPhone || clientEmail}</strong> at the scheduled time.`;
 
 			const emailBody = `
 				<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; background: #ffffff;">
-					<div style="text-align: center; padding-bottom: 20px; border-bottom: 2px solid #0891b2;">
-						<h2 style="color: #0891b2; margin: 0;">Payjeezy Strategy Session Confirmed</h2>
+					<div style="text-align: center; padding-bottom: 20px; border-bottom: 2px solid #1f71c1;">
+						<h2 style="color: #1f71c1; margin: 0;">NBMS Strategy Session Confirmed</h2>
 						<p style="font-size: 12px; color: #64748b; margin-top: 4px;">Merchant Consulting & Interchange Optimization</p>
 					</div>
 					<div style="padding: 20px 0;">
 						<p>Hi <strong>${clientName}</strong>,</p>
-						<p>Thank you for scheduling a strategy session with Payjeezy! Your appointment details are outlined below:</p>
+						<p>Thank you for scheduling a strategy session with NBMS! Your appointment details are outlined below:</p>
 
-						<div style="background-color: #ecfeff; border: 1px solid #cff4fc; padding: 16px; border-radius: 8px; margin: 16px 0;">
-							<p style="margin: 0; font-size: 14px; font-weight: bold; color: #0891b2;">📅 Session Details:</p>
+						<div style="background-color: #f0f7fc; border: 1px solid #dbe7f1; padding: 16px; border-radius: 8px; margin: 16px 0;">
+							<p style="margin: 0; font-size: 14px; font-weight: bold; color: #1f71c1;">📅 Session Details:</p>
 							<table style="width: 100%; font-size: 13px; color: #334155; border-collapse: collapse; margin-top: 8px;">
 								<tr><td style="padding: 4px 0; font-weight: bold; width: 120px;">Topic:</td><td>${meetingType}</td></tr>
 								<tr><td style="padding: 4px 0; font-weight: bold;">Format:</td><td>${callPreference}</td></tr>
 								<tr><td style="padding: 4px 0; font-weight: bold;">Date & Time:</td><td><strong>${new Date(callDate).toLocaleString()}</strong> (${timezone})</td></tr>
-								<tr><td style="padding: 4px 0; font-weight: bold;">Host:</td><td>Senior Merchant Consultant (Payjeezy)</td></tr>
+								<tr><td style="padding: 4px 0; font-weight: bold;">Host:</td><td>Senior Merchant Consultant (NBMS)</td></tr>
 							</table>
 						</div>
 
@@ -203,33 +206,33 @@ export const actions: Actions = {
 					</div>
 
 					<div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 11px; color: #94a3b8;">
-						Payjeezy CRM & Merchant Solutions © 2026. All rights reserved.
+						NBMS CRM & Merchant Solutions © 2026. All rights reserved.
 					</div>
 				</div>
 			`;
 
 			await sendEmailToLead({
 				leadId,
-				sender: 'info@payjeezy.com',
+				sender: fromEmail,
 				subject: emailSubject,
 				bodyHtml: emailBody,
 				newStatusOnSend: 'CONTACTED'
 			});
 
-			// 4. Send booking details alert to info@payjeezy.com
+			// 4. Send booking details alert to admin
 			const adminEmailSubject = `🎯 Strategy Session Booked: ${clientName} (${businessName || 'Merchant'})`;
 			const adminEmailBody = `
 				<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; background: #ffffff;">
-					<div style="text-align: center; padding-bottom: 20px; border-bottom: 2px solid #eab308;">
-						<h2 style="color: #ca8a04; margin: 0;">New Strategy Call Scheduled</h2>
-						<p style="font-size: 13px; color: #64748b; margin-top: 4px;">Payjeezy CRM Booking Notification</p>
+					<div style="text-align: center; padding-bottom: 20px; border-bottom: 2px solid #1f71c1;">
+						<h2 style="color: #1f71c1; margin: 0;">New Strategy Call Scheduled</h2>
+						<p style="font-size: 13px; color: #64748b; margin-top: 4px;">NBMS CRM Booking Notification</p>
 					</div>
 
 					<div style="padding: 20px 0;">
 						<p>A merchant has scheduled a strategy session via the website booking modal.</p>
 
-						<div style="background-color: #fefce8; border: 1px solid #fef08a; padding: 16px; border-radius: 8px; margin: 16px 0;">
-							<h3 style="margin-top: 0; color: #854d0e; font-size: 15px;">📅 Booking Details</h3>
+						<div style="background-color: #f0f7fc; border: 1px solid #dbe7f1; padding: 16px; border-radius: 8px; margin: 16px 0;">
+							<h3 style="margin-top: 0; color: #15528d; font-size: 15px;">📅 Booking Details</h3>
 							<table style="width: 100%; font-size: 13px; color: #334155; border-collapse: collapse;">
 								<tr><td style="padding: 6px 0; font-weight: bold; width: 140px;">Client Name:</td><td>${clientName}</td></tr>
 								<tr><td style="padding: 6px 0; font-weight: bold;">Business Name:</td><td>${businessName || 'N/A'}</td></tr>
@@ -246,14 +249,15 @@ export const actions: Actions = {
 					</div>
 
 					<div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 11px; color: #94a3b8;">
-						Payjeezy CRM & Merchant Solutions © 2026.
+						NBMS CRM & Merchant Solutions © 2026.
 					</div>
 				</div>
 			`;
 
+			const notificationTarget = env.NOTIFICATION_EMAIL || fromEmail;
 			await sendDirectEmail({
-				to: 'info@payjeezy.com',
-				sender: 'info@payjeezy.com',
+				to: notificationTarget,
+				sender: fromEmail,
 				subject: adminEmailSubject,
 				bodyHtml: adminEmailBody
 			});
@@ -314,7 +318,7 @@ export const actions: Actions = {
 				clientEmail: email,
 				servicePackage: selectedPackage,
 				monthlyFee,
-				contractTerms: 'Standard Payjeezy 12-Month Merchant Processing Service Agreement.',
+				contractTerms: 'Standard NBMS 12-Month Merchant Processing Service Agreement.',
 				signatureData: signatureData || null,
 				status: signatureData ? 'SIGNED' : 'PENDING_SIGNATURE',
 				createdAt: now,

@@ -166,12 +166,12 @@
 
 				<div class="space-y-1.5">
 					<label for="subject" class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Subject Line *</label>
-					<input id="subject" name="subject" required bind:value={tmplSubject} placeholder="Exclusive Partnership Opportunity with Payjeezy" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600 focus:outline-none" />
+					<input id="subject" name="subject" required bind:value={tmplSubject} placeholder="Exclusive Partnership Opportunity with NBMS" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-[#1f71c1] focus:outline-none" />
 				</div>
 
 				<div class="space-y-1.5">
 					<label for="triggerStage" class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Automatic Trigger Stage (Optional)</label>
-					<select id="triggerStage" name="triggerStage" bind:value={tmplTrigger} class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600 focus:outline-none">
+					<select id="triggerStage" name="triggerStage" bind:value={tmplTrigger} class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-[#1f71c1] focus:outline-none">
 						<option value="">None (Manual Send)</option>
 						<option value="NEW">Stage 1: NEW</option>
 						<option value="EMAILED">Stage 2: EMAILED</option>
@@ -181,7 +181,7 @@
 
 				<div class="space-y-1.5">
 					<label for="bodyHtml" class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Email Body HTML *</label>
-					<textarea id="bodyHtml" name="bodyHtml" rows="6" required bind:value={tmplBody} placeholder="<p>Hi Merchant,</p><p>Welcome to Payjeezy!</p>" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-3 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600 focus:outline-none font-mono"></textarea>
+					<textarea id="bodyHtml" name="bodyHtml" rows="6" required bind:value={tmplBody} placeholder="<p>Hi Merchant,</p><p>Welcome to NBMS!</p>" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-3 text-xs text-slate-900 dark:text-slate-100 focus:border-[#1f71c1] focus:outline-none font-mono"></textarea>
 				</div>
 
 				<div class="flex items-center justify-end gap-3 pt-2">

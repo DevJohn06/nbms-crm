@@ -82,7 +82,7 @@ export async function getIntakeCmsSections(): Promise<{
 		},
 		how_it_works: {
 			id: 'how_it_works',
-			title: 'Payjeezy Pin Debit Cashless ATM Terminals',
+			title: 'NBMS Pin Debit Cashless ATM Terminals',
 			subtitle: 'State-of-the-art EMV & PCI compliant payment terminals engineered for countertop checkout, home delivery, and zero merchant fees.',
 			content: {
 				hideSection: false,
@@ -158,8 +158,8 @@ export async function getIntakeCmsSections(): Promise<{
 			subtitle: 'Our dedicated account management team is here to answer all your processing questions.',
 			content: {
 				hideSection: false,
-				email: 'support@payjeezy.com',
-				phone: '+1 (800) 555-PAYJ',
+				email: 'sales@nbmsinc.com',
+				phone: '(877) 817-2257',
 				hours: 'Mon - Sun: 24/7 Priority Desk',
 				helpNotice: 'Ready to get started or compare your current rates? Reach out to our underwriting team today.'
 			},
@@ -178,7 +178,7 @@ export async function getIntakeCmsSections(): Promise<{
 					},
 					{
 						question: 'Why Choose a Cashless ATM?',
-						answer: 'Payjeezy created a payment processing solution that would allow high risk types of establishments to accept card payments, simplify the checkout experience for customers, and provide greater security by reducing the large amounts of cash being held and handled on location by these merchants.'
+						answer: 'NBMS created a payment processing solution that would allow high risk types of establishments to accept card payments, simplify the checkout experience for customers, and provide greater security by reducing the large amounts of cash being held and handled on location by these merchants.'
 					},
 					{
 						question: 'Tired of submitting applications and not getting approved?',
@@ -194,7 +194,7 @@ export async function getIntakeCmsSections(): Promise<{
 					},
 					{
 						question: 'Who do I contact for support?',
-						answer: 'We not only provide support from our US based support teams, but we always recommend contacting your Payjeezy Agent first. We constantly focus on building longstanding partnerships with each one of our Merchants plus we know more about your account than anyone else. Always contact your Agent first and they’ll take care of you. Plus, each terminal is backed with a one year manufacturer’s warranty, so if they break we will replace them.'
+						answer: 'We not only provide support from our US based support teams, but we always recommend contacting your NBMS Agent first. We constantly focus on building longstanding partnerships with each one of our Merchants plus we know more about your account than anyone else. Always contact your Agent first and they’ll take care of you. Plus, each terminal is backed with a one year manufacturer’s warranty, so if they break we will replace them.'
 					},
 					{
 						question: 'How am I able to accept card purchases with this solution?',
@@ -214,12 +214,12 @@ export async function getIntakeCmsSections(): Promise<{
 			subtitle: 'Footer call to action banner and footer links.',
 			content: {
 				ctaBanner: {
-					title: 'Ready to Get Started with Payjeezy?',
+					title: 'Ready to Get Started with NBMS?',
 					subtitle: 'Start processing cashless Pin Debit payments with zero merchant fees and daily direct bank deposits.',
 					primaryCta: 'Get Info',
 					secondaryCta: 'Book A Call'
 				},
-				copyright: '© 2026 Payjeezy LLC. All rights reserved.'
+				copyright: '© 2026 NBMS INC. All rights reserved.'
 			},
 			updatedAt: new Date().toISOString()
 		}
@@ -249,7 +249,7 @@ export async function getIntakeCmsSections(): Promise<{
 		}
 
 		try {
-			if (rec.id === 'hero' && rec.title.includes('Complete Your Payjeezy Merchant Setup')) {
+			if (rec.id === 'hero' && rec.title.toLowerCase().includes('merchant setup')) {
 				rec.title = 'ATM Payment Processing Solutions';
 			}
 

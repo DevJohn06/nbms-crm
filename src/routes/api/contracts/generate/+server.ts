@@ -17,7 +17,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				clientEmail: body.clientEmail || body.email || '',
 				servicePackage: body.servicePackage,
 				monthlyFee: body.monthlyFee || '$199 / month',
-				contractTerms: body.contractTerms || 'Standard Payjeezy 12-Month Merchant Processing Agreement.',
+				contractTerms: body.contractTerms || 'Standard NBMS 12-Month Merchant Processing Agreement.',
 				signatureData: body.signatureData
 			});
 		}

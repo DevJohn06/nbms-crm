@@ -223,35 +223,35 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 	bankAccountNumber = bankAccountNumber || leadCustomFields.bankAccountNumber || '••••••••9876';
 
 	const [existingContract] = await db.select().from(contracts).where(eq(contracts.leadId, leadId));
-	const contractId = existingContract?.id || `PAY-CON-${Math.floor(100000 + Math.random() * 900000)}`;
+	const contractId = existingContract?.id || `NBMS-CON-${Math.floor(100000 + Math.random() * 900000)}`;
 
 	const pdfDoc = await PDFDocument.create();
 	const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 	const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
 	const fontOblique = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
 
-	// Deep Navy Blue Brand Color Palette
-	const brandNavy = rgb(15 / 255, 39 / 255, 68 / 255); // #0F2744 Deep Corporate Navy Blue
-	const brandNavyAccent = rgb(27 / 255, 67 / 255, 125 / 255); // #1B437D Rich Navy Blue
-	const brandMidnight = rgb(10 / 255, 25 / 255, 47 / 255); // #0A192F Deepest Midnight Navy
-	const brandCyan = rgb(2 / 255, 132 / 255, 199 / 255); // #0284C7 Accent Cyan
+	// Deep Navy Blue Brand Color Palette (NBMS Official)
+	const brandNavy = rgb(0 / 255, 52 / 255, 90 / 255); // #00345A Deep NBMS Base Navy
+	const brandNavyAccent = rgb(31 / 255, 113 / 255, 193 / 255); // #1F71C1 Primary NBMS Blue
+	const brandMidnight = rgb(6 / 255, 16 / 255, 30 / 255); // #06101E Deepest Navy Slate
+	const brandCyan = rgb(72 / 255, 153 / 255, 190 / 255); // #4899BE NBMS Sky/Cyan Accent
 	const brandText = rgb(30 / 255, 41 / 255, 59 / 255); // #1E293B Crisp Dark Slate Body
 	const grayText = rgb(100 / 255, 116 / 255, 139 / 255); // #64748B Muted Slate
-	const lightBg = rgb(248 / 255, 250 / 255, 252 / 255); // #F8FAFC Soft Cool Slate Fill
+	const lightBg = rgb(244 / 255, 248 / 255, 251 / 255); // #F4F8FB Soft Cool NBMS Slate Fill
 	const cardBg = rgb(241 / 255, 245 / 255, 249 / 255); // #F1F5F9 Slate Card Fill
 	const borderSlate = rgb(203 / 255, 213 / 255, 225 / 255); // #CBD5E1 Clean Border
 	const pillBg = rgb(226 / 255, 232 / 255, 240 / 255); // #E2E8F0 Subtle Navy-Slate Pill Fill
 	const white = rgb(1, 1, 1);
-	const successGreen = rgb(16 / 255, 185 / 255, 129 / 255); // #10B981 Emerald
+	const successGreen = rgb(97 / 255, 206 / 255, 112 / 255); // #61CE70 NBMS Accent Green
 
-	// Load Payjeezy PNG Logo
+	// Load NBMS PNG Logo
 	let embeddedLogo: any = null;
 	try {
-		const logoPath = path.join(process.cwd(), 'static', 'images', 'payjeezy_logo.png');
+		const logoPath = path.join(process.cwd(), 'static', 'images', 'nbms_logo.png');
 		const logoBytes = await fs.readFile(logoPath);
 		embeddedLogo = await pdfDoc.embedPng(logoBytes);
 	} catch (logoErr) {
-		console.warn('[PDF Logo Warning] Failed to embed Payjeezy logo from static/images:', logoErr);
+		console.warn('[PDF Logo Warning] Failed to embed NBMS logo from static/images:', logoErr);
 	}
 
 	// Embed Signature if present
@@ -273,28 +273,21 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 	const drawHeader = (page: any) => {
 		const { width, height } = page.getSize();
 
-		// Payjeezy Logo (Left)
+		// NBMS Logo (Left)
 		if (embeddedLogo) {
 			page.drawImage(embeddedLogo, {
 				x: 40,
-				y: height - 58,
-				width: 76.6,
-				height: 36
-			});
-			page.drawText('MERCHANT SOLUTIONS', {
-				x: 40,
-				y: height - 68,
-				size: 7.5,
-				font: fontBold,
-				color: brandCyan
+				y: height - 64,
+				width: 140,
+				height: 37.2
 			});
 		} else {
-			page.drawText('PAYJEEZY', {
+			page.drawText('NBMS', {
 				x: 40,
 				y: height - 48,
 				size: 22,
 				font: fontBold,
-				color: brandNavy
+				color: brandNavyAccent
 			});
 			page.drawText('MERCHANT SOLUTIONS', {
 				x: 40,
@@ -315,21 +308,21 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 			borderColor: borderSlate,
 			borderWidth: 1
 		});
-		page.drawText('PAYJEEZY LLC', {
+		page.drawText('NBMS INC', {
 			x: width - 252,
 			y: height - 32,
 			size: 8.5,
 			font: fontBold,
 			color: brandNavy
 		});
-		page.drawText('500 Marquette Ave NW Ste 120, Albuquerque, NM 87102', {
+		page.drawText('50 Fountain Plaza, Buffalo, NY 14202', {
 			x: width - 252,
 			y: height - 44,
 			size: 7.5,
 			font: fontRegular,
 			color: grayText
 		});
-		page.drawText('Direct: 888-761-2221  •  support@payjeezy.com', {
+		page.drawText('Direct: (877) 817-2257  •  sales@nbmsinc.com', {
 			x: width - 252,
 			y: height - 56,
 			size: 7.5,
@@ -362,7 +355,7 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 		});
 
 		if (includeInitials) {
-			page.drawText('Merchant Initial: _________     Payjeezy / PP, LLC: _________', {
+			page.drawText('Merchant Initial: _________     NBMS / PP, LLC: _________', {
 				x: 40,
 				y: 26,
 				size: 8.5,
@@ -370,7 +363,7 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 				color: grayText
 			});
 		} else {
-			page.drawText('Payjeezy Merchant Processing  •  Confidential', {
+			page.drawText('NBMS Merchant Processing  •  Confidential', {
 				x: 40,
 				y: 26,
 				size: 8,
@@ -397,7 +390,7 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 			color: brandNavy
 		});
 
-		page.drawText('PAYJEEZY LLC', {
+		page.drawText('NBMS INC', {
 			x: width - 110,
 			y: 26,
 			size: 8,
@@ -537,7 +530,7 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 		{ x: 55, y: 184, size: 8.8, font: fontRegular, color: brandText }
 	);
 	page1.drawText(
-		'Please forward all signed files to underwriting@payjeezy.com or your assigned Payjeezy specialist.',
+		'Please forward all signed files to underwriting@nbmsinc.com or your assigned NBMS specialist.',
 		{ x: 55, y: 172, size: 8.8, font: fontRegular, color: brandText }
 	);
 
@@ -621,7 +614,7 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 	const preambleLines = [
 		`This Debit Processing Merchant Agreement ("Agreement") is entered into this  ${dayNum}  day of  ${monthYearStr}  by and`,
 		`between Prestige Payment, LLC ("PP, LLC"), located at 151 N. Nob Hill Rd. Ste. 129 Plantation, FL 33324 and its agent`,
-		`Payjeezy LLC  located at  500 Marquette Avenue NW Suite 120 Albuquerque, NM 87102 , jointly contracting with`,
+		`NBMS INC  located at  50 Fountain Plaza, Buffalo, NY 14202 , jointly contracting with`,
 		`${businessName}  ("Merchant"), located at  ${businessAddress} .`
 	];
 	for (let i = 0; i < preambleLines.length; i++) {
@@ -717,7 +710,7 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 	});
 	p2y -= 15;
 	const secDText = [
-		'Upon receipt of the fully completed Merchant Application, PP, LLC and Payjeezy LLC shall determine whether to approve the application',
+		'Upon receipt of the fully completed Merchant Application, PP, LLC and NBMS INC shall determine whether to approve the application',
 		'and provide requested services by investigating and underwriting Merchant using submitted information and financial documentation.'
 	];
 	for (const line of secDText) {
@@ -744,7 +737,7 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 				color: brandNavy
 			});
 			py -= 16;
-			p.drawText('Merchant represents and warrants to PP, LLC and Payjeezy LLC:', {
+			p.drawText('Merchant represents and warrants to PP, LLC and NBMS INC:', {
 				x: 40,
 				y: py,
 				size: 9.5,
@@ -762,10 +755,10 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 				{ title: '6. Exclusivity:', body: 'Unless notified in writing, no other competing point-of-banking relationship exists at designated locations.' },
 				{ title: '7. Authorization:', body: 'MERCHANT continuously represents that all electronic fund transfer entries are authorized by cardholders.' },
 				{ title: '8. Security Standards:', body: 'MERCHANT complies with PCI DSS, PA-DSS, and all applicable card brand security requirements.' },
-				{ title: '9. Approved Terminals:', body: 'Only Compliant, encrypted, and PP, LLC / Payjeezy approved ATMs/terminals shall be connected.' },
+				{ title: '9. Approved Terminals:', body: 'Only Compliant, encrypted, and PP, LLC / NBMS approved ATMs/terminals shall be connected.' },
 				{ title: '10. Notification of Changes:', body: 'Any material change in Merchant Business or ownership requires immediate written notice.' },
 				{ title: '11. Proprietary Platform:', body: 'PP, LLC provides a secure proprietary platform for electronic payment routing and settlement.' },
-				{ title: '12. Equipment Connection:', body: 'Payment terminals programmed by PP, LLC / Payjeezy shall be the sole devices connected to network.' }
+				{ title: '12. Equipment Connection:', body: 'Payment terminals programmed by PP, LLC / NBMS shall be the sole devices connected to network.' }
 			];
 			for (const pt of points) {
 				py = drawRunInParagraph(p, pt.title, pt.body, py, 9.5, 14, fontBold, fontRegular, brandMidnight, brandText);
@@ -782,12 +775,12 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 			py -= 22;
 
 			const sec4 = [
-				{ title: '13. Breach of Exclusivity:', body: 'MERCHANT agrees that connecting unapproved terminals or diverting transactions causes immediate and irreparable harm to PP, LLC and Payjeezy LLC, entitling Processor to liquidated damages and immediate injunctive relief.' },
+				{ title: '13. Breach of Exclusivity:', body: 'MERCHANT agrees that connecting unapproved terminals or diverting transactions causes immediate and irreparable harm to PP, LLC and NBMS INC, entitling Processor to liquidated damages and immediate injunctive relief.' },
 				{ title: '14. Merchant Bank Account(s):', body: 'MERCHANT designates an active commercial DDA account for daily ACH processing settlements, debits, adjustments, and fees. MERCHANT covenants to maintain sufficient collected funds to cover all obligations.' },
-				{ title: '15. Disclaimer of Warranty:', body: 'This Agreement is a commercial services agreement. PP, LLC and Payjeezy LLC make no warranties, express or implied, regarding merchant transaction volumes or customer foot traffic.' },
+				{ title: '15. Disclaimer of Warranty:', body: 'This Agreement is a commercial services agreement. PP, LLC and NBMS INC make no warranties, express or implied, regarding merchant transaction volumes or customer foot traffic.' },
 				{ title: '16. Taxes & Compliance:', body: 'MERCHANT shall be solely responsible for the timely calculation, withholding, reporting, and payment of all applicable federal, state, and local taxes arising from its merchant business operations.' },
 				{ title: '17. Confidentiality:', body: 'Both parties shall maintain strict confidentiality regarding platform operations, processing software, pricing schedules, and proprietary underwriting criteria during and following the term.' },
-				{ title: '18. No Third-Party Beneficiary:', body: 'This Agreement is entered into solely for the benefit of MERCHANT, PP, LLC, and Payjeezy LLC. No consumer or third party shall acquire any enforceable rights hereunder.' }
+				{ title: '18. No Third-Party Beneficiary:', body: 'This Agreement is entered into solely for the benefit of MERCHANT, PP, LLC, and NBMS INC. No consumer or third party shall acquire any enforceable rights hereunder.' }
 			];
 			for (const pt of sec4) {
 				py = drawRunInParagraph(p, pt.title, pt.body, py, 9.8, 15, fontBold, fontRegular, brandMidnight, brandText);
@@ -804,7 +797,7 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 			py -= 22;
 
 			const sec5 = [
-				{ title: '19. Amendment or Modification:', body: 'Any amendment, waiver, or modification must be executed in writing and approved by authorized corporate officers of PP, LLC and Payjeezy LLC.' },
+				{ title: '19. Amendment or Modification:', body: 'Any amendment, waiver, or modification must be executed in writing and approved by authorized corporate officers of PP, LLC and NBMS INC.' },
 				{ title: '20. Regulatory Compliance:', body: 'In the event of changes in federal or state statutory rules, Processor may modify operational parameters upon written notice to maintain ongoing banking network compliance.' },
 				{ title: '21. Formal Notices:', body: 'All formal notices shall be delivered via certified mail or verified email to registered corporate addresses on file.' },
 				{ title: '22. Prohibition of Assignment:', body: 'MERCHANT may not transfer, assign, or delegate its rights or duties without prior written consent from PP, LLC.' },
@@ -833,9 +826,9 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 				{ title: '29. Term & Automatic Renewal:', body: 'Following the Initial Term, this Agreement automatically renews for successive one (1) year periods unless either party delivers written notice of non-renewal at least ninety (90) days prior to expiration.' },
 				{ title: '30. Early Termination & Liquidated Damages:', body: 'If MERCHANT terminates prior to completion of the initial term without cause, liquidated damages based on projected average monthly transaction volume shall apply to cover underwriting and deployment costs.' },
 				{ title: '31. Succession & Transferability:', body: 'All covenants herein run with the business entity and survive any restructuring, provided assignment approval is granted in writing.' },
-				{ title: '32. Cumulative Legal Remedies:', body: 'Remedies available to PP, LLC and Payjeezy LLC under this Agreement are cumulative and non-exclusive of legal remedies provided by law.' },
+				{ title: '32. Cumulative Legal Remedies:', body: 'Remedies available to PP, LLC and NBMS INC under this Agreement are cumulative and non-exclusive of legal remedies provided by law.' },
 				{ title: '33. Force Majeure Events:', body: 'Neither party shall be held liable for failure or delay caused by acts of God, war, telecommunications network outages, or government mandates.' },
-				{ title: '34. Formal Delivery Coordinates:', body: 'Notices to Payjeezy LLC shall be sent to 500 Marquette Avenue NW Suite 120, Albuquerque, NM 87102. Notices to PP, LLC to 151 N. Nob Hill Rd. Suite 129, Plantation, FL 33324.' }
+				{ title: '34. Formal Delivery Coordinates:', body: 'Notices to NBMS INC shall be sent to 50 Fountain Plaza, Buffalo, NY 14202. Notices to PP, LLC to 151 N. Nob Hill Rd. Suite 129, Plantation, FL 33324.' }
 			];
 			for (const pt of sec6) {
 				py = drawRunInParagraph(p, pt.title, pt.body, py, 9.8, 15, fontBold, fontRegular, brandMidnight, brandText);
@@ -863,10 +856,10 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 	p7y -= 20;
 
 	const sec7Text = [
-		'35. Independent Agents: Payjeezy LLC and its sales representatives are independent entities operating under agreement with PP, LLC.',
+		'35. Independent Agents: NBMS INC and its sales representatives are independent entities operating under agreement with PP, LLC.',
 		'36. Execution in Counterparts: This Agreement may be executed in multiple digital or physical counterparts, each constituting an original.',
-		'37. Revenue Disclaimer: PP, LLC and Payjeezy LLC make no representations regarding specific merchant transaction profits or retail volume.',
-		'38. Entire Integrated Agreement: This document constitutes the entire agreement between Merchant and PP, LLC / Payjeezy LLC.'
+		'37. Revenue Disclaimer: PP, LLC and NBMS INC make no representations regarding specific merchant transaction profits or retail volume.',
+		'38. Entire Integrated Agreement: This document constitutes the entire agreement between Merchant and PP, LLC / NBMS INC.'
 	];
 	for (const pt of sec7Text) {
 		const parts = pt.split(': ');
@@ -1270,7 +1263,7 @@ export async function generateContractPdf(optionsOrLeadId: CreateContractOptions
 		borderWidth: 1
 	});
 	const achIntro = [
-		'This agreement entered into by and between the parties whose signatures appear below authorizes PP, LLC / Payjeezy LLC',
+		'This agreement entered into by and between the parties whose signatures appear below authorizes PP, LLC / NBMS INC',
 		'("Processor") to initiate Automated Clearing House (ACH) debit and credit transfers to the designated bank account for',
 		'merchant ATM/EFT disbursements, daily settlements, debits, adjustments, and processing service fees.'
 	];

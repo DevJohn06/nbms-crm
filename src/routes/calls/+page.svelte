@@ -149,7 +149,7 @@
 </script>
 
 <svelte:head>
-	<title>Booked Merchant Calls & Calendar | Payjeezy CRM</title>
+	<title>Booked Merchant Calls & Calendar | NBMS CRM</title>
 </svelte:head>
 
 <div class="space-y-6">

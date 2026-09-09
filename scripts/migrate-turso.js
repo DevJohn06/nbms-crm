@@ -163,7 +163,7 @@ async function migrate() {
 				sql: `INSERT INTO users (id, email, password_hash, name, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 				args: [
 					'usr-superadmin-01',
-					'admin@payjeezy.com',
+					'admin@nbmsinc.com',
 					'scrypt:32768:8:1$vDqYp3bJ$9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b',
 					'Dev Admin',
 					'SUPER_ADMIN',
@@ -171,7 +171,7 @@ async function migrate() {
 					now
 				]
 			});
-			console.log('✓ Default Admin User created (admin@payjeezy.com).');
+			console.log('✓ Default Admin User created (admin@nbmsinc.com).');
 		}
 
 		// Seed initial email templates if empty
@@ -185,8 +185,8 @@ async function migrate() {
 				sql: `INSERT INTO email_templates (name, subject, body_html, trigger_stage, created_at) VALUES (?, ?, ?, ?, ?)`,
 				args: [
 					'Welcome & Introduction',
-					'Exclusive Partnership Opportunity with Payjeezy',
-					'<p>Hi {{businessName}},</p><p>Welcome to Payjeezy! We help growing businesses streamline payment processing and boost customer retention.</p><p>Check out your custom proposal & onboarding funnel here: <a href="{{funnelLink}}">{{funnelLink}}</a></p><p>Best regards,<br>Payjeezy Onboarding Team</p>',
+					'Exclusive Partnership Opportunity with NBMS',
+					'<p>Hi {{businessName}},</p><p>Welcome to NBMS! We help growing businesses streamline payment processing and boost customer retention.</p><p>Check out your custom proposal & onboarding funnel here: <a href="{{funnelLink}}">{{funnelLink}}</a></p><p>Best regards,<br>NBMS Onboarding Team</p>',
 					'NEW',
 					now
 				]
@@ -195,8 +195,8 @@ async function migrate() {
 				sql: `INSERT INTO email_templates (name, subject, body_html, trigger_stage, created_at) VALUES (?, ?, ?, ?, ?)`,
 				args: [
 					'Contract Offer & Funnel Onboarding',
-					'Your Payjeezy Merchant Service Agreement',
-					'<p>Hello {{businessName}},</p><p>Your Payjeezy merchant onboarding agreement is ready for review and digital signature!</p><p>Please access your contract portal here: <a href="{{funnelLink}}">{{funnelLink}}</a></p><p>Questions? Simply reply directly to this email.</p><p>Cheers,<br>Payjeezy Sales</p>',
+					'Your NBMS Merchant Service Agreement',
+					'<p>Hello {{businessName}},</p><p>Your NBMS merchant onboarding agreement is ready for review and digital signature!</p><p>Please access your contract portal here: <a href="{{funnelLink}}">{{funnelLink}}</a></p><p>Questions? Simply reply directly to this email.</p><p>Cheers,<br>NBMS Sales</p>',
 					'EMAILED',
 					now
 				]

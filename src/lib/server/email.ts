@@ -27,7 +27,7 @@ export interface SendEmailParams {
 
 export async function sendEmailToLead(params: SendEmailParams) {
 	const resendApiKey = env.RESEND_API_KEY || process.env.RESEND_API_KEY;
-	const defaultFromEmail = env.RESEND_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || 'info@payjeezy.com';
+	const defaultFromEmail = env.RESEND_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || 'sales@nbmsinc.com';
 
 	const { leadId, templateId, sender = defaultFromEmail, subject, bodyHtml, newStatusOnSend } = params;
 
@@ -43,7 +43,7 @@ export async function sendEmailToLead(params: SendEmailParams) {
 	try {
 		if (resendApiKey) {
 			const resend = new Resend(resendApiKey);
-			const fromAddress = sender.includes('<') ? sender : `Payjeezy CRM <${sender}>`;
+			const fromAddress = sender.includes('<') ? sender : `NBMS CRM <${sender}>`;
 			console.log(`[RESEND SENDING] Attempting to send email via Resend API key to ${recipient} from ${fromAddress}...`);
 
 			const { data, error } = await resend.emails.send({
@@ -111,7 +111,7 @@ export interface SendDirectEmailParams {
 
 export async function sendDirectEmail(params: SendDirectEmailParams) {
 	const resendApiKey = env.RESEND_API_KEY || process.env.RESEND_API_KEY;
-	const defaultFromEmail = env.RESEND_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || 'info@payjeezy.com';
+	const defaultFromEmail = env.RESEND_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || 'sales@nbmsinc.com';
 
 	const { to, sender = defaultFromEmail, subject, bodyHtml } = params;
 	const recipients = Array.isArray(to) ? to : [to];
@@ -123,7 +123,7 @@ export async function sendDirectEmail(params: SendDirectEmailParams) {
 
 	try {
 		const resend = new Resend(resendApiKey);
-		const fromAddress = sender.includes('<') ? sender : `Payjeezy CRM <${sender}>`;
+		const fromAddress = sender.includes('<') ? sender : `NBMS CRM <${sender}>`;
 		console.log(`[RESEND SENDING] Sending direct email to ${recipients.join(', ')} from ${fromAddress}...`);
 
 		const { data, error } = await resend.emails.send({
