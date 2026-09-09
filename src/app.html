@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" data-theme="rocket">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/png" href="%sveltekit.assets%/favicon.png" />
+		<link rel="alternate icon" href="%sveltekit.assets%/favicon.ico" />
+		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<script>
+			try {
+				var savedTheme = localStorage.getItem('payjeezy_theme');
+				if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+					document.documentElement.classList.add('dark');
+				} else {
+					document.documentElement.classList.remove('dark');
+				}
+			} catch (e) {}
+		</script>
+		<title>Payjeezy CRM | Merchant Lead Engine & Contracts</title>
+		<meta name="description" content="Payjeezy CRM - Lead management, email automation, intake funnels, and automated merchant contract generation." />
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover" class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased min-h-screen selection:bg-purple-500 selection:text-white transition-colors duration-150">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

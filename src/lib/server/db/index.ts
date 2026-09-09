@@ -1,0 +1,300 @@
+import { drizzle } from 'drizzle-orm/libsql';
+import { createClient } from '@libsql/client';
+import * as schema from './schema';
+
+const dbUrl = process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL || 'file:local.db';
+const authToken = process.env.DATABASE_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN || undefined;
+
+export const client = createClient({
+	url: dbUrl,
+	authToken: authToken
+});
+export const db = drizzle(client, { schema });
+
+// Auto-initialize SQLite database tables on startup
+export async function initDatabase() {
+	try {
+		await client.execute(`
+			CREATE TABLE IF NOT EXISTS leads (
+				id INTEGER PRIMARY KEY AUTOINCREMENT,
+				business_name TEXT NOT NULL,
+				email TEXT NOT NULL,
+				phone TEXT NOT NULL,
+				status TEXT NOT NULL DEFAULT 'NEW',
+				notes TEXT,
+				custom_fields TEXT,
+				created_at TEXT NOT NULL,
+				updated_at TEXT NOT NULL
+			);
+		`);
+
+		await client.execute(`
+			CREATE TABLE IF NOT EXISTS email_templates (
+				id INTEGER PRIMARY KEY AUTOINCREMENT,
+				name TEXT NOT NULL,
+				subject TEXT NOT NULL,
+				body_html TEXT NOT NULL,
+				trigger_stage TEXT,
+				created_at TEXT NOT NULL
+			);
+		`);
+
+		await client.execute(`
+			CREATE TABLE IF NOT EXISTS email_logs (
+				id INTEGER PRIMARY KEY AUTOINCREMENT,
+				lead_id INTEGER NOT NULL REFERENCES leads(id) ON DELETE CASCADE,
+				template_id INTEGER REFERENCES email_templates(id) ON DELETE SET NULL,
+				sender TEXT NOT NULL,
+				recipient TEXT NOT NULL,
+				subject TEXT NOT NULL,
+				body_html TEXT NOT NULL,
+				status TEXT NOT NULL DEFAULT 'SENT',
+				direction TEXT NOT NULL DEFAULT 'OUTBOUND',
+				sentAt TEXT NOT NULL
+			);
+		`);
+
+		await client.execute(`
+			CREATE TABLE IF NOT EXISTS contracts (
+				id TEXT PRIMARY KEY,
+				lead_id INTEGER NOT NULL REFERENCES leads(id) ON DELETE CASCADE,
+				client_name TEXT NOT NULL,
+				client_email TEXT NOT NULL,
+				service_package TEXT NOT NULL,
+				monthly_fee TEXT NOT NULL,
+				contract_terms TEXT NOT NULL,
+				signature_data TEXT,
+				pdf_path TEXT,
+				status TEXT NOT NULL DEFAULT 'DRAFT',
+				created_at TEXT NOT NULL,
+				signed_at TEXT
+			);
+		`);
+
+		await client.execute(`
+			CREATE TABLE IF NOT EXISTS intake_cms (
+				id TEXT PRIMARY KEY,
+				title TEXT NOT NULL,
+				subtitle TEXT,
+				content_json TEXT NOT NULL,
+				updated_at TEXT NOT NULL
+			);
+		`);
+
+		await client.execute(`
+			CREATE TABLE IF NOT EXISTS users (
+				id TEXT PRIMARY KEY,
+				email TEXT NOT NULL UNIQUE,
+				password_hash TEXT NOT NULL,
+				name TEXT NOT NULL,
+				role TEXT NOT NULL DEFAULT 'AGENT',
+				created_at TEXT NOT NULL,
+				updated_at TEXT NOT NULL
+			);
+		`);
+
+		await client.execute(`
+			CREATE TABLE IF NOT EXISTS sessions (
+				id TEXT PRIMARY KEY,
+				user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+				expires_at INTEGER NOT NULL
+			);
+		`);
+
+		await client.execute(`
+			CREATE TABLE IF NOT EXISTS booked_calls (
+				id INTEGER PRIMARY KEY AUTOINCREMENT,
+				lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE,
+				client_name TEXT NOT NULL,
+				client_email TEXT NOT NULL,
+				client_phone TEXT,
+				business_name TEXT,
+				call_date TEXT NOT NULL,
+				meeting_type TEXT NOT NULL DEFAULT 'Merchant Strategy Session',
+				notes TEXT,
+				status TEXT NOT NULL DEFAULT 'SCHEDULED',
+				created_at TEXT NOT NULL
+			);
+		`);
+
+		// Seed initial Developer Super Admin if target email does not exist
+		const initialEmail = (process.env.SUPERADMIN_EMAIL || 'wet.johnt@gmail.com').toLowerCase();
+		const existingAdmin = await client.execute({
+			sql: `SELECT id FROM users WHERE email = ?`,
+			args: [initialEmail]
+		});
+
+		if (existingAdmin.rows.length === 0) {
+			const { hashPassword } = await import('../auth/auth');
+			const now = new Date().toISOString();
+			const superAdminId = 'user_super_admin_dev';
+			const initialPassword = process.env.SUPERADMIN_PASSWORD || 'devpass';
+			const passwordHash = hashPassword(initialPassword);
+
+			await client.execute({
+				sql: `INSERT OR IGNORE INTO users (id, email, password_hash, name, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+				args: [
+					superAdminId,
+					initialEmail,
+					passwordHash,
+					'devadmin',
+					'SUPER_ADMIN',
+					now,
+					now
+				]
+			});
+			console.log(`[AUTH SEED] Initial Super Admin account created: ${initialEmail}`);
+		}
+
+		// Seed & Migrate default Intake CMS sections
+		const now = new Date().toISOString();
+		const defaultCmsEntries = [
+			{
+				id: 'hero',
+				title: 'ATM Payment Processing Solutions',
+				subtitle: 'Apply Today, Be In Business Tomorrow!',
+				content: {
+					badge: 'ATM Payment Processing Solutions',
+					tagline: 'THEY DECLINE. WE APPROVE.',
+					primaryCta: 'Get Info',
+					secondaryCta: 'Book A Call'
+				}
+			},
+			{
+				id: 'process_flow',
+				title: 'What is an ATM Merchant Account?',
+				subtitle:
+					"An ATM merchant account isn't a standard bank account but a specialized service allowing businesses to process electronic payments (cards, digital wallets) by acting as a temporary holding account for customer funds before transferring them to your regular business checking account, facilitated by a merchant service provider and an acquiring bank, essential for modern non-cash transactions and often involving fees.",
+				content: {
+					primaryCta: 'Get Info',
+					secondaryCta: 'Book A Call'
+				}
+			},
+			{
+				id: 'about',
+				title: 'High-Risk Business Categories',
+				subtitle: 'Understanding processor guidelines, risk classification, and high-risk merchant placement.',
+				content: {
+					description:
+						"The first thing to understand about high-risk businesses is that your processor will determine whether you fall into one of their high-risk categories when you apply for a merchant account. Either you’re high-risk, or you’re not – there is no middle ground. Beyond that, it gets complicated as every processor has their own unique guidelines for determining whether you’re in the high-risk category. While some business types, will almost always be placed in the high-risk group, others may or may not be. Some merchant services providers have very strict guidelines for determining high-risk status, while others use more relaxed criteria. If you’re considering a particular provider, check their website or contact them directly to see if they find your business to be high-risk. This can save you a lot of time and effort in wasted applications to providers who aren’t going to approve you.\n\nHow a merchant services provider treats a high-risk business can also vary widely. Many providers, particularly those that try to offer merchant services at the lowest possible prices, simply do not accept any high-risk businesses at all. This helps to reduce their exposure to fraud and keeps costs low for their existing clients. You will find most providers will allow certain high-risk companies, but will charge you significantly higher rates and fees for your merchant account due to the elevated risk they’re accepting by giving you a merchant account. There’s also a third category of providers who specialize in placing high-risk businesses. While their rates and fees aren’t a good deal for non-high-risk merchants, they can often provide a merchant account for high-risk businesses that have been turned down by other providers.",
+					transitionNotice:
+						"We’re always just a phone call away and are more than happy to answer any of your questions, but here are a few questions that we get asked all the time."
+				}
+			},
+			{
+				id: 'how_it_works',
+				title: 'Payjeezy Pin Debit Cashless ATM Terminals',
+				subtitle: 'State-of-the-art EMV & PCI compliant payment terminals engineered for countertop checkout, home delivery, and zero merchant fees.',
+				content: {
+					hideSection: true,
+					features: [
+						{
+							title: '$5.00 Increment Pin Debit System',
+							desc: 'Countertop cashless ATM terminals processing transactions smoothly in $5 increment steps.'
+						},
+						{
+							title: 'EMV & PCI-Compliant Hardware',
+							desc: 'Next-gen secure terminal hardware equipped with tap, chip, and PIN encryption at industry-leading wholesale pricing.'
+						},
+						{
+							title: 'Direct Bank Deposits & Less Cash Handling',
+							desc: 'Daily automated settlements directly to your bank account, keeping cash on hand low and eliminating theft risks.'
+						},
+						{
+							title: 'Zero Merchant Processing Costs',
+							desc: 'Eliminates merchant transaction fees with transparent, ultra-low consumer convenience fees.'
+						},
+						{
+							title: 'Higher Ticket Size & Customer Experience',
+							desc: 'Frictionless checkout experience that elevates customer satisfaction and yields higher average sales.'
+						},
+						{
+							title: 'In-Store & Home Delivery Mobility',
+							desc: 'Portable wireless terminals engineered for retail counters, mobile popup shops, and home delivery services.'
+						},
+						{
+							title: 'Customizable $500 Limit Caps',
+							desc: 'Merchants choose custom purchase dollar limits up to $500.00 directly from their admin portal.'
+						},
+						{
+							title: 'Real-Time Settlement Reporting',
+							desc: 'Specialized merchant login for live customized reporting on settlements, batches, and transactions.'
+						},
+						{
+							title: '24/7 Priority Support',
+							desc: 'Around-the-clock technical assistance and underwriting support whenever you need help.'
+						}
+					]
+				}
+			},
+			{
+				id: 'contact',
+				title: 'Merchant Support & Priority Assistance',
+				subtitle: 'Our dedicated account management team is here to answer all your processing questions.',
+				content: {
+					hideSection: true,
+					email: 'support@payjeezy.com',
+					phone: '+1 (800) 555-PAYJ',
+					hours: 'Mon - Sun: 24/7 Priority Desk',
+					helpNotice: 'Ready to get started or compare your current rates? Reach out to our underwriting team today.'
+				}
+			}
+		];
+
+		for (const entry of defaultCmsEntries) {
+			await client.execute({
+				sql: `INSERT INTO intake_cms (id, title, subtitle, content_json, updated_at)
+				      VALUES (?, ?, ?, ?, ?)
+				      ON CONFLICT(id) DO UPDATE SET
+				        title = excluded.title,
+				        subtitle = excluded.subtitle,
+				        content_json = excluded.content_json,
+				        updated_at = excluded.updated_at
+				      WHERE intake_cms.title LIKE '%Why Process With Payjeezy%'
+				         OR intake_cms.title LIKE '%3-Step Merchant Onboarding%'
+				         OR intake_cms.title LIKE '%Complete Your Payjeezy Merchant Setup%';`,
+				args: [
+					entry.id,
+					entry.title,
+					entry.subtitle,
+					JSON.stringify(entry.content),
+					now
+				]
+			});
+		}
+
+		// Seed initial default email templates if empty
+		const existingTemplates = await client.execute(`SELECT COUNT(*) as count FROM email_templates`);
+		const count = Number(existingTemplates.rows[0]?.count || 0);
+
+		if (count === 0) {
+			const now = new Date().toISOString();
+			await client.execute({
+				sql: `INSERT INTO email_templates (name, subject, body_html, trigger_stage, created_at) VALUES (?, ?, ?, ?, ?)`,
+				args: [
+					'Welcome & Introduction',
+					'Exclusive Partnership Opportunity with Payjeezy',
+					'<p>Hi {{businessName}},</p><p>Welcome to Payjeezy! We help growing businesses streamline payment processing and boost customer retention.</p><p>Check out your custom proposal & onboarding funnel here: <a href="{{funnelLink}}">{{funnelLink}}</a></p><p>Best regards,<br>Payjeezy Onboarding Team</p>',
+					'NEW',
+					now
+				]
+			});
+
+			await client.execute({
+				sql: `INSERT INTO email_templates (name, subject, body_html, trigger_stage, created_at) VALUES (?, ?, ?, ?, ?)`,
+				args: [
+					'Contract Offer & Funnel Onboarding',
+					'Your Payjeezy Merchant Service Agreement',
+					'<p>Hello {{businessName}},</p><p>Your Payjeezy merchant onboarding agreement is ready for review and digital signature!</p><p>Please access your contract portal here: <a href="{{funnelLink}}">{{funnelLink}}</a></p><p>Questions? Simply reply directly to this email.</p><p>Cheers,<br>Payjeezy Sales</p>',
+					'EMAILED',
+					now
+				]
+			});
+		}
+	} catch (error) {
+		console.error('Error auto-initializing database:', error);
+	}
+}
+
+// Run init
+initDatabase();
