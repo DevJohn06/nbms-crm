@@ -27,8 +27,8 @@
 	<div class="w-full max-w-md relative z-10 space-y-6">
 		<!-- Brand & Header -->
 		<div class="text-center space-y-3">
-			<div class="inline-flex items-center justify-center px-4 py-2.5 rounded-2xl bg-white border border-[#dbe7f1] shadow-xl shadow-[#1f71c1]/10 mb-2">
-				<img src="/images/nbms_logo.png" alt="NBMS" class="h-10 w-auto object-contain" />
+			<div class="flex items-center justify-center mb-1">
+				<img src="/images/nbms_icon.png" alt="NBMS" class="h-14 w-14 object-contain drop-shadow-sm" />
 			</div>
 			<div>
 				<h1 class="text-2xl font-black tracking-tight font-display text-slate-900 dark:text-slate-100">

@@ -86,10 +86,9 @@
 			<div>
 				<!-- Brand Header -->
 				<div class="p-4 border-b border-[#dbe7f1] dark:border-slate-800/60 flex items-center justify-between">
-					<a href="/" class="flex items-center gap-2">
-						<div class="bg-white px-2 py-1 rounded-lg border border-slate-200/70 shadow-2xs">
-							<img src="/images/nbms_logo.png" alt="NBMS" class="h-7 w-auto object-contain" />
-						</div>
+					<a href="/" class="flex items-center gap-2.5">
+						<img src="/images/nbms_icon.png" alt="NBMS" class="h-8 w-8 object-contain" />
+						<span class="font-black text-lg tracking-tight font-display text-slate-900 dark:text-slate-100">NBMS</span>
 						<span class="px-1.5 py-0.5 text-[10px] font-bold bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30 rounded">CRM</span>
 					</a>
 				</div>
