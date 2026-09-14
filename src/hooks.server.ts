@@ -20,9 +20,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 		!host.includes('localhost') &&
 		!host.includes('127.0.0.1')
 	) {
-		const subpath = event.url.pathname.replace(/^\/funnel/, '');
 		const targetDomain = 'dispensary.nbmsinc.com';
-		const redirectTarget = `https://${targetDomain}${subpath || '/funnel'}`;
+		const redirectTarget = `https://${targetDomain}/funnel${event.url.search}`;
 		throw redirect(307, redirectTarget);
 	}
 

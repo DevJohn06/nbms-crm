@@ -225,7 +225,7 @@ export async function getIntakeCmsSections(): Promise<{
 		}
 	};
 
-	const defaultOrder = ['hero', 'process_flow', 'how_it_works', 'about', 'contact'];
+	const defaultOrder = ['hero', 'process_flow', 'how_it_works', 'about', 'contact', 'faqs', 'footer'];
 	let sectionOrder = [...defaultOrder];
 
 	for (const rec of records) {

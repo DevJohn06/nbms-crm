@@ -50,9 +50,16 @@ export async function initDatabase() {
 				body_html TEXT NOT NULL,
 				status TEXT NOT NULL DEFAULT 'SENT',
 				direction TEXT NOT NULL DEFAULT 'OUTBOUND',
-				sentAt TEXT NOT NULL
+				sent_at TEXT NOT NULL
 			);
 		`);
+
+		// Migration: ensure email_logs column is named sent_at (snake_case) to match Drizzle schema
+		try {
+			await client.execute(`ALTER TABLE email_logs RENAME COLUMN sentAt TO sent_at;`);
+		} catch {
+			// Column already renamed or table newly created
+		}
 
 		await client.execute(`
 			CREATE TABLE IF NOT EXISTS contracts (
@@ -186,7 +193,7 @@ export async function initDatabase() {
 				title: 'NBMS Pin Debit Cashless ATM Terminals',
 				subtitle: 'State-of-the-art EMV & PCI compliant payment terminals engineered for countertop checkout, home delivery, and zero merchant fees.',
 				content: {
-					hideSection: true,
+					hideSection: false,
 					features: [
 						{
 							title: '$5.00 Increment Pin Debit System',
@@ -232,11 +239,67 @@ export async function initDatabase() {
 				title: 'Merchant Support & Priority Assistance',
 				subtitle: 'Our dedicated account management team is here to answer all your processing questions.',
 				content: {
-					hideSection: true,
+					hideSection: false,
 					email: 'sales@nbmsinc.com',
 					phone: '(877) 817-2257',
 					hours: 'Mon - Sun: 24/7 Priority Desk',
 					helpNotice: 'Ready to get started or compare your current rates? Reach out to our underwriting team today.'
+				}
+			},
+			{
+				id: 'faqs',
+				title: 'Frequently Asked Questions',
+				subtitle: 'Everything you need to know about ATM processing, high-risk approval, PCI security, and settlements.',
+				content: {
+					hideSection: false,
+					items: [
+						{
+							question: 'What are cashless ATMs and how are they being used?',
+							answer: 'A cashless ATM is very similar to a regular ATM where cardholders can request funds using their debit card and 4 digit PIN. However, instead of receiving cash, they will receive a receipt from the merchant. The merchant will receive the funds via ACH, comparable to debit and credit card payment systems, and the customer can avoid having to take out cash from a stand alone ATM.'
+						},
+						{
+							question: 'Why Choose a Cashless ATM?',
+							answer: 'NBMS created a payment processing solution that would allow high risk types of establishments to accept card payments, simplify the checkout experience for customers, and provide greater security by reducing the large amounts of cash being held and handled on location by these merchants.'
+						},
+						{
+							question: 'Tired of submitting applications and not getting approved?',
+							answer: 'We guarantee you’ll get approved with our cashless ATM solution within 24-48 business hours. Furthermore, there’s no risk of getting placed on the TMF/Match list by utilizing these services since you’re accepting transactions on the ATM rails, no different than your traditional ATM! Already on the TMF list? Then, give us a call, and we’ll help you start accepting cashless payments once again without paying significant fees.'
+						},
+						{
+							question: 'How long does the approval and shipping process take?',
+							answer: 'Once we receive the required documents and application for approval, we’ll be able to get you approved within 24 business hours. Once the approval and programming process is complete the terminal is shipped, and the unit will arrive as an “out of the box solution!”'
+						},
+						{
+							question: 'When can I expect the funds in my account?',
+							answer: 'Payments are real-time and funds are deposited into your bank account the next day. You’ll receive a FREE online portal to view all sales on a real time daily/weekly/monthly basis as well.'
+						},
+						{
+							question: 'Who do I contact for support?',
+							answer: 'We not only provide support from our US based support teams, but we always recommend contacting your NBMS Agent first. We constantly focus on building longstanding partnerships with each one of our Merchants plus we know more about your account than anyone else. Always contact your Agent first and they’ll take care of you. Plus, each terminal is backed with a one year manufacturer’s warranty, so if they break we will replace them.'
+						},
+						{
+							question: 'How am I able to accept card purchases with this solution?',
+							answer: 'Cashless ATM transactions are considered ATM withdrawals. The card must be present, and the four-digit pin number must be entered correctly in order for the transaction to get approved.'
+						},
+						{
+							question: 'Are there any additional Cashless ATM Perks?',
+							answer: '• Receive a state-of-the-art terminals (includes storefront and wireless units).\n• NO personal information or financial documents required for approval. We simply need the standard KYC requirements for any merchant application.\n• Card present pin-based transactions effectively reduce chargebacks (customer disputes) or the chance of fraudulent transactions.\n• Unlike a traditional merchant account, there are NO rates or fees for any Cashless ATM transaction. The Cashless ATM transaction cost is charged to the customer in the form of an ATM fee saving your business hundreds, if not thousands of dollars every month!\n• There is peace of mind and sense of security for all parties involved as these transactions are handled in a cashless manner.\n• Incremental transactions allow your employees to receive additional tips (helps reduce employee attrition).\n• Installation is easy. Simply plug the units in (or power on the wireless units) and you are ready to process, but we’re always on standby for any ongoing assistance.\n• Transactions are discreet. Shown as ATM withdrawals on your customers bank statements.'
+						}
+					]
+				}
+			},
+			{
+				id: 'footer',
+				title: 'Footer Section',
+				subtitle: 'Footer call to action banner and footer links.',
+				content: {
+					ctaBanner: {
+						title: 'Ready to Get Started with NBMS?',
+						subtitle: 'Start processing cashless Pin Debit payments with zero merchant fees and daily direct bank deposits.',
+						primaryCta: 'Get Info',
+						secondaryCta: 'Book A Call'
+					},
+					copyright: '© 2026 NBMS INC. All rights reserved.'
 				}
 			}
 		];

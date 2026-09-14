@@ -68,7 +68,7 @@
 				.replace(/\{\{\s*businessName\s*\}\}/g, lead.businessName)
 				.replace(/\{\{\s*email\s*\}\}/g, lead.email)
 				.replace(/\{\{\s*phone\s*\}\}/g, lead.phone)
-				.replace(/\{\{\s*funnelLink\s*\}\}/g, `${window.location.origin}/funnel/${lead.id}`);
+				.replace(/\{\{\s*funnelLink\s*\}\}/g, `https://dispensary.nbmsinc.com/funnel`);
 		}
 	}
 
