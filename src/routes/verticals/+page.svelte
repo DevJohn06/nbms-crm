@@ -8,7 +8,6 @@
 		Layers,
 		Plus,
 		ExternalLink,
-		Globe,
 		Users,
 		Edit3,
 		Trash2,
@@ -183,7 +182,7 @@
 	{/if}
 
 	<!-- Metric Cards -->
-	<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+	<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 		<div class="glass-panel p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs flex items-center justify-between">
 			<div>
 				<p class="text-xs text-slate-500 dark:text-slate-400 font-bold">Total Verticals</p>
@@ -201,16 +200,6 @@
 			</div>
 			<div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center font-bold">
 				<TrendingUp class="w-5 h-5" />
-			</div>
-		</div>
-
-		<div class="glass-panel p-4 rounded-xl border border-cyan-200 dark:border-cyan-500/30 bg-cyan-50 dark:bg-cyan-950/20 shadow-xs flex items-center justify-between">
-			<div>
-				<p class="text-xs text-cyan-900 dark:text-cyan-300 font-bold">Live Intake Funnels</p>
-				<p class="text-2xl font-black text-cyan-900 dark:text-cyan-200 font-display mt-1">{data.verticalsList.length}</p>
-			</div>
-			<div class="w-10 h-10 rounded-xl bg-cyan-100 text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/30 flex items-center justify-center font-bold">
-				<Globe class="w-5 h-5" />
 			</div>
 		</div>
 	</div>
