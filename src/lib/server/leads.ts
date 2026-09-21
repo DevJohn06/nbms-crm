@@ -9,6 +9,7 @@ export interface LeadInput {
 	status?: string;
 	notes?: string;
 	customFields?: string;
+	verticalId?: string;
 }
 
 export function normalizeBusinessName(name: string): string {
@@ -33,7 +34,7 @@ export function sanitizeLeadEmail(emailStr: string): { primary: string; secondar
 }
 
 /**
- * Upsert or Collate a Lead into the database by Business Name.
+ * Upsert or Collate a Lead into the database by Business Name scoped to a vertical.
  */
 export async function upsertOrCollateLead(input: LeadInput): Promise<{ id: number; action: 'created' | 'collated' }> {
 	const rawName = (input.businessName || '').trim();
@@ -41,6 +42,7 @@ export async function upsertOrCollateLead(input: LeadInput): Promise<{ id: numbe
 		throw new Error('Business Name is required.');
 	}
 
+	const verticalId = input.verticalId || 'mmj-dispensary';
 	const normName = normalizeBusinessName(rawName);
 	const now = new Date().toISOString();
 
@@ -48,9 +50,9 @@ export async function upsertOrCollateLead(input: LeadInput): Promise<{ id: numbe
 	let inputPrimaryEmail = parsedEmail.primary;
 	const inputAltEmails = [...parsedEmail.secondary];
 
-	// Fetch all leads to check for normalized business name match
-	const allLeads = await db.select().from(leads);
-	const existing = allLeads.find((l) => normalizeBusinessName(l.businessName) === normName);
+	// Fetch leads in this vertical to check for normalized business name match
+	const verticalLeads = await db.select().from(leads).where(eq(leads.verticalId, verticalId));
+	const existing = verticalLeads.find((l) => normalizeBusinessName(l.businessName) === normName);
 
 	if (!existing) {
 		const initialNotes = input.notes || '';
@@ -64,6 +66,7 @@ export async function upsertOrCollateLead(input: LeadInput): Promise<{ id: numbe
 		const [inserted] = await db
 			.insert(leads)
 			.values({
+				verticalId,
 				businessName: rawName,
 				email: inputPrimaryEmail,
 				phone: (input.phone || 'N/A').trim(),
@@ -160,21 +163,25 @@ export async function upsertOrCollateLead(input: LeadInput): Promise<{ id: numbe
  * Deduplicate and collate batch of lead inputs (e.g. from CSV file upload).
  */
 export async function processLeadBatch(
-	batch: LeadInput[]
+	batch: LeadInput[],
+	defaultVerticalId?: string
 ): Promise<{ totalProcessed: number; createdCount: number; collatedCount: number }> {
 	let createdCount = 0;
 	let collatedCount = 0;
 
-	// Collapse duplicates within the incoming CSV batch itself
+	// Collapse duplicates within the incoming CSV batch itself per vertical
 	const collatedMap = new Map<string, LeadInput>();
 
 	for (const item of batch) {
 		const rawName = (item.businessName || '').trim();
 		if (!rawName) continue;
 		const normName = normalizeBusinessName(rawName);
+		const targetVerticalId = item.verticalId || defaultVerticalId || 'mmj-dispensary';
+		const mapKey = `${targetVerticalId}__${normName}`;
 
-		if (!collatedMap.has(normName)) {
-			collatedMap.set(normName, {
+		if (!collatedMap.has(mapKey)) {
+			collatedMap.set(mapKey, {
+				verticalId: targetVerticalId,
 				businessName: rawName,
 				email: (item.email || '').trim(),
 				phone: (item.phone || '').trim(),
@@ -183,7 +190,7 @@ export async function processLeadBatch(
 				customFields: item.customFields
 			});
 		} else {
-			const existingItem = collatedMap.get(normName)!;
+			const existingItem = collatedMap.get(mapKey)!;
 			const notesArr: string[] = [];
 			if (existingItem.notes) notesArr.push(existingItem.notes);
 
@@ -215,20 +222,24 @@ export async function processLeadBatch(
 }
 
 /**
- * Maintenance Utility: Deduplicate existing leads table by merging duplicate business names & splitting comma-separated emails.
+ * Maintenance Utility: Deduplicate existing leads table by merging duplicate business names & splitting comma-separated emails scoped by vertical.
  */
-export async function deduplicateDatabaseLeads(): Promise<{ cleaned: number }> {
-	const allLeads = await db.select().from(leads).orderBy(leads.id);
+export async function deduplicateDatabaseLeads(targetVerticalId?: string): Promise<{ cleaned: number }> {
+	const allLeads = targetVerticalId
+		? await db.select().from(leads).where(eq(leads.verticalId, targetVerticalId)).orderBy(leads.id)
+		: await db.select().from(leads).orderBy(leads.id);
 	const seenMap = new Map<string, typeof leads.$inferSelect>();
 	const toDeleteIds: number[] = [];
 
 	for (const lead of allLeads) {
 		const norm = normalizeBusinessName(lead.businessName);
+		const vId = lead.verticalId || 'mmj-dispensary';
+		const seenKey = `${vId}__${norm}`;
 		const sanitized = sanitizeLeadEmail(lead.email);
 
-		if (!seenMap.has(norm)) {
+		if (!seenMap.has(seenKey)) {
 			const updatedMaster = { ...lead, email: sanitized.primary };
-			seenMap.set(norm, updatedMaster);
+			seenMap.set(seenKey, updatedMaster);
 
 			// Clean up multi-email comma strings in primary record
 			if (sanitized.secondary.length > 0 || lead.email !== sanitized.primary) {

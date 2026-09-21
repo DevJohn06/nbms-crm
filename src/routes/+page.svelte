@@ -15,7 +15,9 @@
 		Clock,
 		ExternalLink,
 		RefreshCw,
-		Loader2
+		Loader2,
+		AlertCircle,
+		Layers
 	} from 'lucide-svelte';
 
 	let { data }: { data: PageData } = $props();
@@ -92,8 +94,29 @@
 		</div>
 	</div>
 
-	<!-- KPI Metric Cards Grid -->
-	<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+	{#if data.noVerticalsAssigned}
+		<!-- No Verticals Assigned Empty State -->
+		<div class="glass-panel p-8 rounded-2xl border border-amber-300 dark:border-amber-500/40 bg-amber-50/70 dark:bg-amber-950/20 shadow-sm text-center max-w-2xl mx-auto my-8 space-y-3">
+			<div class="w-12 h-12 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300 mx-auto flex items-center justify-center">
+				<AlertCircle class="w-6 h-6" />
+			</div>
+			<h3 class="text-lg font-bold text-amber-950 dark:text-amber-200 font-display">No Business Verticals Assigned</h3>
+			<p class="text-xs text-amber-800 dark:text-amber-300/80 leading-relaxed">
+				Your user account currently has no assigned business verticals. All lead records, pipeline metrics, and client communications are hidden until an administrator assigns you access to one or more verticals.
+			</p>
+			<div class="pt-2">
+				{#if $page.data.user?.role === 'SUPER_ADMIN'}
+					<a href="/users" class="btn-primary inline-flex items-center gap-2 text-xs py-2 px-4 shadow-sm">
+						Manage Users & Assign Verticals
+					</a>
+				{:else}
+					<span class="text-xs font-semibold text-slate-500">Please contact your administrator to assign a vertical to your account.</span>
+				{/if}
+			</div>
+		</div>
+	{:else}
+		<!-- KPI Metric Cards Grid -->
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 		<!-- Total Leads Card -->
 		<div class="glass-panel p-5 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 shadow-xs hover:border-purple-400/40 transition-all">
 			<div class="flex items-center justify-between">
@@ -349,4 +372,5 @@
 			</div>
 		</div>
 	</div>
+	{/if}
 </div>

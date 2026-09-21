@@ -82,6 +82,7 @@
 	async function saveSectionOrderToDb(newOrder: string[]) {
 		isSavingOrder = true;
 		const formData = new FormData();
+		formData.append('verticalId', data.activeVerticalId || '');
 		formData.append('orderJson', JSON.stringify(newOrder));
 		try {
 			const res = await fetch('?/saveSectionOrder', {
@@ -480,22 +481,47 @@
 	<!-- Top Banner -->
 	<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 glass-panel p-6 rounded-2xl border border-purple-200 dark:border-purple-500/30 bg-gradient-to-r from-white via-purple-50 to-slate-50 dark:from-purple-950/40 dark:via-slate-900/60 dark:to-slate-950/80 shadow-xs">
 		<div>
+			<div class="flex items-center gap-2 mb-1">
+				<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-900 dark:bg-purple-900/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+					{data.verticalName || 'Dispensary'}
+				</span>
+			</div>
 			<h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100 font-display">Public Intake Page CMS</h1>
 			<p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
-				Customize dynamic content sections, sub-sections, CTAs, and FAQs displayed on the public merchant intake portal (<code class="text-purple-700 dark:text-purple-300 font-bold">/funnel</code>).
+				Customize dynamic content sections, sub-sections, CTAs, and FAQs displayed on the public merchant intake portal for <strong class="text-purple-700 dark:text-purple-300">{data.verticalName}</strong>.
 			</p>
 		</div>
 
-		<a
-			href="/funnel"
-			target="_blank"
-			rel="noopener noreferrer"
-			class="btn-secondary text-xs inline-flex items-center gap-2 self-start md:self-auto shadow-xs cursor-pointer"
-		>
-			<Sparkles class="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-			Preview Public Funnel
-			<ExternalLink class="w-3.5 h-3.5 text-slate-400" />
-		</a>
+		<div class="flex flex-wrap items-center gap-3">
+			{#if data.allVerticals && data.allVerticals.length > 0}
+				<div class="flex items-center gap-2 bg-white dark:bg-slate-900 border border-purple-200 dark:border-purple-800/80 rounded-xl px-3 py-1.5 shadow-2xs">
+					<span class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Vertical:</span>
+					<select
+						value={data.activeVerticalId || ''}
+						onchange={(e) => {
+							const val = (e.target as HTMLSelectElement).value;
+							window.location.href = `/cms/intake?vertical=${val}`;
+						}}
+						class="bg-transparent text-xs text-purple-950 dark:text-purple-200 font-bold focus:outline-none cursor-pointer"
+					>
+						{#each data.allVerticals as v}
+							<option value={v.id} class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">{v.name}</option>
+						{/each}
+					</select>
+				</div>
+			{/if}
+
+			<a
+				href={data.activeVerticalId ? `/funnel/${data.activeVerticalId}` : '/funnel'}
+				target="_blank"
+				rel="noopener noreferrer"
+				class="btn-secondary text-xs inline-flex items-center gap-2 self-start md:self-auto shadow-xs cursor-pointer"
+			>
+				<Sparkles class="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+				Preview Landing Page
+				<ExternalLink class="w-3.5 h-3.5 text-slate-400" />
+			</a>
+		</div>
 	</div>
 
 	<!-- Main Sidebar + Editor Grid Layout -->
@@ -573,6 +599,7 @@
 			<!-- TAB 1: HERO SECTION -->
 			{#if activeTab === 'hero'}
 				<form method="POST" action="?/saveSection" use:enhance={handleFormEnhance} class="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs space-y-5">
+					<input type="hidden" name="verticalId" value={data.activeVerticalId || ''} />
 					<input type="hidden" name="sectionId" value="hero" />
 					<input type="hidden" name="contentJson" value={heroContentJson} />
 
@@ -702,6 +729,7 @@
 			<!-- TAB 2: PROCESS FLOW & KEY POINTS -->
 			{#if activeTab === 'process_flow'}
 				<form method="POST" action="?/saveSection" use:enhance={handleFormEnhance} class="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs space-y-6">
+					<input type="hidden" name="verticalId" value={data.activeVerticalId || ''} />
 					<input type="hidden" name="sectionId" value="process_flow" />
 					<input type="hidden" name="contentJson" value={processContentJson} />
 
@@ -842,6 +870,7 @@
 			<!-- TAB 3: PRODUCT SHOWCASE & SERVICES -->
 			{#if activeTab === 'how_it_works'}
 				<form method="POST" action="?/saveSection" use:enhance={handleFormEnhance} class="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs space-y-6">
+					<input type="hidden" name="verticalId" value={data.activeVerticalId || ''} />
 					<input type="hidden" name="sectionId" value="how_it_works" />
 					<input type="hidden" name="contentJson" value={howContentJson} />
 
@@ -1007,6 +1036,7 @@
 			<!-- TAB 4: ABOUT SECTION -->
 			{#if activeTab === 'about'}
 				<form method="POST" action="?/saveSection" use:enhance={handleFormEnhance} class="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs space-y-5">
+					<input type="hidden" name="verticalId" value={data.activeVerticalId || ''} />
 					<input type="hidden" name="sectionId" value="about" />
 					<input type="hidden" name="contentJson" value={aboutContentJson} />
 
@@ -1092,6 +1122,7 @@
 			<!-- TAB 5: CONTACT & SUPPORT SECTION -->
 			{#if activeTab === 'contact'}
 				<form method="POST" action="?/saveSection" use:enhance={handleFormEnhance} class="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs space-y-5">
+					<input type="hidden" name="verticalId" value={data.activeVerticalId || ''} />
 					<input type="hidden" name="sectionId" value="contact" />
 					<input type="hidden" name="contentJson" value={contactContentJson} />
 
@@ -1223,6 +1254,7 @@
 			<!-- TAB 6: FAQS ACCORDION -->
 			{#if activeTab === 'faqs'}
 				<form method="POST" action="?/saveSection" use:enhance={handleFormEnhance} class="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs space-y-6">
+					<input type="hidden" name="verticalId" value={data.activeVerticalId || ''} />
 					<input type="hidden" name="sectionId" value="faqs" />
 					<input type="hidden" name="contentJson" value={faqsContentJson} />
 
@@ -1316,6 +1348,7 @@
 			<!-- TAB 7: FOOTER & FINAL CTA -->
 			{#if activeTab === 'footer'}
 				<form method="POST" action="?/saveSection" use:enhance={handleFormEnhance} class="glass-panel p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs space-y-5">
+					<input type="hidden" name="verticalId" value={data.activeVerticalId || ''} />
 					<input type="hidden" name="sectionId" value="footer" />
 					<input type="hidden" name="contentJson" value={footerContentJson} />
 

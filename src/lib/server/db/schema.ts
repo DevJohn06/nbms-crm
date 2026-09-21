@@ -1,7 +1,27 @@
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
+export const verticals = sqliteTable('verticals', {
+	id: text('id').primaryKey(), // slug format, e.g. 'mmj-dispensary'
+	name: text('name').notNull(),
+	slug: text('slug').notNull().unique(),
+	description: text('description'),
+	subdomain: text('subdomain'),
+	themeColor: text('theme_color'),
+	isDefault: integer('is_default').default(0),
+	createdAt: text('created_at').notNull(),
+	updatedAt: text('updated_at').notNull()
+});
+
+export const userVerticals = sqliteTable('user_verticals', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+	verticalId: text('vertical_id').notNull().references(() => verticals.id, { onDelete: 'cascade' }),
+	createdAt: text('created_at').notNull()
+});
+
 export const leads = sqliteTable('leads', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
+	verticalId: text('vertical_id').references(() => verticals.id),
 	businessName: text('business_name').notNull(),
 	email: text('email').notNull(),
 	phone: text('phone').notNull(),
@@ -50,7 +70,9 @@ export const contracts = sqliteTable('contracts', {
 });
 
 export const intakeCms = sqliteTable('intake_cms', {
-	id: text('id').primaryKey(), // 'hero', 'about', 'how_it_works', 'contact'
+	id: text('id').primaryKey(), // e.g. 'mmj-dispensary__hero' or legacy 'hero'
+	verticalId: text('vertical_id').default('mmj-dispensary'),
+	sectionId: text('section_id'),
 	title: text('title').notNull(),
 	subtitle: text('subtitle'),
 	contentJson: text('content_json').notNull(),
@@ -76,6 +98,7 @@ export const sessions = sqliteTable('sessions', {
 export const bookedCalls = sqliteTable('booked_calls', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	leadId: integer('lead_id').references(() => leads.id, { onDelete: 'cascade' }),
+	verticalId: text('vertical_id').references(() => verticals.id),
 	clientName: text('client_name').notNull(),
 	clientEmail: text('client_email').notNull(),
 	clientPhone: text('client_phone'),

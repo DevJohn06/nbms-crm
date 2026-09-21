@@ -16,7 +16,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// Domain Redirect: If accessing /funnel from crm domain or main domain, redirect to https://dispensary.nbmsinc.com/funnel
 	if (
 		!isDispensarySubdomain &&
-		event.url.pathname.startsWith('/funnel') &&
+		(event.url.pathname === '/funnel' || event.url.pathname === '/funnel/mmj-dispensary') &&
 		!host.includes('localhost') &&
 		!host.includes('127.0.0.1')
 	) {

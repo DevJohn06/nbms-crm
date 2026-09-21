@@ -1,9 +1,24 @@
 import { db } from '$lib/server/db';
-import { emailLogs, leads, emailTemplates } from '$lib/server/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { emailLogs, leads, emailTemplates, verticals } from '$lib/server/db/schema';
+import { eq, desc, inArray } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
+import { getAccessibleVerticalIds } from '$lib/server/verticals';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
+	const user = locals.user;
+	const accessibleVerticalIds = await getAccessibleVerticalIds(user);
+
+	const templates = await db.select().from(emailTemplates).orderBy(desc(emailTemplates.createdAt));
+
+	if (!user || accessibleVerticalIds.length === 0) {
+		return {
+			logs: [],
+			templates,
+			leads: [],
+			noVerticalsAssigned: true
+		};
+	}
+
 	const logs = await db
 		.select({
 			id: emailLogs.id,
@@ -15,18 +30,26 @@ export const load: PageServerLoad = async () => {
 			status: emailLogs.status,
 			direction: emailLogs.direction,
 			sentAt: emailLogs.sentAt,
-			businessName: leads.businessName
+			businessName: leads.businessName,
+			verticalId: leads.verticalId,
+			verticalName: verticals.name
 		})
 		.from(emailLogs)
-		.leftJoin(leads, eq(emailLogs.leadId, leads.id))
+		.innerJoin(leads, eq(emailLogs.leadId, leads.id))
+		.leftJoin(verticals, eq(leads.verticalId, verticals.id))
+		.where(inArray(leads.verticalId, accessibleVerticalIds))
 		.orderBy(desc(emailLogs.sentAt));
 
-	const templates = await db.select().from(emailTemplates).orderBy(desc(emailTemplates.createdAt));
-	const allLeads = await db.select().from(leads).orderBy(desc(leads.createdAt));
+	const scopedLeads = await db
+		.select()
+		.from(leads)
+		.where(inArray(leads.verticalId, accessibleVerticalIds))
+		.orderBy(desc(leads.createdAt));
 
 	return {
 		logs,
 		templates,
-		leads: allLeads
+		leads: scopedLeads,
+		noVerticalsAssigned: false
 	};
 };

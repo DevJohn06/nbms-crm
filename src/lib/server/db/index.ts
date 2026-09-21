@@ -124,6 +124,46 @@ export async function initDatabase() {
 			);
 		`);
 
+		await client.execute(`
+			CREATE TABLE IF NOT EXISTS verticals (
+				id TEXT PRIMARY KEY,
+				name TEXT NOT NULL,
+				slug TEXT NOT NULL UNIQUE,
+				description TEXT,
+				subdomain TEXT,
+				theme_color TEXT,
+				is_default INTEGER DEFAULT 0,
+				created_at TEXT NOT NULL,
+				updated_at TEXT NOT NULL
+			);
+		`);
+
+		await client.execute(`
+			CREATE TABLE IF NOT EXISTS user_verticals (
+				id INTEGER PRIMARY KEY AUTOINCREMENT,
+				user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+				vertical_id TEXT NOT NULL REFERENCES verticals(id) ON DELETE CASCADE,
+				created_at TEXT NOT NULL
+			);
+		`);
+
+		// Migration: ensure columns exist for verticals integration
+		try {
+			await client.execute(`ALTER TABLE leads ADD COLUMN vertical_id TEXT REFERENCES verticals(id);`);
+		} catch {}
+
+		try {
+			await client.execute(`ALTER TABLE booked_calls ADD COLUMN vertical_id TEXT REFERENCES verticals(id);`);
+		} catch {}
+
+		try {
+			await client.execute(`ALTER TABLE intake_cms ADD COLUMN vertical_id TEXT DEFAULT 'mmj-dispensary';`);
+		} catch {}
+
+		try {
+			await client.execute(`ALTER TABLE intake_cms ADD COLUMN section_id TEXT;`);
+		} catch {}
+
 		// Seed initial Developer Super Admin if target email does not exist
 		const initialEmail = (process.env.SUPERADMIN_EMAIL || 'admin').toLowerCase();
 		const existingAdmin = await client.execute({
@@ -151,6 +191,56 @@ export async function initDatabase() {
 				]
 			});
 			console.log(`[AUTH SEED] Initial Super Admin account created: ${initialEmail}`);
+		}
+
+		// Seed initial Default Vertical: MMJ Dispensary
+		const defaultVerticalCheck = await client.execute({
+			sql: `SELECT id FROM verticals WHERE id = 'mmj-dispensary'`
+		});
+
+		if (defaultVerticalCheck.rows.length === 0) {
+			const now = new Date().toISOString();
+			await client.execute({
+				sql: `INSERT OR IGNORE INTO verticals (id, name, slug, description, subdomain, is_default, created_at, updated_at)
+				      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+				args: [
+					'mmj-dispensary',
+					'MMJ Dispensary',
+					'mmj-dispensary',
+					'Medical Marijuana Dispensaries & High-Risk Cannabis Retail Payment Processing',
+					'dispensary',
+					1,
+					now,
+					now
+				]
+			});
+			console.log(`[VERTICALS SEED] Initial default vertical created: MMJ Dispensary (mmj-dispensary)`);
+		}
+
+		// Backfill existing leads, calls, and CMS entries without vertical_id
+		await client.execute(`UPDATE leads SET vertical_id = 'mmj-dispensary' WHERE vertical_id IS NULL OR vertical_id = '';`);
+		await client.execute(`UPDATE booked_calls SET vertical_id = 'mmj-dispensary' WHERE vertical_id IS NULL OR vertical_id = '';`);
+		await client.execute(`UPDATE intake_cms SET vertical_id = 'mmj-dispensary' WHERE vertical_id IS NULL OR vertical_id = '';`);
+		await client.execute(`UPDATE intake_cms SET section_id = id WHERE section_id IS NULL OR section_id = '';`);
+
+		// Seed initial user vertical assignment for Super Admin
+		const adminUserRes = await client.execute({
+			sql: `SELECT id FROM users WHERE role = 'SUPER_ADMIN' LIMIT 1`
+		});
+		if (adminUserRes.rows.length > 0) {
+			const adminUserId = String(adminUserRes.rows[0].id);
+			const userVertCheck = await client.execute({
+				sql: `SELECT id FROM user_verticals WHERE user_id = ? AND vertical_id = 'mmj-dispensary'`,
+				args: [adminUserId]
+			});
+			if (userVertCheck.rows.length === 0) {
+				const now = new Date().toISOString();
+				await client.execute({
+					sql: `INSERT INTO user_verticals (user_id, vertical_id, created_at) VALUES (?, ?, ?)`,
+					args: [adminUserId, 'mmj-dispensary', now]
+				});
+				console.log(`[USER VERTICALS SEED] Assigned Super Admin (${adminUserId}) to MMJ Dispensary`);
+			}
 		}
 
 		// Seed & Migrate default Intake CMS sections

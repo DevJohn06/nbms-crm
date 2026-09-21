@@ -3,12 +3,28 @@
 	import * as XLSX from 'xlsx';
 	import { UploadCloud, FileSpreadsheet, CheckCircle2, AlertCircle, X, ArrowRight, Loader2 } from 'lucide-svelte';
 
-	let { isOpen = $bindable(false), onImportSuccess }: { isOpen: boolean; onImportSuccess?: () => void } = $props();
+	let {
+		isOpen = $bindable(false),
+		onImportSuccess,
+		availableVerticals = []
+	}: {
+		isOpen: boolean;
+		onImportSuccess?: () => void;
+		availableVerticals?: Array<{ id: string; name: string }>;
+	} = $props();
 
 	let fileInput = $state<HTMLInputElement>();
 	let fileName = $state('');
 	let parsedRows = $state<any[]>([]);
 	let headers = $state<string[]>([]);
+
+	let selectedVerticalId = $state('');
+
+	$effect(() => {
+		if (availableVerticals.length > 0 && !selectedVerticalId) {
+			selectedVerticalId = availableVerticals[0].id;
+		}
+	});
 
 	let colBusiness = $state('');
 	let colEmail = $state('');
@@ -188,6 +204,7 @@
 
 				const form = new FormData();
 				form.append('leadsJson', JSON.stringify(chunk));
+				form.append('verticalId', selectedVerticalId);
 
 				const res = await fetch('/leads?/importBatch', {
 					method: 'POST',
@@ -397,6 +414,25 @@
 								{/each}
 							</select>
 						</div>
+					</div>
+
+					<!-- Target Vertical Selector -->
+					<div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+						<label for="import-vertical" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+							Target Industry Vertical *
+						</label>
+						<select
+							id="import-vertical"
+							bind:value={selectedVerticalId}
+							class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-xs text-slate-900 dark:text-slate-100 focus:border-sky-500 font-semibold"
+						>
+							{#each availableVerticals as vert}
+								<option value={vert.id}>{vert.name}</option>
+							{/each}
+							{#if availableVerticals.length === 0}
+								<option value="mmj-dispensary">MMJ Dispensary (Default)</option>
+							{/if}
+						</select>
 					</div>
 
 					<!-- Preview Table Snippet -->

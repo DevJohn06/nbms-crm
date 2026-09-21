@@ -110,6 +110,18 @@
 </script>
 
 <div class="space-y-6">
+	{#if data.noVerticalsAssigned}
+		<div class="p-8 rounded-2xl border-2 border-amber-300/60 dark:border-amber-500/30 bg-amber-50/70 dark:bg-amber-950/20 text-center space-y-3">
+			<div class="inline-flex p-3 rounded-2xl bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400">
+				<Layers class="w-8 h-8" />
+			</div>
+			<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">No Business Verticals Assigned</h3>
+			<p class="text-xs text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+				Your user account does not currently have any industry verticals assigned. You cannot view lead email communications until an administrator grants you access to one or more verticals.
+			</p>
+		</div>
+	{/if}
+
 	<!-- Page Header -->
 	<div class="flex items-center justify-between">
 		<div>

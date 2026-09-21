@@ -1,23 +1,32 @@
-import { fail, type Actions } from '@sveltejs/kit';
+import { fail, error, type Actions } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { db } from '$lib/server/db';
 import { contracts, bookedCalls } from '$lib/server/db/schema';
 import { getIntakeCmsSections } from '$lib/server/cms';
-import { sendEmailToLead, sendDirectEmail } from '$lib/server/email';
+import { sendEmailToLead } from '$lib/server/email';
 import { upsertOrCollateLead } from '$lib/server/leads';
+import { getVerticalBySlug } from '$lib/server/verticals';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async () => {
-	const { sections, sectionOrder } = await getIntakeCmsSections();
+export const load: PageServerLoad = async ({ params }) => {
+	const verticalSlug = params.vertical;
+	const vertical = await getVerticalBySlug(verticalSlug);
+
+	if (!vertical) {
+		throw error(404, `Industry vertical '${verticalSlug}' was not found.`);
+	}
+
+	const { sections, sectionOrder } = await getIntakeCmsSections(verticalSlug);
 	return {
 		cms: sections,
-		sectionOrder
+		sectionOrder,
+		vertical
 	};
 };
 
 export const actions: Actions = {
-	// CTA 1: Get Info Form Submission
-	submitGetInfo: async ({ request }) => {
+	submitGetInfo: async ({ request, params }) => {
+		const verticalSlug = params.vertical || 'mmj-dispensary';
 		const formData = await request.formData();
 
 		const businessName = formData.get('businessName')?.toString().trim();
@@ -32,27 +41,25 @@ export const actions: Actions = {
 		}
 
 		try {
-			// 1. Upsert or Collate lead by business name
 			const leadRes = await upsertOrCollateLead({
 				businessName,
 				email,
 				phone,
 				status: 'NEW',
-				verticalId: 'mmj-dispensary',
-				notes: notes || `Inquiry Intake Form. Representative: ${representativeName || 'N/A'}. Monthly Volume: ${monthlyVolume || 'Not specified'}`,
+				verticalId: verticalSlug,
+				notes: notes || `Inquiry Intake Form (${verticalSlug}). Representative: ${representativeName || 'N/A'}. Monthly Volume: ${monthlyVolume || 'Not specified'}`,
 				customFields: JSON.stringify({
 					Representative: representativeName || businessName,
 					MonthlyVolume: monthlyVolume || 'N/A',
-					FormType: 'Get Info CTA'
+					FormType: 'Get Info CTA',
+					Vertical: verticalSlug
 				})
 			});
 
 			const leadId = leadRes.id;
-
-			// 2. Send instant automated confirmation email citing receipt & promised follow-up
-			const emailSubject = `We've received your request – NBMS Merchant Services`;
 			const clientName = representativeName || businessName;
 			const fromEmail = env.RESEND_FROM_EMAIL || 'sales@nbmsinc.com';
+			const emailSubject = `We've received your request – NBMS Merchant Services`;
 			const emailBody = `
 				<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; background: #ffffff;">
 					<div style="text-align: center; padding-bottom: 20px; border-bottom: 2px solid #1f71c1;">
@@ -71,15 +78,14 @@ export const actions: Actions = {
 							<ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 13px; color: #475569;">
 								<li><strong>Business Name:</strong> ${businessName}</li>
 								<li><strong>Est. Monthly Volume:</strong> ${monthlyVolume || 'Standard Processing Tier'}</li>
+								<li><strong>Industry Vertical:</strong> ${verticalSlug}</li>
 								<li><strong>Reference Lead ID:</strong> #${leadId}</li>
 							</ul>
 						</div>
-
-						<p style="font-size: 13px; color: #475569;">Need immediate assistance? Reply directly to this email or call our priority onboarding desk at (877) 817-2257.</p>
 					</div>
 
 					<div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 11px; color: #94a3b8;">
-						NBMS CRM & Merchant Solutions © 2026. All rights reserved.
+						NBMS CRM & Merchant Solutions © 2026.
 					</div>
 				</div>
 			`;
@@ -89,23 +95,18 @@ export const actions: Actions = {
 				sender: fromEmail,
 				subject: emailSubject,
 				bodyHtml: emailBody,
-				newStatusOnSend: 'NEW'
+				newStatusOnSend: 'EMAILED'
 			});
 
-			return {
-				success: true,
-				actionType: 'getInfo',
-				businessName,
-				email
-			};
+			return { success: true, actionType: 'getInfo', businessName };
 		} catch (err: any) {
-			console.error('Error in submitGetInfo:', err);
-			return fail(500, { error: err?.message || 'Failed to submit inquiry form.' });
+			console.error('Error submitting get info form:', err);
+			return fail(500, { error: err?.message || 'Failed to submit inquiry.' });
 		}
 	},
 
-	// CTA 2: Book A Call Form Submission / Calendly Scheduler
-	bookCall: async ({ request }) => {
+	bookCall: async ({ request, params }) => {
+		const verticalSlug = params.vertical || 'mmj-dispensary';
 		const formData = await request.formData();
 
 		const clientName = formData.get('clientName')?.toString().trim();
@@ -124,50 +125,45 @@ export const actions: Actions = {
 
 		try {
 			const now = new Date().toISOString();
-
-			// 1. Upsert or Collate lead by business name / client name
 			const leadNotes = `Booked Strategy Call: ${meetingType} (${callPreference}, ${timezone}) scheduled for ${callDate}.${notes ? ` Notes: ${notes}` : ''}`;
 			const leadRes = await upsertOrCollateLead({
 				businessName: businessName || clientName,
 				email: clientEmail,
 				phone: clientPhone || 'N/A',
 				status: 'CONTACTED',
-				verticalId: 'mmj-dispensary',
+				verticalId: verticalSlug,
 				notes: leadNotes,
 				customFields: JSON.stringify({
 					BookedCallDate: callDate,
 					MeetingType: meetingType,
 					CallPreference: callPreference,
-					Timezone: timezone
+					Timezone: timezone,
+					Vertical: verticalSlug
 				})
 			});
 
 			const leadId = leadRes.id;
-
-			// 2. Insert into booked_calls table
 			const callNotes = [
 				`Format: ${callPreference}`,
 				`Timezone: ${timezone}`,
+				`Vertical: ${verticalSlug}`,
 				notes
 			].filter(Boolean).join(' | ');
 
-			await db
-				.insert(bookedCalls)
-				.values({
-					verticalId: 'mmj-dispensary',
-					leadId,
-					clientName,
-					clientEmail,
-					clientPhone: clientPhone || null,
-					businessName: businessName || null,
-					callDate,
-					meetingType,
-					notes: callNotes || null,
-					status: 'SCHEDULED',
-					createdAt: now
-				});
+			await db.insert(bookedCalls).values({
+				verticalId: verticalSlug,
+				leadId,
+				clientName,
+				clientEmail,
+				clientPhone: clientPhone || null,
+				businessName: businessName || null,
+				callDate,
+				meetingType,
+				notes: callNotes || null,
+				status: 'SCHEDULED',
+				createdAt: now
+			});
 
-			// 3. Send confirmation email
 			const emailSubject = `Call Confirmed: ${meetingType} with NBMS Specialist`;
 			const fromEmail = env.RESEND_FROM_EMAIL || 'sales@nbmsinc.com';
 			const connectionInstruction = callPreference === 'Zoom Call'
@@ -195,17 +191,6 @@ export const actions: Actions = {
 						</div>
 
 						<p style="font-size: 13px; color: #475569;">${connectionInstruction}</p>
-
-						<!-- Scheduling Notice Disclaimer -->
-						<div style="background-color: #fefce8; border-left: 4px solid #eab308; border-radius: 4px; padding: 14px 16px; margin: 20px 0;">
-							<p style="margin: 0; font-size: 13px; font-weight: bold; color: #854d0e;">💡 Scheduling Notice:</p>
-							<p style="margin: 6px 0 0 0; font-size: 12.5px; line-height: 1.5; color: #713f12;">
-								While our merchant advisory team operates 24/7, we kindly ask for a 1-business-day notice on all strategy sessions. This ensures our senior payments consultant can thoroughly analyze your business profile, evaluate underwriting risk parameters, and prepare a tailored interchange rate comparison prior to our meeting.
-							</p>
-							<p style="margin: 8px 0 0 0; font-size: 12px; color: #854d0e;">
-								Need immediate priority onboarding or an earlier time? Please reply directly to this email.
-							</p>
-						</div>
 					</div>
 
 					<div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 11px; color: #94a3b8;">
@@ -222,49 +207,6 @@ export const actions: Actions = {
 				newStatusOnSend: 'CONTACTED'
 			});
 
-			// 4. Send booking details alert to admin
-			const adminEmailSubject = `🎯 Strategy Session Booked: ${clientName} (${businessName || 'Merchant'})`;
-			const adminEmailBody = `
-				<div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; background: #ffffff;">
-					<div style="text-align: center; padding-bottom: 20px; border-bottom: 2px solid #1f71c1;">
-						<h2 style="color: #1f71c1; margin: 0;">New Strategy Call Scheduled</h2>
-						<p style="font-size: 13px; color: #64748b; margin-top: 4px;">NBMS CRM Booking Notification</p>
-					</div>
-
-					<div style="padding: 20px 0;">
-						<p>A merchant has scheduled a strategy session via the website booking modal.</p>
-
-						<div style="background-color: #f0f7fc; border: 1px solid #dbe7f1; padding: 16px; border-radius: 8px; margin: 16px 0;">
-							<h3 style="margin-top: 0; color: #15528d; font-size: 15px;">📅 Booking Details</h3>
-							<table style="width: 100%; font-size: 13px; color: #334155; border-collapse: collapse;">
-								<tr><td style="padding: 6px 0; font-weight: bold; width: 140px;">Client Name:</td><td>${clientName}</td></tr>
-								<tr><td style="padding: 6px 0; font-weight: bold;">Business Name:</td><td>${businessName || 'N/A'}</td></tr>
-								<tr><td style="padding: 6px 0; font-weight: bold;">Email:</td><td><a href="mailto:${clientEmail}">${clientEmail}</a></td></tr>
-								<tr><td style="padding: 6px 0; font-weight: bold;">Phone:</td><td><a href="tel:${clientPhone || ''}">${clientPhone || 'N/A'}</a></td></tr>
-								<tr><td style="padding: 6px 0; font-weight: bold;">Scheduled Time:</td><td>${new Date(callDate).toLocaleString()}</td></tr>
-								<tr><td style="padding: 6px 0; font-weight: bold;">Timezone:</td><td>${timezone}</td></tr>
-								<tr><td style="padding: 6px 0; font-weight: bold;">Format:</td><td>${callPreference}</td></tr>
-								<tr><td style="padding: 6px 0; font-weight: bold;">Meeting Topic:</td><td>${meetingType}</td></tr>
-								<tr><td style="padding: 6px 0; font-weight: bold;">Lead ID:</td><td>#${leadId}</td></tr>
-								${notes ? `<tr><td style="padding: 6px 0; font-weight: bold;">Notes:</td><td>${notes}</td></tr>` : ''}
-							</table>
-						</div>
-					</div>
-
-					<div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 11px; color: #94a3b8;">
-						NBMS CRM & Merchant Solutions © 2026.
-					</div>
-				</div>
-			`;
-
-			const notificationTarget = env.NOTIFICATION_EMAIL || fromEmail;
-			await sendDirectEmail({
-				to: notificationTarget,
-				sender: fromEmail,
-				subject: adminEmailSubject,
-				bodyHtml: adminEmailBody
-			});
-
 			return {
 				success: true,
 				actionType: 'bookCall',
@@ -277,8 +219,8 @@ export const actions: Actions = {
 		}
 	},
 
-	// Tier Selection & Contract Intake
-	submitIntake: async ({ request }) => {
+	submitIntake: async ({ request, params }) => {
+		const verticalSlug = params.vertical || 'mmj-dispensary';
 		const formData = await request.formData();
 
 		const businessName = formData.get('businessName')?.toString().trim();
@@ -296,24 +238,16 @@ export const actions: Actions = {
 
 		try {
 			const now = new Date().toISOString();
-
-			// 1. Upsert or Collate lead by business name
 			const leadRes = await upsertOrCollateLead({
 				businessName,
 				email,
 				phone,
-				status: 'NEW',
-				verticalId: 'mmj-dispensary',
-				notes: notes || `Public Onboarding Application. Selected tier: ${selectedPackage}`,
-				customFields: JSON.stringify({
-					SelectedPackage: selectedPackage,
-					MonthlyFee: monthlyFee,
-					Representative: representativeName || businessName
-				})
+				status: 'CONTRACT_SENT',
+				verticalId: verticalSlug,
+				notes: notes || `Package Selected: ${selectedPackage} (${monthlyFee}). Representative: ${representativeName || 'N/A'}`
 			});
 
 			const leadId = leadRes.id;
-
 			const contractId = `PAY-CON-${Math.floor(100000 + Math.random() * 900000)}`;
 			await db.insert(contracts).values({
 				id: contractId,
@@ -322,23 +256,17 @@ export const actions: Actions = {
 				clientEmail: email,
 				servicePackage: selectedPackage,
 				monthlyFee,
-				contractTerms: 'Standard NBMS 12-Month Merchant Processing Service Agreement.',
-				signatureData: signatureData || null,
+				contractTerms: `Package: ${selectedPackage}. Monthly Fee: ${monthlyFee}. Vertical: ${verticalSlug}`,
 				status: signatureData ? 'SIGNED' : 'PENDING_SIGNATURE',
+				signatureData: signatureData || null,
 				createdAt: now,
 				signedAt: signatureData ? now : null
 			});
 
-			return {
-				success: true,
-				actionType: 'intake',
-				businessName,
-				leadId,
-				contractId
-			};
+			return { success: true, actionType: 'intake', businessName };
 		} catch (err: any) {
 			console.error('Error submitting intake:', err);
-			return fail(500, { error: err?.message || 'Failed to submit onboarding application.' });
+			return fail(500, { error: err?.message || 'Failed to submit intake application.' });
 		}
 	}
 };

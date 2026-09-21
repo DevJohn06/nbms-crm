@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { Calendar, PhoneCall, Clock, CheckCircle2, XCircle, Search, Plus, User, Building, Mail, Phone, ExternalLink, RefreshCw, Loader2, X } from 'lucide-svelte';
+	import { Calendar, PhoneCall, Clock, CheckCircle2, XCircle, Search, Plus, User, Building, Mail, Phone, ExternalLink, RefreshCw, Loader2, X, Layers } from 'lucide-svelte';
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import { toastStore } from '$lib/toast.svelte';
 	import { enhance } from '$app/forms';
 	import { page, navigating } from '$app/stores';
-	import { invalidateAll } from '$app/navigation';
+	import { invalidateAll, goto } from '$app/navigation';
 
 	let { data, form } = $props();
 
@@ -12,7 +12,25 @@
 	let debouncedSearchQuery = $state('');
 	let searchByField = $state<'all' | 'client' | 'email' | 'business'>('all');
 	let statusFilter = $state('ALL');
+	let verticalFilter = $state('ALL');
+	let newCallVerticalId = $state('mmj-dispensary');
 	let isBookModalOpen = $state(false);
+
+	$effect(() => {
+		verticalFilter = data.verticalFilter || 'ALL';
+		if (data.availableVerticals && data.availableVerticals.length > 0 && newCallVerticalId === 'mmj-dispensary') {
+			newCallVerticalId = data.availableVerticals[0].id;
+		}
+	});
+
+	function handleVerticalFilterChange(e: Event) {
+		const val = (e.target as HTMLSelectElement).value;
+		verticalFilter = val;
+		const url = new URL(window.location.href);
+		if (val && val !== 'ALL') url.searchParams.set('vertical', val);
+		else url.searchParams.delete('vertical');
+		goto(url.toString(), { keepFocus: true, replaceState: true });
+	}
 
 	let isRefreshing = $state(false);
 	let isSearchFiltering = $state(false);
@@ -153,6 +171,18 @@
 </svelte:head>
 
 <div class="space-y-6">
+	{#if data.noVerticalsAssigned}
+		<div class="p-8 rounded-2xl border-2 border-amber-300/60 dark:border-amber-500/30 bg-amber-50/70 dark:bg-amber-950/20 text-center space-y-3">
+			<div class="inline-flex p-3 rounded-2xl bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400">
+				<Layers class="w-8 h-8" />
+			</div>
+			<h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">No Business Verticals Assigned</h3>
+			<p class="text-xs text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+				Your user account does not currently have any industry verticals assigned. You cannot view, log, or manage strategy calls until an administrator grants you access to one or more verticals.
+			</p>
+		</div>
+	{/if}
+
 	<!-- Page Banner -->
 	<div class="glass-panel p-6 rounded-2xl border border-cyan-200 dark:border-cyan-500/30 bg-gradient-to-r from-white via-cyan-50 to-slate-50 dark:from-slate-900 dark:via-cyan-950/30 dark:to-slate-950 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
 		<div>
@@ -222,6 +252,20 @@
 				<option value="CANCELLED">Cancelled</option>
 			</select>
 
+			{#if data.availableVerticals && data.availableVerticals.length > 0}
+				<select
+					bind:value={verticalFilter}
+					onchange={handleVerticalFilterChange}
+					class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:border-cyan-500 focus:outline-none shadow-xs font-semibold cursor-pointer"
+					title="Filter by Business Vertical"
+				>
+					<option value="ALL">All Verticals ({data.availableVerticals.length})</option>
+					{#each data.availableVerticals as v}
+						<option value={v.id}>{v.name}</option>
+					{/each}
+				</select>
+			{/if}
+
 			<button
 				type="button"
 				onclick={refreshData}
@@ -272,6 +316,7 @@
 				<thead class="bg-slate-100 dark:bg-slate-900/90 text-slate-700 dark:text-slate-400 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800">
 					<tr>
 						<th class="py-3.5 px-4">Merchant / Client</th>
+						<th class="py-3.5 px-4">Vertical</th>
 						<th class="py-3.5 px-4">Contact Info</th>
 						<th class="py-3.5 px-4">Call Schedule & Time</th>
 						<th class="py-3.5 px-4">Meeting Type</th>
@@ -284,6 +329,7 @@
 						{#each Array(5) as _, i}
 							<tr class="animate-pulse">
 								<td class="py-3.5 px-4"><div class="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-3/4"></div></td>
+								<td class="py-3.5 px-4"><div class="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-20"></div></td>
 								<td class="py-3.5 px-4"><div class="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-4/5"></div></td>
 								<td class="py-3.5 px-4"><div class="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-1/2"></div></td>
 								<td class="py-3.5 px-4"><div class="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-24"></div></td>
@@ -305,6 +351,12 @@
 										{call.businessName}
 									</div>
 								{/if}
+							</td>
+
+							<td class="py-3.5 px-4">
+								<span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-purple-50 text-purple-900 dark:bg-purple-950/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 whitespace-nowrap">
+									{call.verticalName || call.verticalId || 'MMJ Dispensary'}
+								</span>
 							</td>
 
 							<td class="py-3.5 px-4">
@@ -369,7 +421,7 @@
 						</tr>
 					{:else}
 						<tr>
-							<td colspan="6" class="py-12 text-center text-slate-500 text-sm">
+							<td colspan="7" class="py-12 text-center text-slate-500 text-sm">
 								No strategy calls booked yet. Click "Log Booked Call" to manually schedule a meeting.
 							</td>
 						</tr>
@@ -400,6 +452,17 @@
 					update();
 				};
 			}} class="space-y-4">
+				{#if data.availableVerticals && data.availableVerticals.length > 0}
+					<div class="space-y-1.5">
+						<label for="callVerticalId" class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Business Vertical *</label>
+						<select id="callVerticalId" name="verticalId" bind:value={newCallVerticalId} class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-cyan-500 focus:outline-none cursor-pointer font-semibold">
+							{#each data.availableVerticals as v}
+								<option value={v.id}>{v.name}</option>
+							{/each}
+						</select>
+					</div>
+				{/if}
+
 				<div class="space-y-1.5">
 					<label for="clientName" class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Client Name *</label>
 					<input id="clientName" name="clientName" required placeholder="Alex Mercer" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-cyan-500 focus:outline-none" />

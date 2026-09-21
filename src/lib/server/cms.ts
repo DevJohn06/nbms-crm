@@ -1,6 +1,6 @@
 import { db } from './db';
-import { intakeCms } from './db/schema';
-import { eq } from 'drizzle-orm';
+import { intakeCms, verticals } from './db/schema';
+import { eq, or, sql } from 'drizzle-orm';
 
 export interface CmsSectionData {
 	id: 'hero' | 'about' | 'how_it_works' | 'contact' | 'process_flow' | 'faqs' | 'footer';
@@ -10,11 +10,32 @@ export interface CmsSectionData {
 	updatedAt: string;
 }
 
-export async function getIntakeCmsSections(): Promise<{
+export async function getIntakeCmsSections(verticalId: string = 'mmj-dispensary'): Promise<{
 	sections: Record<string, CmsSectionData>;
 	sectionOrder: string[];
+	verticalName?: string;
 }> {
-	const records = await db.select().from(intakeCms);
+	const targetVerticalId = (verticalId || 'mmj-dispensary').toLowerCase();
+
+	// Query records for this vertical or legacy un-prefixed records if mmj-dispensary
+	const records = await db
+		.select()
+		.from(intakeCms)
+		.where(
+			targetVerticalId === 'mmj-dispensary'
+				? or(
+						eq(intakeCms.verticalId, 'mmj-dispensary'),
+						sql`${intakeCms.id} NOT LIKE '%__%'`
+				  )
+				: or(
+						eq(intakeCms.verticalId, targetVerticalId),
+						sql`${intakeCms.id} LIKE ${targetVerticalId + '__%'}`
+				  )
+		);
+
+	// Fetch vertical info if available
+	const [vInfo] = await db.select().from(verticals).where(eq(verticals.id, targetVerticalId));
+	const verticalName = vInfo?.name || (targetVerticalId === 'mmj-dispensary' ? 'MMJ Dispensary' : targetVerticalId);
 
 	const defaults: Record<string, CmsSectionData> = {
 		hero: {
@@ -229,7 +250,8 @@ export async function getIntakeCmsSections(): Promise<{
 	let sectionOrder = [...defaultOrder];
 
 	for (const rec of records) {
-		if (rec.id === 'section_order') {
+		const rawSectionId = rec.sectionId || rec.id.replace(/^.+__/, '');
+		if (rawSectionId === 'section_order') {
 			try {
 				const parsed = JSON.parse(rec.contentJson);
 				if (parsed && Array.isArray(parsed.order) && parsed.order.length > 0) {
@@ -249,17 +271,17 @@ export async function getIntakeCmsSections(): Promise<{
 		}
 
 		try {
-			if (rec.id === 'hero' && rec.title.toLowerCase().includes('merchant setup')) {
+			if (rawSectionId === 'hero' && rec.title.toLowerCase().includes('merchant setup')) {
 				rec.title = 'ATM Payment Processing Solutions';
 			}
 
 			const parsedContent = JSON.parse(rec.contentJson);
 
-			defaults[rec.id] = {
-				id: rec.id as any,
+			defaults[rawSectionId] = {
+				id: rawSectionId as any,
 				title: rec.title,
 				subtitle: rec.subtitle || '',
-				content: { ...defaults[rec.id]?.content, ...parsedContent },
+				content: { ...defaults[rawSectionId]?.content, ...parsedContent },
 				updatedAt: rec.updatedAt
 			};
 		} catch (e) {
@@ -269,18 +291,42 @@ export async function getIntakeCmsSections(): Promise<{
 
 	return {
 		sections: defaults,
-		sectionOrder
+		sectionOrder,
+		verticalName
 	};
 }
 
-export async function updateCmsSection(id: string, title: string, subtitle: string, content: any) {
+export async function updateCmsSection(
+	arg1: string,
+	arg2: string,
+	arg3: string,
+	arg4: any,
+	arg5?: any
+) {
+	let verticalId = 'mmj-dispensary';
+	let sectionId = arg1;
+	let title = arg2;
+	let subtitle = arg3;
+	let content = arg4;
+
+	if (arg5 !== undefined) {
+		verticalId = arg1 || 'mmj-dispensary';
+		sectionId = arg2;
+		title = arg3;
+		subtitle = arg4 || '';
+		content = arg5;
+	}
+
 	const now = new Date().toISOString();
 	const contentJson = JSON.stringify(content);
+	const compoundId = `${verticalId}__${sectionId}`;
 
 	const [updated] = await db
 		.insert(intakeCms)
 		.values({
-			id,
+			id: compoundId,
+			verticalId,
+			sectionId,
 			title,
 			subtitle,
 			contentJson,
@@ -289,6 +335,8 @@ export async function updateCmsSection(id: string, title: string, subtitle: stri
 		.onConflictDoUpdate({
 			target: intakeCms.id,
 			set: {
+				verticalId,
+				sectionId,
 				title,
 				subtitle,
 				contentJson,
@@ -296,6 +344,32 @@ export async function updateCmsSection(id: string, title: string, subtitle: stri
 			}
 		})
 		.returning();
+
+	// If mmj-dispensary, also update legacy row for compatibility
+	if (verticalId === 'mmj-dispensary') {
+		await db
+			.insert(intakeCms)
+			.values({
+				id: sectionId,
+				verticalId: 'mmj-dispensary',
+				sectionId,
+				title,
+				subtitle,
+				contentJson,
+				updatedAt: now
+			})
+			.onConflictDoUpdate({
+				target: intakeCms.id,
+				set: {
+					verticalId: 'mmj-dispensary',
+					sectionId,
+					title,
+					subtitle,
+					contentJson,
+					updatedAt: now
+				}
+			});
+	}
 
 	return updated;
 }

@@ -5,6 +5,7 @@ import { users } from '$lib/server/db/schema';
 import { eq, desc, ne, and } from 'drizzle-orm';
 import { hashPassword, verifyPassword } from '$lib/server/auth/auth';
 import { randomUUID } from 'node:crypto';
+import { getAllVerticals, getUserAssignedVerticals, setUserAssignedVerticals } from '$lib/server/verticals';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user || locals.user.role !== 'SUPER_ADMIN') {
@@ -23,8 +24,21 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.from(users)
 		.orderBy(desc(users.createdAt));
 
+	const allVerticals = await getAllVerticals();
+
+	const usersWithVerticals = await Promise.all(
+		allUsers.map(async (u) => {
+			const assigned = await getUserAssignedVerticals(u.id);
+			return {
+				...u,
+				assignedVerticals: assigned
+			};
+		})
+	);
+
 	return {
-		usersList: allUsers
+		usersList: usersWithVerticals,
+		verticalsList: allVerticals
 	};
 };
 
@@ -39,6 +53,7 @@ export const actions: Actions = {
 		const email = formData.get('email')?.toString().trim().toLowerCase();
 		const password = formData.get('password')?.toString();
 		const role = formData.get('role')?.toString() as 'SUPER_ADMIN' | 'ADMIN' | 'AGENT';
+		const verticalIds = formData.getAll('verticalIds').map((v) => v.toString()).filter(Boolean);
 
 		if (!name || !email || !password || !role) {
 			return fail(400, { error: 'All fields (Name, Email, Password, Role) are required.' });
@@ -67,6 +82,11 @@ export const actions: Actions = {
 			createdAt: now,
 			updatedAt: now
 		});
+
+		// Save vertical assignments
+		if (verticalIds.length > 0) {
+			await setUserAssignedVerticals(userId, verticalIds);
+		}
 
 		return { success: true, message: `Successfully created user account for ${name} (${role})` };
 	},
@@ -121,7 +141,30 @@ export const actions: Actions = {
 
 		await db.update(users).set(updatePayload).where(eq(users.id, userId));
 
+		if (formData.has('hasVerticalsField')) {
+			const verticalIds = formData.getAll('verticalIds').map((v) => v.toString()).filter(Boolean);
+			await setUserAssignedVerticals(userId, verticalIds);
+		}
+
 		return { success: true, message: `Account details for ${name} updated successfully.` };
+	},
+
+	assignVerticals: async ({ request, locals }) => {
+		if (!locals.user || locals.user.role !== 'SUPER_ADMIN') {
+			return fail(403, { error: 'Unauthorized. Super Admin permissions required.' });
+		}
+
+		const formData = await request.formData();
+		const userId = formData.get('userId')?.toString();
+		const verticalIds = formData.getAll('verticalIds').map((v) => v.toString()).filter(Boolean);
+
+		if (!userId) {
+			return fail(400, { error: 'User ID is required.' });
+		}
+
+		await setUserAssignedVerticals(userId, verticalIds);
+
+		return { success: true, message: 'User vertical assignments updated successfully.' };
 	},
 
 	updateRole: async ({ request, locals }) => {

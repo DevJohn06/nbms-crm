@@ -20,7 +20,8 @@
 		Edit3,
 		X,
 		RefreshCw,
-		Loader2
+		Loader2,
+		Layers
 	} from 'lucide-svelte';
 
 	let { data, form } = $props();
@@ -111,12 +112,43 @@
 		newPasswordInput = '';
 	}
 
+	let assignVerticalsUser = $state<any>(null);
+	let assignVerticalIds = $state<string[]>([]);
+	let addVerticalIds = $state<string[]>(['mmj-dispensary']);
+
+	function openAssignModal(userRecord: any) {
+		assignVerticalsUser = userRecord;
+		assignVerticalIds = (userRecord.assignedVerticals || []).map((v: any) => v.id);
+	}
+
+	function closeAssignModal() {
+		assignVerticalsUser = null;
+		assignVerticalIds = [];
+	}
+
+	function toggleAssignVertical(vId: string) {
+		if (assignVerticalIds.includes(vId)) {
+			assignVerticalIds = assignVerticalIds.filter((id) => id !== vId);
+		} else {
+			assignVerticalIds = [...assignVerticalIds, vId];
+		}
+	}
+
+	function toggleAddVertical(vId: string) {
+		if (addVerticalIds.includes(vId)) {
+			addVerticalIds = addVerticalIds.filter((id) => id !== vId);
+		} else {
+			addVerticalIds = [...addVerticalIds, vId];
+		}
+	}
+
 	function openEditModal(userRecord: any) {
 		editUser = userRecord;
 		editName = userRecord.name;
 		editEmail = userRecord.email;
 		editNewPassword = '';
 		editCurrentPassword = '';
+		assignVerticalIds = (userRecord.assignedVerticals || []).map((v: any) => v.id);
 	}
 
 	function closeEditModal() {
@@ -125,6 +157,7 @@
 		editEmail = '';
 		editNewPassword = '';
 		editCurrentPassword = '';
+		assignVerticalIds = [];
 	}
 
 	let isR2BackingUp = $state(false);
@@ -294,6 +327,7 @@
 						<th class="px-5 py-3">User Name & Email</th>
 						<th class="px-5 py-3">Assigned Role</th>
 						<th class="px-5 py-3">Role Selector</th>
+						<th class="px-5 py-3">Assigned Verticals</th>
 						<th class="px-5 py-3">Created Date</th>
 						<th class="px-5 py-3 text-right">Actions</th>
 					</tr>
@@ -344,6 +378,32 @@
 										<option value="AGENT" selected={user.role === 'AGENT'}>AGENT</option>
 									</select>
 								</form>
+							</td>
+
+							<td class="px-5 py-3.5">
+								<div class="flex items-center gap-1.5 flex-wrap max-w-xs">
+									{#if user.assignedVerticals && user.assignedVerticals.length > 0}
+										{#each user.assignedVerticals as vert}
+											<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-900 border border-sky-200 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30">
+												<Layers class="w-2.5 h-2.5 text-sky-600 dark:text-sky-400" />
+												{vert.name}
+											</span>
+										{/each}
+									{:else}
+										<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30">
+											<AlertCircle class="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" />
+											No Verticals Assigned
+										</span>
+									{/if}
+									<button
+										type="button"
+										onclick={() => openAssignModal(user)}
+										class="p-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 hover:text-sky-600 transition-colors cursor-pointer"
+										title="Assign or modify verticals"
+									>
+										<Edit3 class="w-3 h-3" />
+									</button>
+								</div>
 							</td>
 
 							<td class="px-5 py-3.5 text-slate-500 font-medium">
@@ -468,6 +528,27 @@
 					</select>
 				</div>
 
+				<!-- Assign Verticals in Add Modal -->
+				<div class="space-y-1.5 pt-1">
+					<p class="block text-xs font-bold text-slate-700 dark:text-slate-300">Assign Business Verticals</p>
+					<p class="text-[11px] text-slate-500">If no vertical is selected, this user will not have access to any leads.</p>
+					<div class="space-y-1.5 max-h-36 overflow-y-auto p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+						{#each (data.verticalsList || []) as vert}
+							<label class="flex items-center gap-2 text-xs text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 p-1.5 rounded-lg transition-colors">
+								<input
+									type="checkbox"
+									name="verticalIds"
+									value={vert.id}
+									checked={addVerticalIds.includes(vert.id)}
+									onchange={() => toggleAddVertical(vert.id)}
+									class="rounded text-sky-600 focus:ring-sky-500 h-4 w-4 cursor-pointer"
+								/>
+								<span class="font-bold">{vert.name}</span>
+							</label>
+						{/each}
+					</div>
+				</div>
+
 				<div class="flex items-center justify-end gap-3 pt-2">
 					<button type="button" onclick={() => (showAddModal = false)} class="btn-secondary text-xs">Cancel</button>
 					<button type="submit" class="btn-primary text-xs">Create Account</button>
@@ -563,9 +644,90 @@
 					/>
 				</div>
 
+				<!-- Assign Verticals in Edit Modal -->
+				<div class="space-y-1.5 pt-1">
+					<input type="hidden" name="hasVerticalsField" value="true" />
+					<p class="block text-xs font-bold text-slate-700 dark:text-slate-300">Assigned Business Verticals</p>
+					<p class="text-[10px] text-slate-500">Unchecking all verticals will revoke data visibility for this user.</p>
+					<div class="space-y-1.5 max-h-36 overflow-y-auto p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+						{#each (data.verticalsList || []) as vert}
+							<label class="flex items-center gap-2 text-xs text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 p-1.5 rounded-lg transition-colors">
+								<input
+									type="checkbox"
+									name="verticalIds"
+									value={vert.id}
+									checked={assignVerticalIds.includes(vert.id)}
+									onchange={() => toggleAssignVertical(vert.id)}
+									class="rounded text-sky-600 focus:ring-sky-500 h-4 w-4 cursor-pointer"
+								/>
+								<span class="font-bold">{vert.name}</span>
+							</label>
+						{/each}
+					</div>
+				</div>
+
 				<div class="flex items-center justify-end gap-3 pt-2">
 					<button type="button" onclick={closeEditModal} class="btn-secondary text-xs">Cancel</button>
 					<button type="submit" class="btn-primary text-xs">Save Account Edits</button>
+				</div>
+			</form>
+		</div>
+	</div>
+{/if}
+
+<!-- Modal: Dedicated Assign Business Verticals -->
+{#if assignVerticalsUser}
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
+		<div class="glass-panel w-full max-w-md p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl space-y-4">
+			<div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+				<h3 class="text-base font-bold text-slate-900 dark:text-slate-100 font-display flex items-center gap-2">
+					<Layers class="w-5 h-5 text-sky-600 dark:text-sky-400" />
+					Assign Business Verticals
+				</h3>
+				<button onclick={closeAssignModal} class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+					<X class="w-5 h-5" />
+				</button>
+			</div>
+
+			<div>
+				<p class="text-xs text-slate-600 dark:text-slate-400">
+					Configure which market verticals <strong class="text-sky-700 dark:text-sky-300 font-bold">{assignVerticalsUser.name}</strong> can access.
+				</p>
+				<p class="text-[11px] text-amber-700 dark:text-amber-400 font-medium mt-1">
+					* If no vertical is assigned, all lead data will be hidden from this user.
+				</p>
+			</div>
+
+			<form method="POST" action="?/assignVerticals" use:enhance={handleFormEnhance} class="space-y-4">
+				<input type="hidden" name="userId" value={assignVerticalsUser.id} />
+
+				<div class="space-y-2 max-h-60 overflow-y-auto p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+					{#each (data.verticalsList || []) as vert}
+						<label class="flex items-center justify-between text-xs text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 p-2 rounded-lg transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-800">
+							<div class="flex items-center gap-2.5">
+								<input
+									type="checkbox"
+									name="verticalIds"
+									value={vert.id}
+									checked={assignVerticalIds.includes(vert.id)}
+									onchange={() => toggleAssignVertical(vert.id)}
+									class="rounded text-sky-600 focus:ring-sky-500 h-4 w-4 cursor-pointer"
+								/>
+								<div>
+									<p class="font-bold">{vert.name}</p>
+									<p class="text-[10px] text-slate-400 font-mono">/{vert.slug}</p>
+								</div>
+							</div>
+						</label>
+					{/each}
+				</div>
+
+				<div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+					<button type="button" onclick={closeAssignModal} class="btn-secondary text-xs">Cancel</button>
+					<button type="submit" class="btn-primary text-xs flex items-center gap-1.5 shadow-md">
+						<Layers class="w-3.5 h-3.5" />
+						<span>Save Vertical Assignments</span>
+					</button>
 				</div>
 			</form>
 		</div>

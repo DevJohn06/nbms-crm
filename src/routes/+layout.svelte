@@ -19,7 +19,8 @@
 		UserCheck,
 		PhoneCall,
 		Sun,
-		Moon
+		Moon,
+		AlertCircle
 	} from 'lucide-svelte';
 
 	let { data, children } = $props();
@@ -135,6 +136,16 @@
 						Email Scripts
 					</a>
 
+					{#if user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'}
+						<a
+							href="/verticals"
+							class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/verticals') ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
+						>
+							<Layers class="w-4 h-4 text-sky-600 dark:text-sky-400" />
+							Industry Verticals
+						</a>
+					{/if}
+
 					<a
 						href="/cms/intake"
 						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/cms') ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
@@ -242,6 +253,8 @@
 							Executive Dashboard
 						{:else if currentPath.startsWith('/leads')}
 							Master Lead Directory
+						{:else if currentPath.startsWith('/verticals')}
+							Industry Verticals Console
 						{:else if currentPath.startsWith('/calls')}
 							Booked Strategy Calls
 						{:else if currentPath === '/emails'}
@@ -259,6 +272,44 @@
 				</div>
 
 				<div class="flex items-center gap-3">
+					<!-- Vertical Selector Switcher in Header -->
+					{#if user}
+						{#if (data.assignedVerticals && data.assignedVerticals.length > 0) || user.role === 'SUPER_ADMIN'}
+							<div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-xs">
+								<Layers class="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 flex-shrink-0" />
+								<span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden sm:inline">Vertical:</span>
+								<select
+									class="bg-transparent text-xs font-bold text-slate-800 dark:text-slate-200 border-none outline-none cursor-pointer pr-1"
+									value={data.activeVerticalParam || ''}
+									onchange={(e) => {
+										const v = e.currentTarget.value;
+										const u = new URL(window.location.href);
+										if (v) {
+											u.searchParams.set('vertical', v);
+										} else {
+											u.searchParams.delete('vertical');
+										}
+										window.location.href = u.toString();
+									}}
+								>
+									<option value="" class="bg-white dark:bg-slate-900">
+										{user.role === 'SUPER_ADMIN' ? 'All Verticals' : 'All Assigned Verticals'}
+									</option>
+									{#each (user.role === 'SUPER_ADMIN' && data.allVerticals?.length > 0 ? data.allVerticals : data.assignedVerticals || []) as vert}
+										<option value={vert.slug} class="bg-white dark:bg-slate-900">
+											{vert.name}
+										</option>
+									{/each}
+								</select>
+							</div>
+						{:else}
+							<div class="px-2.5 py-1 rounded-xl bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 text-[11px] font-bold flex items-center gap-1.5" title="No industry verticals assigned to your account. Contact an administrator.">
+								<AlertCircle class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+								<span class="hidden sm:inline">No Verticals Assigned</span>
+							</div>
+						{/if}
+					{/if}
+
 					<!-- Theme Toggle Switch -->
 					<button
 						onclick={toggleTheme}

@@ -3,7 +3,47 @@
 	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 	import { toastStore } from '$lib/toast.svelte';
 
-	let { lead, isOpen = $bindable(false), emailTemplates = [] }: { lead: any; isOpen: boolean; emailTemplates?: any[] } = $props();
+	let {
+		lead,
+		isOpen = $bindable(false),
+		emailTemplates = [],
+		availableVerticals = []
+	}: {
+		lead: any;
+		isOpen: boolean;
+		emailTemplates?: any[];
+		availableVerticals?: Array<{ id: string; name: string }>;
+	} = $props();
+
+	let isChangingVertical = $state(false);
+
+	async function changeLeadVertical(newVerticalId: string) {
+		if (!lead || !newVerticalId || lead.verticalId === newVerticalId) return;
+		isChangingVertical = true;
+		const formData = new FormData();
+		formData.append('leadId', String(lead.id));
+		formData.append('verticalId', newVerticalId);
+
+		try {
+			const res = await fetch('/leads?/updateLeadVertical', {
+				method: 'POST',
+				body: formData
+			});
+			if (res.ok) {
+				lead.verticalId = newVerticalId;
+				const found = availableVerticals.find((v) => v.id === newVerticalId);
+				if (found) lead.verticalName = found.name;
+				toastStore.success('Vertical Updated', `Lead reassigned to ${found?.name || newVerticalId}.`);
+			} else {
+				toastStore.error('Update Failed', 'Could not update lead vertical.');
+			}
+		} catch (err) {
+			console.error('Error updating lead vertical:', err);
+			toastStore.error('Update Error', 'Could not update lead vertical.');
+		} finally {
+			isChangingVertical = false;
+		}
+	}
 
 	let copiedField = $state<string | null>(null);
 	let expandedLogId = $state<number | null>(null);
@@ -364,11 +404,34 @@
 		<div class="glass-panel w-full max-w-xl h-full border-l border-slate-200 dark:border-purple-500/30 p-6 flex flex-col justify-between overflow-y-auto space-y-6 shadow-2xl relative bg-white dark:bg-slate-900">
 			<!-- Header -->
 			<div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
-				<div>
-					<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-900 border border-purple-200 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30">
-						LEAD PROFILE #{lead.id}
-					</span>
-					<h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 font-display mt-1">{lead.businessName}</h3>
+				<div class="space-y-1">
+					<div class="flex items-center gap-2 flex-wrap">
+						<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-900 border border-purple-200 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30">
+							LEAD PROFILE #{lead.id}
+						</span>
+
+						{#if availableVerticals && availableVerticals.length > 0}
+							<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-[10px] font-semibold">
+								<span class="text-slate-500 uppercase tracking-wider font-bold text-[9px]">Vertical:</span>
+								<select
+									value={lead.verticalId || 'mmj-dispensary'}
+									disabled={isChangingVertical}
+									onchange={(e) => changeLeadVertical((e.target as HTMLSelectElement).value)}
+									class="bg-transparent font-bold text-purple-900 dark:text-purple-300 focus:outline-none cursor-pointer py-0 disabled:opacity-50"
+									title="Reassign lead vertical"
+								>
+									{#each availableVerticals as v}
+										<option value={v.id} class="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">{v.name}</option>
+									{/each}
+								</select>
+							</div>
+						{:else if lead.verticalName || lead.verticalId}
+							<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+								{lead.verticalName || lead.verticalId}
+							</span>
+						{/if}
+					</div>
+					<h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 font-display">{lead.businessName}</h3>
 				</div>
 				<button onclick={() => (isOpen = false)} class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
 					<X class="w-5 h-5" />
