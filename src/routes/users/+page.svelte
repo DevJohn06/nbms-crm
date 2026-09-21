@@ -96,10 +96,6 @@
 	let editNewPassword = $state('');
 	let editCurrentPassword = $state('');
 
-	let superAdminCount = $derived(data.usersList.filter((u) => u.role === 'SUPER_ADMIN').length);
-	let adminCount = $derived(data.usersList.filter((u) => u.role === 'ADMIN').length);
-	let agentCount = $derived(data.usersList.filter((u) => u.role === 'AGENT').length);
-
 	function openResetModal(id: string, name: string) {
 		resetUserId = id;
 		resetUserName = name;
@@ -239,48 +235,7 @@
 		</div>
 	{/if}
 
-	<!-- Metric Summary Cards -->
-	<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-		<div class="glass-panel p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs flex items-center justify-between">
-			<div>
-				<p class="text-xs text-slate-500 dark:text-slate-400 font-bold">Total Registered Users</p>
-				<p class="text-2xl font-black text-slate-900 dark:text-slate-100 font-display mt-1">{data.usersList.length}</p>
-			</div>
-			<div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 dark:bg-slate-900 dark:text-purple-400 border border-purple-200 dark:border-slate-800 flex items-center justify-center font-bold">
-				<Users class="w-5 h-5" />
-			</div>
-		</div>
 
-		<div class="glass-panel p-4 rounded-xl border border-purple-200 dark:border-purple-500/30 bg-purple-50 dark:bg-purple-950/20 shadow-xs flex items-center justify-between">
-			<div>
-				<p class="text-xs text-purple-900 dark:text-purple-300 font-bold">Dev Super Admins</p>
-				<p class="text-2xl font-black text-purple-900 dark:text-purple-200 font-display mt-1">{superAdminCount}</p>
-			</div>
-			<div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30 flex items-center justify-center font-bold">
-				<ShieldCheck class="w-5 h-5" />
-			</div>
-		</div>
-
-		<div class="glass-panel p-4 rounded-xl border border-cyan-200 dark:border-cyan-500/30 bg-cyan-50 dark:bg-cyan-950/20 shadow-xs flex items-center justify-between">
-			<div>
-				<p class="text-xs text-cyan-900 dark:text-cyan-300 font-bold">CRM Admins</p>
-				<p class="text-2xl font-black text-cyan-900 dark:text-cyan-200 font-display mt-1">{adminCount}</p>
-			</div>
-			<div class="w-10 h-10 rounded-xl bg-cyan-100 text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/30 flex items-center justify-center font-bold">
-				<UserCheck class="w-5 h-5" />
-			</div>
-		</div>
-
-		<div class="glass-panel p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs flex items-center justify-between">
-			<div>
-				<p class="text-xs text-slate-500 dark:text-slate-400 font-bold">Sales Agents</p>
-				<p class="text-2xl font-black text-slate-900 dark:text-slate-200 font-display mt-1">{agentCount}</p>
-			</div>
-			<div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-400 border border-slate-200 dark:border-slate-800 flex items-center justify-center font-bold">
-				<Users class="w-5 h-5" />
-			</div>
-		</div>
-	</div>
 
 	<!-- User Accounts Table -->
 	<div class="glass-panel rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 shadow-xs overflow-hidden relative">
