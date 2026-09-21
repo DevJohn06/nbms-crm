@@ -274,7 +274,7 @@
 				<div class="flex items-center gap-3">
 					<!-- Vertical Selector Switcher in Header -->
 					{#if user}
-						{#if (data.assignedVerticals && data.assignedVerticals.length > 0) || user.role === 'SUPER_ADMIN'}
+						{#if (data.assignedVerticals && data.assignedVerticals.length > 0) || ['SUPER_ADMIN', 'ADMIN'].includes(user.role)}
 							<div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-xs">
 								<Layers class="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 flex-shrink-0" />
 								<span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden sm:inline">Vertical:</span>
@@ -293,9 +293,9 @@
 									}}
 								>
 									<option value="" class="bg-white dark:bg-slate-900">
-										{user.role === 'SUPER_ADMIN' ? 'All Verticals' : 'All Assigned Verticals'}
+										{['SUPER_ADMIN', 'ADMIN'].includes(user.role) ? 'All Verticals' : 'All Assigned Verticals'}
 									</option>
-									{#each (user.role === 'SUPER_ADMIN' && data.allVerticals?.length > 0 ? data.allVerticals : data.assignedVerticals || []) as vert}
+									{#each (['SUPER_ADMIN', 'ADMIN'].includes(user.role) && data.allVerticals?.length > 0 ? data.allVerticals : data.assignedVerticals || []) as vert}
 										<option value={vert.slug} class="bg-white dark:bg-slate-900">
 											{vert.name}
 										</option>

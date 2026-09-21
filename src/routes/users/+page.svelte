@@ -114,9 +114,11 @@
 
 	let assignVerticalsUser = $state<any>(null);
 	let assignVerticalIds = $state<string[]>([]);
-	let addVerticalIds = $state<string[]>(['mmj-dispensary']);
+	let addRole = $state<'SUPER_ADMIN' | 'ADMIN' | 'AGENT'>('AGENT');
+	let addVerticalIds = $state<string[]>([]);
 
 	function openAssignModal(userRecord: any) {
+		if (userRecord.role === 'SUPER_ADMIN' || userRecord.role === 'ADMIN') return;
 		assignVerticalsUser = userRecord;
 		assignVerticalIds = (userRecord.assignedVerticals || []).map((v: any) => v.id);
 	}
@@ -381,29 +383,36 @@
 							</td>
 
 							<td class="px-5 py-3.5">
-								<div class="flex items-center gap-1.5 flex-wrap max-w-xs">
-									{#if user.assignedVerticals && user.assignedVerticals.length > 0}
-										{#each user.assignedVerticals as vert}
-											<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-900 border border-sky-200 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30">
-												<Layers class="w-2.5 h-2.5 text-sky-600 dark:text-sky-400" />
-												{vert.name}
+								{#if user.role === 'SUPER_ADMIN' || user.role === 'ADMIN'}
+									<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+										<Layers class="w-3 h-3 text-purple-600 dark:text-purple-400" />
+										All Verticals
+									</span>
+								{:else}
+									<div class="flex items-center gap-1.5 flex-wrap max-w-xs">
+										{#if user.assignedVerticals && user.assignedVerticals.length > 0}
+											{#each user.assignedVerticals as vert}
+												<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-sky-900 border border-sky-200 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30">
+													<Layers class="w-2.5 h-2.5 text-sky-600 dark:text-sky-400" />
+													{vert.name}
+												</span>
+											{/each}
+										{:else}
+											<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30">
+												<AlertCircle class="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" />
+												No Verticals Assigned
 											</span>
-										{/each}
-									{:else}
-										<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30">
-											<AlertCircle class="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" />
-											No Verticals Assigned
-										</span>
-									{/if}
-									<button
-										type="button"
-										onclick={() => openAssignModal(user)}
-										class="p-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 hover:text-sky-600 transition-colors cursor-pointer"
-										title="Assign or modify verticals"
-									>
-										<Edit3 class="w-3 h-3" />
-									</button>
-								</div>
+										{/if}
+										<button
+											type="button"
+											onclick={() => openAssignModal(user)}
+											class="p-1 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 hover:text-sky-600 transition-colors cursor-pointer"
+											title="Assign or modify verticals"
+										>
+											<Edit3 class="w-3 h-3" />
+										</button>
+									</div>
+								{/if}
 							</td>
 
 							<td class="px-5 py-3.5 text-slate-500 font-medium">
@@ -521,7 +530,7 @@
 
 				<div class="space-y-1.5">
 					<label for="new-role" class="block text-xs font-bold text-slate-700 dark:text-slate-300">System Role *</label>
-					<select id="new-role" name="role" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-[#1f71c1] focus:outline-none font-semibold">
+					<select id="new-role" name="role" bind:value={addRole} class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:border-[#1f71c1] focus:outline-none font-semibold">
 						<option value="AGENT">SALES AGENT (Standard CRM access)</option>
 						<option value="ADMIN">CRM ADMIN (Full lead & team management)</option>
 						<option value="SUPER_ADMIN">SUPER ADMIN (Full system & developer console)</option>
@@ -529,25 +538,34 @@
 				</div>
 
 				<!-- Assign Verticals in Add Modal -->
-				<div class="space-y-1.5 pt-1">
-					<p class="block text-xs font-bold text-slate-700 dark:text-slate-300">Assign Business Verticals</p>
-					<p class="text-[11px] text-slate-500">If no vertical is selected, this user will not have access to any leads.</p>
-					<div class="space-y-1.5 max-h-36 overflow-y-auto p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-						{#each (data.verticalsList || []) as vert}
-							<label class="flex items-center gap-2 text-xs text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 p-1.5 rounded-lg transition-colors">
-								<input
-									type="checkbox"
-									name="verticalIds"
-									value={vert.id}
-									checked={addVerticalIds.includes(vert.id)}
-									onchange={() => toggleAddVertical(vert.id)}
-									class="rounded text-sky-600 focus:ring-sky-500 h-4 w-4 cursor-pointer"
-								/>
-								<span class="font-bold">{vert.name}</span>
-							</label>
-						{/each}
+				{#if addRole === 'SUPER_ADMIN' || addRole === 'ADMIN'}
+					<div class="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/40 text-xs text-purple-900 dark:text-purple-300 flex items-center gap-2">
+						<Layers class="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+						<p class="text-[11px] font-medium leading-tight">
+							<strong>All Verticals Authorized:</strong> Administrators automatically have access to all business verticals and funnels.
+						</p>
 					</div>
-				</div>
+				{:else}
+					<div class="space-y-1.5 pt-1">
+						<p class="block text-xs font-bold text-slate-700 dark:text-slate-300">Assign Business Verticals</p>
+						<p class="text-[11px] text-slate-500">If no vertical is selected, this user will not have access to any leads.</p>
+						<div class="space-y-1.5 max-h-36 overflow-y-auto p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+							{#each (data.verticalsList || []) as vert}
+								<label class="flex items-center gap-2 text-xs text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 p-1.5 rounded-lg transition-colors">
+									<input
+										type="checkbox"
+										name="verticalIds"
+										value={vert.id}
+										checked={addVerticalIds.includes(vert.id)}
+										onchange={() => toggleAddVertical(vert.id)}
+										class="rounded text-sky-600 focus:ring-sky-500 h-4 w-4 cursor-pointer"
+									/>
+									<span class="font-bold">{vert.name}</span>
+								</label>
+							{/each}
+						</div>
+					</div>
+				{/if}
 
 				<div class="flex items-center justify-end gap-3 pt-2">
 					<button type="button" onclick={() => (showAddModal = false)} class="btn-secondary text-xs">Cancel</button>
@@ -645,26 +663,35 @@
 				</div>
 
 				<!-- Assign Verticals in Edit Modal -->
-				<div class="space-y-1.5 pt-1">
-					<input type="hidden" name="hasVerticalsField" value="true" />
-					<p class="block text-xs font-bold text-slate-700 dark:text-slate-300">Assigned Business Verticals</p>
-					<p class="text-[10px] text-slate-500">Unchecking all verticals will revoke data visibility for this user.</p>
-					<div class="space-y-1.5 max-h-36 overflow-y-auto p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-						{#each (data.verticalsList || []) as vert}
-							<label class="flex items-center gap-2 text-xs text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 p-1.5 rounded-lg transition-colors">
-								<input
-									type="checkbox"
-									name="verticalIds"
-									value={vert.id}
-									checked={assignVerticalIds.includes(vert.id)}
-									onchange={() => toggleAssignVertical(vert.id)}
-									class="rounded text-sky-600 focus:ring-sky-500 h-4 w-4 cursor-pointer"
-								/>
-								<span class="font-bold">{vert.name}</span>
-							</label>
-						{/each}
+				{#if editUser?.role === 'SUPER_ADMIN' || editUser?.role === 'ADMIN'}
+					<div class="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/40 text-xs text-purple-900 dark:text-purple-300 flex items-center gap-2">
+						<Layers class="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+						<p class="text-[11px] font-medium leading-tight">
+							<strong>All Verticals Authorized:</strong> Administrators have global visibility across all business verticals.
+						</p>
 					</div>
-				</div>
+				{:else}
+					<div class="space-y-1.5 pt-1">
+						<input type="hidden" name="hasVerticalsField" value="true" />
+						<p class="block text-xs font-bold text-slate-700 dark:text-slate-300">Assigned Business Verticals</p>
+						<p class="text-[10px] text-slate-500">Unchecking all verticals will revoke data visibility for this user.</p>
+						<div class="space-y-1.5 max-h-36 overflow-y-auto p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+							{#each (data.verticalsList || []) as vert}
+								<label class="flex items-center gap-2 text-xs text-slate-800 dark:text-slate-200 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900 p-1.5 rounded-lg transition-colors">
+									<input
+										type="checkbox"
+										name="verticalIds"
+										value={vert.id}
+										checked={assignVerticalIds.includes(vert.id)}
+										onchange={() => toggleAssignVertical(vert.id)}
+										class="rounded text-sky-600 focus:ring-sky-500 h-4 w-4 cursor-pointer"
+									/>
+									<span class="font-bold">{vert.name}</span>
+								</label>
+							{/each}
+						</div>
+					</div>
+				{/if}
 
 				<div class="flex items-center justify-end gap-3 pt-2">
 					<button type="button" onclick={closeEditModal} class="btn-secondary text-xs">Cancel</button>

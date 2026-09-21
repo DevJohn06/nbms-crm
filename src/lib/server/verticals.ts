@@ -394,6 +394,12 @@ export async function setUserAssignedVerticals(userId: string, verticalIds: stri
 export async function getAccessibleVerticalIds(user: { id: string; role: string } | null | undefined): Promise<string[]> {
 	if (!user) return [];
 
+	// Administrators have global access to all business verticals
+	if (['SUPER_ADMIN', 'ADMIN'].includes(user.role)) {
+		const all = await getAllVerticals();
+		return all.map((v) => v.id);
+	}
+
 	const assigned = await getUserAssignedVerticals(user.id);
 	const assignedIds = assigned.map((v) => v.id);
 

@@ -162,6 +162,11 @@ export const actions: Actions = {
 			return fail(400, { error: 'User ID is required.' });
 		}
 
+		const [targetUser] = await db.select().from(users).where(eq(users.id, userId));
+		if (targetUser && ['SUPER_ADMIN', 'ADMIN'].includes(targetUser.role)) {
+			return fail(400, { error: 'Assigning verticals is not applicable for administrators. Admins have access to all verticals.' });
+		}
+
 		await setUserAssignedVerticals(userId, verticalIds);
 
 		return { success: true, message: 'User vertical assignments updated successfully.' };

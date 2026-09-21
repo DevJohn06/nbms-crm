@@ -7,9 +7,11 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 	let allVerticals: Array<any> = [];
 
 	if (user) {
-		assignedVerticals = await getUserAssignedVerticals(user.id);
 		if (['SUPER_ADMIN', 'ADMIN'].includes(user.role)) {
 			allVerticals = await getAllVerticals();
+			assignedVerticals = allVerticals;
+		} else {
+			assignedVerticals = await getUserAssignedVerticals(user.id);
 		}
 	}
 
