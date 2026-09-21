@@ -323,18 +323,30 @@
 							</td>
 
 							<td class="px-5 py-3.5">
-								<form method="POST" action="?/updateRole" use:enhance={handleFormEnhance} class="inline-block">
-									<input type="hidden" name="userId" value={user.id} />
-									<select
-										name="newRole"
-										onchange={(e) => e.currentTarget.form?.requestSubmit()}
-										class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-800 dark:text-slate-200 font-semibold focus:border-purple-600 shadow-xs"
-									>
-										<option value="SUPER_ADMIN" selected={user.role === 'SUPER_ADMIN'}>SUPER_ADMIN</option>
-										<option value="ADMIN" selected={user.role === 'ADMIN'}>ADMIN</option>
-										<option value="AGENT" selected={user.role === 'AGENT'}>AGENT</option>
-									</select>
-								</form>
+								{#if user.role === 'SUPER_ADMIN'}
+									<div class="inline-flex items-center gap-1.5" title="Super Admin role is locked and cannot be downgraded">
+										<select
+											disabled
+											class="bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-lg px-2.5 py-1 text-xs text-slate-500 dark:text-slate-400 font-semibold shadow-2xs cursor-not-allowed opacity-80"
+										>
+											<option value="SUPER_ADMIN" selected>SUPER_ADMIN</option>
+										</select>
+										<Lock class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+									</div>
+								{:else}
+									<form method="POST" action="?/updateRole" use:enhance={handleFormEnhance} class="inline-block">
+										<input type="hidden" name="userId" value={user.id} />
+										<select
+											name="newRole"
+											onchange={(e) => e.currentTarget.form?.requestSubmit()}
+											class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-800 dark:text-slate-200 font-semibold focus:border-purple-600 shadow-xs cursor-pointer"
+										>
+											<option value="SUPER_ADMIN" selected={user.role === 'SUPER_ADMIN'}>SUPER_ADMIN</option>
+											<option value="ADMIN" selected={user.role === 'ADMIN'}>ADMIN</option>
+											<option value="AGENT" selected={user.role === 'AGENT'}>AGENT</option>
+										</select>
+									</form>
+								{/if}
 							</td>
 
 							<td class="px-5 py-3.5">

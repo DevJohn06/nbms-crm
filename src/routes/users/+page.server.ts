@@ -185,10 +185,6 @@ export const actions: Actions = {
 			return fail(400, { error: 'User ID and target role are required.' });
 		}
 
-		if (userId === locals.user.id && newRole !== 'SUPER_ADMIN') {
-			return fail(400, { error: 'Super Admin cannot downgrade their own role.' });
-		}
-
 		await db
 			.update(users)
 			.set({
