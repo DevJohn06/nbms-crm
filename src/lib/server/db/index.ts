@@ -164,6 +164,33 @@ export async function initDatabase() {
 			await client.execute(`ALTER TABLE intake_cms ADD COLUMN section_id TEXT;`);
 		} catch {}
 
+		// Migration: ensure secondary_email column exists on leads
+		try {
+			await client.execute(`ALTER TABLE leads ADD COLUMN secondary_email TEXT;`);
+		} catch {}
+
+		// Migration: Split multi-email entries in leads into primary email and secondary_email
+		try {
+			const checkLeads = await client.execute(`SELECT id, email FROM leads WHERE email IS NOT NULL;`);
+			for (const row of checkLeads.rows) {
+				const rawEmail = String(row.email || '').trim();
+				const tokens = rawEmail
+					.split(/[\s,;]+/)
+					.map((e) => e.trim().replace(/^[<(\[]+|[>)\]]+$/g, ''))
+					.filter((e) => e.includes('@'));
+				if (tokens.length > 1) {
+					const primary = tokens[0];
+					const secondary = Array.from(new Set(tokens.slice(1))).join(', ');
+					await client.execute({
+						sql: `UPDATE leads SET email = ?, secondary_email = COALESCE(secondary_email, ?) WHERE id = ?`,
+						args: [primary, secondary, row.id]
+					});
+				}
+			}
+		} catch (e) {
+			console.error('Failed to migrate multi-email leads:', e);
+		}
+
 		// Seed initial Developer Super Admin if target email does not exist
 		const initialEmail = (process.env.SUPERADMIN_EMAIL || 'admin').toLowerCase();
 		const existingAdmin = await client.execute({

@@ -20,6 +20,7 @@ export interface SendEmailParams {
 	leadId: number;
 	templateId?: number;
 	sender?: string;
+	recipient?: string;
 	subject: string;
 	bodyHtml: string;
 	newStatusOnSend?: string;
@@ -29,7 +30,7 @@ export async function sendEmailToLead(params: SendEmailParams) {
 	const resendApiKey = env.RESEND_API_KEY || process.env.RESEND_API_KEY;
 	const defaultFromEmail = env.RESEND_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || 'sales@nbmsinc.com';
 
-	const { leadId, templateId, sender = defaultFromEmail, subject, bodyHtml, newStatusOnSend } = params;
+	const { leadId, templateId, sender = defaultFromEmail, subject, bodyHtml, newStatusOnSend, recipient: overrideRecipient } = params;
 
 	// Fetch lead details
 	const [lead] = await db.select().from(leads).where(eq(leads.id, leadId));
@@ -37,7 +38,7 @@ export async function sendEmailToLead(params: SendEmailParams) {
 		throw new Error(`Lead with ID ${leadId} not found`);
 	}
 
-	const recipient = lead.email;
+	const recipient = (overrideRecipient || lead.email || '').trim();
 	let deliveryStatus = 'SENT';
 
 	try {

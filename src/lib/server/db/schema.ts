@@ -24,6 +24,7 @@ export const leads = sqliteTable('leads', {
 	verticalId: text('vertical_id').references(() => verticals.id),
 	businessName: text('business_name').notNull(),
 	email: text('email').notNull(),
+	secondaryEmail: text('secondary_email'),
 	phone: text('phone').notNull(),
 	status: text('status').notNull().default('NEW'),
 	notes: text('notes'),

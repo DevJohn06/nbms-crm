@@ -58,15 +58,34 @@
 		}, 2000);
 	}
 
-	// Derived array of unique emails for active lead
+	// Main email and Supplementary emails
+	let mainEmail = $derived.by(() => {
+		if (!lead?.email || lead.email === 'no-email@provided.com' || lead.email === 'No email address') return '';
+		const parts = lead.email
+			.split(/[\s,;]+/)
+			.map((e: string) => e.trim().replace(/^[<(\[]+|[>)\]]+$/g, ''))
+			.filter((e: string) => e.includes('@'));
+		return parts[0] || lead.email.trim();
+	});
+
+	// Derived array of unique emails for active lead (Main email is always first)
 	let allEmails = $derived.by(() => {
 		if (!lead) return [];
 		const set = new Set<string>();
+		const primary = mainEmail;
+		if (primary) set.add(primary);
 
-		if (lead.email && lead.email !== 'no-email@provided.com') {
-			lead.email.split(/[,;]+/).forEach((e: string) => {
-				const trimmed = e.trim();
-				if (trimmed && trimmed !== 'no-email@provided.com') set.add(trimmed);
+		if (lead.email && lead.email !== 'no-email@provided.com' && lead.email !== 'No email address') {
+			lead.email.split(/[\s,;]+/).forEach((e: string) => {
+				const trimmed = e.trim().replace(/^[<(\[]+|[>)\]]+$/g, '');
+				if (trimmed && trimmed.includes('@') && trimmed !== 'no-email@provided.com') set.add(trimmed);
+			});
+		}
+
+		if (lead.secondaryEmail) {
+			lead.secondaryEmail.split(/[\s,;]+/).forEach((e: string) => {
+				const trimmed = e.trim().replace(/^[<(\[]+|[>)\]]+$/g, '');
+				if (trimmed && trimmed.includes('@') && trimmed !== 'no-email@provided.com') set.add(trimmed);
 			});
 		}
 
@@ -74,9 +93,9 @@
 			const matches = lead.notes.matchAll(/Alt Email:\s*([^\n\]\r]+)/gi);
 			for (const match of matches) {
 				if (match[1]) {
-					match[1].split(/[,;]+/).forEach((e: string) => {
-						const trimmed = e.trim();
-						if (trimmed && trimmed !== 'no-email@provided.com') set.add(trimmed);
+					match[1].split(/[\s,;]+/).forEach((e: string) => {
+						const trimmed = e.trim().replace(/^[<(\[]+|[>)\]]+$/g, '');
+						if (trimmed && trimmed.includes('@') && trimmed !== 'no-email@provided.com') set.add(trimmed);
 					});
 				}
 			}
@@ -84,6 +103,90 @@
 
 		return Array.from(set);
 	});
+
+	let selectedRecipient = $state('');
+	$effect(() => {
+		if (lead && allEmails.length > 0) {
+			selectedRecipient = allEmails[0];
+		}
+	});
+
+	let isUpdatingContact = $state(false);
+	let isEditingContact = $state(false);
+	let editMainEmail = $state('');
+	let editSecondaryEmail = $state('');
+	let editPhone = $state('');
+
+	function startEditContact() {
+		editMainEmail = mainEmail || '';
+		const supps = allEmails.filter((e) => e !== mainEmail);
+		editSecondaryEmail = lead.secondaryEmail || supps.join(', ') || '';
+		editPhone = lead.phone || '';
+		isEditingContact = true;
+	}
+
+	async function saveContactDetails() {
+		if (!lead || !editMainEmail.trim()) return;
+		isUpdatingContact = true;
+		const formData = new FormData();
+		formData.append('id', String(lead.id));
+		formData.append('email', editMainEmail.trim());
+		formData.append('secondaryEmail', editSecondaryEmail.trim());
+		formData.append('phone', editPhone.trim() || 'N/A');
+
+		try {
+			const res = await fetch('/leads?/updateContact', {
+				method: 'POST',
+				body: formData
+			});
+			if (res.ok) {
+				lead.email = editMainEmail.trim();
+				lead.secondaryEmail = editSecondaryEmail.trim() || null;
+				lead.phone = editPhone.trim() || 'N/A';
+				isEditingContact = false;
+				toastStore.success('Contact Updated', 'Contact details updated successfully.');
+			} else {
+				toastStore.error('Update Failed', 'Could not update contact details.');
+			}
+		} catch (err) {
+			console.error('Error updating lead contact:', err);
+			toastStore.error('Update Error', 'Could not update contact details.');
+		} finally {
+			isUpdatingContact = false;
+		}
+	}
+
+	async function makeMainEmail(targetEmail: string) {
+		if (!lead || targetEmail === mainEmail) return;
+		isUpdatingContact = true;
+		const otherEmails = allEmails.filter((e) => e !== targetEmail);
+		const newSecondary = otherEmails.join(', ');
+
+		const formData = new FormData();
+		formData.append('id', String(lead.id));
+		formData.append('email', targetEmail);
+		formData.append('secondaryEmail', newSecondary);
+		formData.append('phone', lead.phone || 'N/A');
+
+		try {
+			const res = await fetch('/leads?/updateContact', {
+				method: 'POST',
+				body: formData
+			});
+			if (res.ok) {
+				lead.email = targetEmail;
+				lead.secondaryEmail = newSecondary || null;
+				toastStore.success('Main Email Updated', `${targetEmail} is now the main email.`);
+			} else {
+				toastStore.error('Update Failed', 'Could not set as main email.');
+			}
+		} catch (err) {
+			console.error('Error swapping main email:', err);
+			toastStore.error('Update Error', 'Could not update main email.');
+		} finally {
+			isUpdatingContact = false;
+		}
+	}
 
 	// Derived array of unique phone numbers for active lead
 	let allPhones = $derived.by(() => {
@@ -375,6 +478,7 @@
 				body: JSON.stringify({
 					leadId: lead.id,
 					templateId: selectedTemplateId ? Number(selectedTemplateId) : null,
+					recipient: selectedRecipient || mainEmail,
 					subject: emailSubject,
 					bodyHtml: emailBody
 				})
@@ -441,43 +545,118 @@
 			<!-- Contact Meta Cards with Multi-Contact Detection & Copy to Clipboard -->
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
 				<!-- Email Card -->
-				<div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2 shadow-xs">
+				<div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2.5 shadow-xs">
 					<div class="flex items-center justify-between">
 						<span class="text-slate-600 dark:text-slate-400 flex items-center gap-1.5 font-bold">
 							<Mail class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-							Email {allEmails.length > 1 ? `(${allEmails.length})` : ''}
+							Email Addresses {allEmails.length > 1 ? `(${allEmails.length})` : ''}
 						</span>
-						{#if allEmails.length > 1}
-							<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-900 border border-purple-200 dark:bg-purple-500/20 dark:text-purple-300">
-								Multiple Emails
-							</span>
-						{/if}
+						<div class="flex items-center gap-1.5">
+							{#if allEmails.length > 1}
+								<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-900 border border-purple-200 dark:bg-purple-500/20 dark:text-purple-300">
+									Main + Supplementary
+								</span>
+							{/if}
+							<button
+								type="button"
+								onclick={() => { if (isEditingContact) isEditingContact = false; else startEditContact(); }}
+								class="text-[10px] font-bold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 cursor-pointer"
+							>
+								<Edit3 class="w-2.5 h-2.5" />
+								{isEditingContact ? 'Cancel' : 'Edit'}
+							</button>
+						</div>
 					</div>
 
-					{#if allEmails.length === 0}
+					{#if isEditingContact}
+						<form onsubmit={(e) => { e.preventDefault(); saveContactDetails(); }} class="space-y-2 p-2.5 rounded-lg bg-white dark:bg-slate-950 border border-purple-200 dark:border-purple-800/60 shadow-2xs">
+							<div>
+								<label for="edit-main-email" class="block text-[10px] font-bold text-slate-700 dark:text-slate-300 mb-0.5">Main Email *</label>
+								<input
+									id="edit-main-email"
+									type="email"
+									required
+									bind:value={editMainEmail}
+									placeholder="main@example.com"
+									class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md p-1.5 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600"
+								/>
+							</div>
+							<div>
+								<label for="edit-sec-email" class="block text-[10px] font-bold text-slate-700 dark:text-slate-300 mb-0.5">Supplementary Email(s)</label>
+								<input
+									id="edit-sec-email"
+									type="text"
+									bind:value={editSecondaryEmail}
+									placeholder="secondary@example.com, alt@example.com"
+									class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md p-1.5 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600"
+								/>
+							</div>
+							<div>
+								<label for="edit-phone" class="block text-[10px] font-bold text-slate-700 dark:text-slate-300 mb-0.5">Phone Number</label>
+								<input
+									id="edit-phone"
+									type="text"
+									bind:value={editPhone}
+									placeholder="+1 (555) 123-4567"
+									class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md p-1.5 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600"
+								/>
+							</div>
+							<div class="flex justify-end gap-1.5 pt-1">
+								<button
+									type="button"
+									onclick={() => (isEditingContact = false)}
+									class="px-2 py-1 text-[10px] font-bold rounded text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+								>
+									Cancel
+								</button>
+								<button
+									type="submit"
+									disabled={isUpdatingContact || !editMainEmail.trim()}
+									class="px-2.5 py-1 text-[10px] font-bold rounded bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-50 flex items-center gap-1 shadow-2xs"
+								>
+									{isUpdatingContact ? 'Saving...' : 'Save Contacts'}
+								</button>
+							</div>
+						</form>
+					{:else if allEmails.length === 0}
 						<div class="text-slate-400 italic text-[11px]">No email address provided</div>
 					{:else}
 						<div class="space-y-1.5">
 							{#each allEmails as emailAddr, idx}
 								<div class="flex items-center justify-between gap-2 p-1.5 rounded-lg bg-white dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 shadow-2xs group">
 									<div class="flex items-center gap-1.5 overflow-hidden">
-										{#if idx > 0}
-											<span class="px-1 py-0.2 rounded text-[9px] font-extrabold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 flex-shrink-0">ALT</span>
+										{#if idx === 0}
+											<span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 flex-shrink-0">MAIN</span>
+										{:else}
+											<span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700 flex-shrink-0">SUPPLEMENTARY</span>
 										{/if}
 										<span class="font-bold text-slate-900 dark:text-slate-200 truncate select-all">{emailAddr}</span>
 									</div>
-									<button
-										type="button"
-										onclick={() => copyToClipboard(emailAddr, `email-${idx}`)}
-										class="p-1 rounded-md text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex-shrink-0 cursor-pointer"
-										title="Copy email to clipboard"
-									>
-										{#if copiedField === `email-${idx}`}
-											<Check class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 animate-scale" />
-										{:else}
-											<Copy class="w-3.5 h-3.5" />
+									<div class="flex items-center gap-1 flex-shrink-0">
+										{#if idx > 0}
+											<button
+												type="button"
+												disabled={isUpdatingContact}
+												onclick={() => makeMainEmail(emailAddr)}
+												class="px-1.5 py-0.5 text-[9px] font-bold text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/50 rounded border border-purple-200 dark:border-purple-800/50 transition-colors cursor-pointer"
+												title="Set this as the primary Main Email"
+											>
+												Set Main
+											</button>
 										{/if}
-									</button>
+										<button
+											type="button"
+											onclick={() => copyToClipboard(emailAddr, `email-${idx}`)}
+											class="p-1 rounded-md text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex-shrink-0 cursor-pointer"
+											title="Copy email to clipboard"
+										>
+											{#if copiedField === `email-${idx}`}
+												<Check class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 animate-scale" />
+											{:else}
+												<Copy class="w-3.5 h-3.5" />
+											{/if}
+										</button>
+									</div>
 								</div>
 							{/each}
 						</div>
@@ -782,6 +961,23 @@
 							<option value="">-- Choose Template --</option>
 							{#each emailTemplates as tmpl}
 								<option value={tmpl.id}>{tmpl.name}</option>
+							{/each}
+						</select>
+					</div>
+				{/if}
+
+				{#if allEmails.length > 1}
+					<div>
+						<label for="detail-recipient-select" class="block text-[11px] font-bold text-slate-700 dark:text-slate-400 mb-1">Target Recipient</label>
+						<select
+							id="detail-recipient-select"
+							bind:value={selectedRecipient}
+							class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-xs text-slate-900 dark:text-slate-200 font-semibold cursor-pointer"
+						>
+							{#each allEmails as emailAddr, idx}
+								<option value={emailAddr}>
+									{emailAddr} ({idx === 0 ? 'Main' : 'Supplementary'})
+								</option>
 							{/each}
 						</select>
 					</div>

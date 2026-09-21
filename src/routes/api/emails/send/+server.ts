@@ -3,7 +3,7 @@ import { sendEmailToLead } from '$lib/server/email';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const body = await request.json();
-	const { leadId, templateId, subject, bodyHtml, newStatusOnSend } = body;
+	const { leadId, templateId, subject, bodyHtml, newStatusOnSend, recipient } = body;
 
 	if (!leadId || !subject || !bodyHtml) {
 		throw error(400, 'Missing required fields: leadId, subject, bodyHtml');
@@ -15,7 +15,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			templateId: templateId ? Number(templateId) : undefined,
 			subject,
 			bodyHtml,
-			newStatusOnSend
+			newStatusOnSend,
+			recipient: recipient ? String(recipient).trim() : undefined
 		});
 
 		return json(result);

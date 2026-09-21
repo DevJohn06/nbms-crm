@@ -28,6 +28,7 @@
 
 	let colBusiness = $state('');
 	let colEmail = $state('');
+	let colSecondaryEmail = $state('');
 	let colPhone = $state('');
 	let colStatus = $state('');
 
@@ -53,6 +54,8 @@
 			const n = norm(h);
 			if (!colBusiness && (n.includes('business') || n.includes('company') || n.includes('name') || n.includes('merchant'))) {
 				colBusiness = h;
+			} else if (!colSecondaryEmail && (n.includes('secondaryemail') || n.includes('altemail') || n.includes('email2') || n.includes('supplementary'))) {
+				colSecondaryEmail = h;
 			} else if (!colEmail && n.includes('email')) {
 				colEmail = h;
 			} else if (!colPhone && (n.includes('phone') || n.includes('mobile') || n.includes('contact') || n.includes('tel'))) {
@@ -178,9 +181,27 @@
 				validStatus = rawStatus;
 			}
 
+			// Automatically split multiple emails if formatted in one cell
+			const rawEmail = String(row[colEmail] || '').trim();
+			const tokens = rawEmail
+				.split(/[\s,;]+/)
+				.map((e) => e.trim().replace(/^[<(\[]+|[>)\]]+$/g, ''))
+				.filter((e) => e.includes('@'));
+
+			let mainEmail = rawEmail;
+			let secEmail = colSecondaryEmail && row[colSecondaryEmail] ? String(row[colSecondaryEmail]).trim() : '';
+
+			if (tokens.length > 1) {
+				mainEmail = tokens[0];
+				const remaining = tokens.slice(1);
+				if (secEmail) remaining.push(secEmail);
+				secEmail = Array.from(new Set(remaining)).join(', ');
+			}
+
 			return {
 				businessName: String(row[colBusiness] || '').trim(),
-				email: String(row[colEmail] || '').trim(),
+				email: mainEmail,
+				secondaryEmail: secEmail || undefined,
 				phone: String(row[colPhone] || '').trim(),
 				status: validStatus,
 				notes: `Uploaded via ${fileName}`
@@ -387,7 +408,7 @@
 						<button onclick={resetState} class="text-slate-500 dark:text-slate-400 hover:text-purple-700 dark:hover:text-white underline font-bold cursor-pointer">Change file</button>
 					</div>
 
-					<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
 						<div>
 							<label for="col-business" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Business Name Column *</label>
 							<select id="col-business" bind:value={colBusiness} class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600 font-semibold shadow-xs">
@@ -398,8 +419,18 @@
 						</div>
 
 						<div>
-							<label for="col-email" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Email Column *</label>
+							<label for="col-email" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Main Email Column *</label>
 							<select id="col-email" bind:value={colEmail} class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600 font-semibold shadow-xs">
+								{#each headers as h}
+									<option value={h}>{h}</option>
+								{/each}
+							</select>
+						</div>
+
+						<div>
+							<label for="col-secondary-email" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Supplementary Email (Optional)</label>
+							<select id="col-secondary-email" bind:value={colSecondaryEmail} class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600 font-semibold shadow-xs">
+								<option value="">-- None (Auto-Split if in Main) --</option>
 								{#each headers as h}
 									<option value={h}>{h}</option>
 								{/each}

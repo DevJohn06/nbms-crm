@@ -58,6 +58,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 			verticalId: leads.verticalId,
 			businessName: leads.businessName,
 			email: leads.email,
+			secondaryEmail: leads.secondaryEmail,
 			phone: leads.phone,
 			status: leads.status,
 			notes: leads.notes,
@@ -78,6 +79,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 			(l) =>
 				l.businessName.toLowerCase().includes(q) ||
 				l.email.toLowerCase().includes(q) ||
+				(l.secondaryEmail && l.secondaryEmail.toLowerCase().includes(q)) ||
 				l.phone.toLowerCase().includes(q)
 		);
 	}
@@ -107,6 +109,7 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const businessName = formData.get('businessName')?.toString().trim();
 		const email = formData.get('email')?.toString().trim();
+		const secondaryEmail = formData.get('secondaryEmail')?.toString().trim() || undefined;
 		const phone = formData.get('phone')?.toString().trim();
 		const status = formData.get('status')?.toString() || 'NEW';
 		const notes = formData.get('notes')?.toString() || '';
@@ -125,6 +128,7 @@ export const actions: Actions = {
 			const res = await upsertOrCollateLead({
 				businessName,
 				email,
+				secondaryEmail,
 				phone,
 				status,
 				notes,
@@ -237,5 +241,30 @@ export const actions: Actions = {
 
 		await db.delete(leads).where(eq(leads.id, id));
 		return { success: true };
+	},
+
+	updateContact: async ({ request }) => {
+		const formData = await request.formData();
+		const id = Number(formData.get('id'));
+		const email = formData.get('email')?.toString().trim();
+		const secondaryEmail = formData.get('secondaryEmail')?.toString().trim();
+		const phone = formData.get('phone')?.toString().trim();
+
+		if (!id || !email) {
+			return fail(400, { error: 'Lead ID and Main Email are required.' });
+		}
+
+		const now = new Date().toISOString();
+		await db
+			.update(leads)
+			.set({
+				email,
+				secondaryEmail: secondaryEmail || null,
+				phone: phone || 'N/A',
+				updatedAt: now
+			})
+			.where(eq(leads.id, id));
+
+		return { success: true, message: 'Contact details updated successfully.' };
 	}
 };

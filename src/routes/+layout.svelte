@@ -3,21 +3,12 @@
 	import { page } from '$app/stores';
 	import ToastContainer from '$lib/components/ToastContainer.svelte';
 	import {
-		LayoutDashboard,
-		Users,
-		Mail,
-		FileText,
-		Sparkles,
-		Rocket,
 		Layers,
-		CheckCircle2,
 		ExternalLink,
-		Globe,
 		ShieldCheck,
 		LogOut,
 		Terminal,
 		UserCheck,
-		PhoneCall,
 		Sun,
 		Moon,
 		AlertCircle
@@ -98,59 +89,52 @@
 				<nav class="p-3 space-y-1">
 					<a
 						href="/"
-						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath === '/' ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
+						class="flex items-center px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath === '/' ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
 					>
-						<LayoutDashboard class="w-4 h-4 text-[#1f71c1] dark:text-[#6ec1e4]" />
 						Dashboard
 					</a>
 
 					<a
 						href="/leads"
-						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/leads') ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
+						class="flex items-center px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/leads') ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
 					>
-						<Users class="w-4 h-4 text-[#15528d] dark:text-sky-400" />
 						Master Lead List
 					</a>
 
 					<a
 						href="/calls"
-						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/calls') ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
+						class="flex items-center px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/calls') ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
 					>
-						<PhoneCall class="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
 						Booked Strategy Calls
 					</a>
 
 					<a
 						href="/emails"
-						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath === '/emails' ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
+						class="flex items-center px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath === '/emails' ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
 					>
-						<Mail class="w-4 h-4 text-amber-600 dark:text-amber-400" />
 						Inbox & Logs
 					</a>
 
 					<a
 						href="/emails/templates"
-						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath === '/emails/templates' ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
+						class="flex items-center px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath === '/emails/templates' ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
 					>
-						<Layers class="w-4 h-4 text-blue-600 dark:text-blue-400" />
 						Email Scripts
 					</a>
 
 					{#if user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'}
 						<a
 							href="/verticals"
-							class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/verticals') ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
+							class="flex items-center px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/verticals') ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
 						>
-							<Layers class="w-4 h-4 text-sky-600 dark:text-sky-400" />
 							Industry Verticals
 						</a>
 					{/if}
 
 					<a
 						href="/cms/intake"
-						class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/cms') ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
+						class="flex items-center px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {currentPath.startsWith('/cms') ? 'bg-sky-100/90 text-sky-950 border border-sky-200/90 dark:bg-sky-600/20 dark:text-sky-200 dark:border-sky-500/30 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'}"
 					>
-						<Globe class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
 						Intake Page CMS
 					</a>
 
@@ -181,10 +165,7 @@
 						rel="noopener noreferrer"
 						class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-cyan-700 dark:hover:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-cyan-950/30 border border-transparent hover:border-cyan-200 dark:hover:border-cyan-500/20 transition-all"
 					>
-						<span class="flex items-center gap-3">
-							<Sparkles class="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-							Public Intake Portal
-						</span>
+						<span>Public Intake Portal</span>
 						<ExternalLink class="w-3.5 h-3.5 text-slate-400" />
 					</a>
 				</nav>

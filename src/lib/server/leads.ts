@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm';
 export interface LeadInput {
 	businessName: string;
 	email: string;
+	secondaryEmail?: string;
 	phone: string;
 	status?: string;
 	notes?: string;
@@ -17,19 +18,28 @@ export function normalizeBusinessName(name: string): string {
 }
 
 /**
- * Split comma/semicolon separated email strings into a single primary email and alt emails.
+ * Split comma/semicolon/whitespace/newline separated email strings into a single primary email and alt emails.
  */
 export function sanitizeLeadEmail(emailStr: string): { primary: string; secondary: string[] } {
 	if (!emailStr) return { primary: 'no-email@provided.com', secondary: [] };
-	const parts = emailStr
-		.split(/[,;]+/)
-		.map((e) => e.trim())
-		.filter(Boolean);
+	const trimmed = emailStr.trim();
+	if (trimmed.toLowerCase() === 'no email address' || trimmed.toLowerCase() === 'no-email@provided.com') {
+		return { primary: 'No email address', secondary: [] };
+	}
 
-	if (parts.length === 0) return { primary: 'no-email@provided.com', secondary: [] };
+	const tokens = trimmed
+		.split(/[\s,;]+/)
+		.map((e) => e.trim().replace(/^[<(\[]+|[>)\]]+$/g, ''))
+		.filter((e) => e.includes('@'));
+
+	if (tokens.length === 0) {
+		return { primary: trimmed || 'no-email@provided.com', secondary: [] };
+	}
+
+	const uniqueEmails = Array.from(new Set(tokens));
 	return {
-		primary: parts[0],
-		secondary: parts.slice(1)
+		primary: uniqueEmails[0],
+		secondary: uniqueEmails.slice(1)
 	};
 }
 
@@ -50,6 +60,20 @@ export async function upsertOrCollateLead(input: LeadInput): Promise<{ id: numbe
 	let inputPrimaryEmail = parsedEmail.primary;
 	const inputAltEmails = [...parsedEmail.secondary];
 
+	if (input.secondaryEmail) {
+		const parsedSec = sanitizeLeadEmail(input.secondaryEmail);
+		if (parsedSec.primary && parsedSec.primary !== 'No email address' && parsedSec.primary !== 'no-email@provided.com') {
+			if (!inputAltEmails.includes(parsedSec.primary) && parsedSec.primary !== inputPrimaryEmail) {
+				inputAltEmails.push(parsedSec.primary);
+			}
+		}
+		for (const sec of parsedSec.secondary) {
+			if (!inputAltEmails.includes(sec) && sec !== inputPrimaryEmail) {
+				inputAltEmails.push(sec);
+			}
+		}
+	}
+
 	// Fetch leads in this vertical to check for normalized business name match
 	const verticalLeads = await db.select().from(leads).where(eq(leads.verticalId, verticalId));
 	const existing = verticalLeads.find((l) => normalizeBusinessName(l.businessName) === normName);
@@ -69,6 +93,7 @@ export async function upsertOrCollateLead(input: LeadInput): Promise<{ id: numbe
 				verticalId,
 				businessName: rawName,
 				email: inputPrimaryEmail,
+				secondaryEmail: inputAltEmails.length > 0 ? inputAltEmails.join(', ') : null,
 				phone: (input.phone || 'N/A').trim(),
 				status: input.status || 'NEW',
 				notes: finalNotes,
@@ -83,10 +108,24 @@ export async function upsertOrCollateLead(input: LeadInput): Promise<{ id: numbe
 		// Collate into existing lead record
 		let primaryEmail = existing.email;
 
-		// Clean up existing primary email if it contains multiple comma emails
+		// Clean up existing primary email if it contains multiple emails
 		const existingCleaned = sanitizeLeadEmail(existing.email);
 		primaryEmail = existingCleaned.primary;
 		const altEmails: string[] = [...existingCleaned.secondary];
+
+		if (existing.secondaryEmail) {
+			const existingSecCleaned = sanitizeLeadEmail(existing.secondaryEmail);
+			if (existingSecCleaned.primary && existingSecCleaned.primary !== 'No email address' && existingSecCleaned.primary !== 'no-email@provided.com') {
+				if (!altEmails.includes(existingSecCleaned.primary) && existingSecCleaned.primary !== primaryEmail) {
+					altEmails.push(existingSecCleaned.primary);
+				}
+			}
+			for (const sec of existingSecCleaned.secondary) {
+				if (!altEmails.includes(sec) && sec !== primaryEmail) {
+					altEmails.push(sec);
+				}
+			}
+		}
 
 		if ((primaryEmail === 'no-email@provided.com' || !primaryEmail) && inputPrimaryEmail && inputPrimaryEmail !== 'no-email@provided.com') {
 			primaryEmail = inputPrimaryEmail;
@@ -148,6 +187,7 @@ export async function upsertOrCollateLead(input: LeadInput): Promise<{ id: numbe
 			.update(leads)
 			.set({
 				email: primaryEmail,
+				secondaryEmail: altEmails.length > 0 ? altEmails.join(', ') : null,
 				phone: primaryPhone,
 				notes: noteParts.join('\n\n'),
 				customFields: mergedCustomFields,
@@ -184,6 +224,7 @@ export async function processLeadBatch(
 				verticalId: targetVerticalId,
 				businessName: rawName,
 				email: (item.email || '').trim(),
+				secondaryEmail: (item.secondaryEmail || '').trim() || undefined,
 				phone: (item.phone || '').trim(),
 				status: item.status || 'NEW',
 				notes: item.notes || '',
@@ -195,7 +236,18 @@ export async function processLeadBatch(
 			if (existingItem.notes) notesArr.push(existingItem.notes);
 
 			if (item.email && item.email !== existingItem.email) {
-				notesArr.push(`Alt Email: ${item.email}`);
+				if (!existingItem.secondaryEmail) {
+					existingItem.secondaryEmail = item.email;
+				} else if (!existingItem.secondaryEmail.includes(item.email)) {
+					existingItem.secondaryEmail = `${existingItem.secondaryEmail}, ${item.email}`;
+				}
+			}
+			if (item.secondaryEmail && item.secondaryEmail !== existingItem.email) {
+				if (!existingItem.secondaryEmail) {
+					existingItem.secondaryEmail = item.secondaryEmail;
+				} else if (!existingItem.secondaryEmail.includes(item.secondaryEmail)) {
+					existingItem.secondaryEmail = `${existingItem.secondaryEmail}, ${item.secondaryEmail}`;
+				}
 			}
 			if (item.phone && item.phone !== existingItem.phone) {
 				notesArr.push(`Alt Phone: ${item.phone}`);
@@ -241,17 +293,23 @@ export async function deduplicateDatabaseLeads(targetVerticalId?: string): Promi
 			const updatedMaster = { ...lead, email: sanitized.primary };
 			seenMap.set(seenKey, updatedMaster);
 
-			// Clean up multi-email comma strings in primary record
+			// Clean up multi-email strings in primary record
 			if (sanitized.secondary.length > 0 || lead.email !== sanitized.primary) {
 				const notes: string[] = [];
 				if (lead.notes) notes.push(lead.notes);
-				if (sanitized.secondary.length > 0) {
-					notes.push(`[Collated Contact]: Alt Email: ${sanitized.secondary.join(', ')}`);
+				const existingSec = lead.secondaryEmail ? sanitizeLeadEmail(lead.secondaryEmail) : { primary: '', secondary: [] };
+				const secSet = new Set<string>([...sanitized.secondary]);
+				if (existingSec.primary && existingSec.primary !== 'no-email@provided.com' && existingSec.primary !== 'No email address') {
+					secSet.add(existingSec.primary);
 				}
+				existingSec.secondary.forEach(s => secSet.add(s));
+				secSet.delete(sanitized.primary);
+
 				await db
 					.update(leads)
 					.set({
 						email: sanitized.primary,
+						secondaryEmail: secSet.size > 0 ? Array.from(secSet).join(', ') : null,
 						notes: notes.join('\n\n'),
 						updatedAt: new Date().toISOString()
 					})
@@ -275,9 +333,24 @@ export async function deduplicateDatabaseLeads(targetVerticalId?: string): Promi
 			}
 			if (lead.notes && !notes.includes(lead.notes)) notes.push(lead.notes);
 
+			const secSet = new Set<string>();
+			if (original.secondaryEmail) {
+				const existingSec = sanitizeLeadEmail(original.secondaryEmail);
+				if (existingSec.primary && existingSec.primary !== 'no-email@provided.com' && existingSec.primary !== 'No email address') secSet.add(existingSec.primary);
+				existingSec.secondary.forEach((s) => secSet.add(s));
+			}
+			if (sanitized.primary && sanitized.primary !== original.email && sanitized.primary !== 'no-email@provided.com') {
+				secSet.add(sanitized.primary);
+			}
+			for (const alt of sanitized.secondary) {
+				secSet.add(alt);
+			}
+			secSet.delete(original.email);
+
 			await db
 				.update(leads)
 				.set({
+					secondaryEmail: secSet.size > 0 ? Array.from(secSet).join(', ') : null,
 					notes: notes.join('\n\n'),
 					updatedAt: new Date().toISOString()
 				})

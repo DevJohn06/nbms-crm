@@ -8,7 +8,6 @@
 		Plus,
 		Mail,
 		Phone,
-		Building,
 		Trash2,
 		ChevronRight,
 		ChevronLeft,
@@ -141,9 +140,61 @@
 	// Form bindings for single new lead
 	let newName = $state('');
 	let newEmail = $state('');
+	let newSecondaryEmail = $state('');
 	let newPhone = $state('');
 	let newStatus = $state('NEW');
 	let newNotes = $state('');
+
+	function getMainEmail(emailStr: string | null | undefined): string {
+		if (!emailStr || emailStr === 'no-email@provided.com' || emailStr === 'No email address') {
+			return 'No email address';
+		}
+		const parts = emailStr
+			.split(/[\s,;]+/)
+			.map((s) => s.trim().replace(/^[<(\[]+|[>)\]]+$/g, ''))
+			.filter((s) => s.includes('@'));
+		return parts[0] || emailStr.trim();
+	}
+
+	function getSupplementaryEmails(lead: any): string[] {
+		if (!lead) return [];
+		const set = new Set<string>();
+		const main = getMainEmail(lead.email);
+
+		if (lead.email) {
+			const parts = lead.email
+				.split(/[\s,;]+/)
+				.map((s: string) => s.trim().replace(/^[<(\[]+|[>)\]]+$/g, ''))
+				.filter((s: string) => s.includes('@'));
+			parts.forEach((p: string) => {
+				if (p !== main && p !== 'no-email@provided.com') set.add(p);
+			});
+		}
+
+		if (lead.secondaryEmail) {
+			const parts = lead.secondaryEmail
+				.split(/[\s,;]+/)
+				.map((s: string) => s.trim().replace(/^[<(\[]+|[>)\]]+$/g, ''))
+				.filter((s: string) => s.includes('@'));
+			parts.forEach((p: string) => {
+				if (p !== main && p !== 'no-email@provided.com') set.add(p);
+			});
+		}
+
+		if (lead.notes) {
+			const matches = lead.notes.matchAll(/Alt Email:\s*([^\n\]\r]+)/gi);
+			for (const match of matches) {
+				if (match[1]) {
+					match[1].split(/[\s,;]+/).forEach((e: string) => {
+						const trimmed = e.trim().replace(/^[<(\[]+|[>)\]]+$/g, '');
+						if (trimmed && trimmed.includes('@') && trimmed !== main) set.add(trimmed);
+					});
+				}
+			}
+		}
+
+		return Array.from(set);
+	}
 
 	const statusOptions = [
 		{ id: 'ALL', label: 'All Journey Stages' },
@@ -251,13 +302,17 @@
 				if (searchByField === 'business') {
 					return !!(l.businessName && l.businessName.toLowerCase().includes(q));
 				} else if (searchByField === 'email') {
-					return !!(l.email && l.email.toLowerCase().includes(q));
+					return !!(
+						(l.email && l.email.toLowerCase().includes(q)) ||
+						(l.secondaryEmail && l.secondaryEmail.toLowerCase().includes(q))
+					);
 				} else if (searchByField === 'phone') {
 					return !!(l.phone && l.phone.toLowerCase().includes(q));
 				} else {
 					return !!(
 						(l.businessName && l.businessName.toLowerCase().includes(q)) ||
 						(l.email && l.email.toLowerCase().includes(q)) ||
+						(l.secondaryEmail && l.secondaryEmail.toLowerCase().includes(q)) ||
 						(l.phone && l.phone.toLowerCase().includes(q)) ||
 						(l.notes && l.notes.toLowerCase().includes(q))
 					);
@@ -276,6 +331,7 @@
 			(l) =>
 				l.businessName.toLowerCase().includes(q) ||
 				l.email.toLowerCase().includes(q) ||
+				(l.secondaryEmail && l.secondaryEmail.toLowerCase().includes(q)) ||
 				l.phone.toLowerCase().includes(q)
 		);
 	});
@@ -661,7 +717,7 @@
 								<div class="space-y-1 text-[11px]">
 									<div class="text-slate-700 dark:text-slate-300 truncate flex items-center gap-1.5 font-mono font-medium">
 										<Mail class="w-3 h-3 text-purple-600 dark:text-purple-400 flex-shrink-0" />
-										<span class="truncate">{lead.email}</span>
+										<span class="truncate">{getMainEmail(lead.email)}</span>
 									</div>
 									<div class="text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
 										<Phone class="w-3 h-3 text-cyan-600 dark:text-cyan-400 flex-shrink-0" />
@@ -795,17 +851,18 @@
 							{/each}
 						{:else}
 							{#each filteredLeads as lead (lead.id)}
+								{@const mainEmail = getMainEmail(lead.email)}
+								{@const suppEmails = getSupplementaryEmails(lead)}
 							<tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors group">
-								<td class="py-3.5 px-4">
+								<td class="py-3.5 px-4 font-display">
 									<button
 										onclick={() => {
 											selectedLead = lead;
 											isDetailOpen = true;
 										}}
-										class="font-black text-sm text-slate-950 dark:text-slate-100 hover:text-purple-700 dark:hover:text-purple-400 text-left flex items-center gap-2"
+										class="font-black text-sm text-slate-950 dark:text-slate-100 hover:text-purple-700 dark:hover:text-purple-400 text-left"
 									>
-										<Building class="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
-										<span>{lead.businessName}</span>
+										{lead.businessName}
 									</button>
 								</td>
 
@@ -817,22 +874,31 @@
 
 								<td class="py-3.5 px-4 font-mono">
 									<div class="flex items-center justify-between gap-2 group/cell">
-										<button
-											onclick={() => copyToClipboard(lead.email)}
-											title="Click to copy email address"
-											class="flex items-center gap-1.5 font-bold text-xs text-slate-950 dark:text-slate-100 hover:text-purple-700 dark:hover:text-purple-300 text-left cursor-pointer transition-colors"
-										>
-											<Mail class="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 flex-shrink-0" />
-											<span class="truncate max-w-[180px] sm:max-w-xs">{lead.email}</span>
-										</button>
-
-										{#if lead.email && lead.email !== 'No email address'}
+										<div class="flex items-center gap-1.5 min-w-0">
 											<button
-												onclick={() => copyToClipboard(lead.email)}
+												onclick={() => copyToClipboard(mainEmail)}
+												title="Click to copy main email address"
+												class="font-bold text-xs text-slate-950 dark:text-slate-100 hover:text-purple-700 dark:hover:text-purple-300 text-left cursor-pointer transition-colors truncate max-w-[180px] sm:max-w-xs"
+											>
+												{mainEmail}
+											</button>
+											{#if suppEmails.length > 0}
+												<span
+													class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 flex-shrink-0 cursor-help shadow-2xs"
+													title={`Supplementary Email: ${suppEmails.join(', ')}`}
+												>
+													+{suppEmails.length}
+												</span>
+											{/if}
+										</div>
+
+										{#if mainEmail && mainEmail !== 'No email address'}
+											<button
+												onclick={() => copyToClipboard(mainEmail)}
 												title="Copy email to clipboard"
 												class="opacity-0 group-hover/cell:opacity-100 focus:opacity-100 p-1 rounded-md hover:bg-purple-100 dark:hover:bg-purple-950/80 text-slate-600 dark:text-slate-400 hover:text-purple-900 dark:hover:text-purple-300 transition-all cursor-pointer"
 											>
-												{#if copiedText === lead.email}
+												{#if copiedText === mainEmail}
 													<Check class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
 												{:else}
 													<Copy class="w-3.5 h-3.5" />
@@ -847,10 +913,9 @@
 										<button
 											onclick={() => copyToClipboard(lead.phone)}
 											title="Click to copy phone number"
-											class="flex items-center gap-1.5 font-bold text-xs text-slate-950 dark:text-slate-100 hover:text-cyan-700 dark:hover:text-cyan-300 text-left cursor-pointer transition-colors"
+											class="font-bold text-xs text-slate-950 dark:text-slate-100 hover:text-cyan-700 dark:hover:text-cyan-300 text-left cursor-pointer transition-colors"
 										>
-											<Phone class="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 flex-shrink-0" />
-											<span>{lead.phone}</span>
+											{lead.phone}
 										</button>
 
 										{#if lead.phone && lead.phone !== 'N/A'}
@@ -957,13 +1022,24 @@
 				</div>
 
 				<div>
-					<label for="lead-email" class="block text-xs text-slate-700 dark:text-slate-300 font-bold mb-1">Email Address *</label>
+					<label for="lead-email" class="block text-xs text-slate-700 dark:text-slate-300 font-bold mb-1">Main Email Address *</label>
 					<input
 						id="lead-email"
 						type="email"
 						name="email"
 						required
 						placeholder="e.g. owner@apexhardware.com"
+						class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600 shadow-xs"
+					/>
+				</div>
+
+				<div>
+					<label for="lead-secondary-email" class="block text-xs text-slate-700 dark:text-slate-300 font-bold mb-1">Supplementary Email (Optional)</label>
+					<input
+						id="lead-secondary-email"
+						type="email"
+						name="secondaryEmail"
+						placeholder="e.g. alt@apexhardware.com"
 						class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-2 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600 shadow-xs"
 					/>
 				</div>
@@ -1045,7 +1121,7 @@
 								</span>
 							</div>
 							<div class="text-[11px] text-slate-600 dark:text-slate-400 font-mono truncate mt-0.5 font-medium">
-								{lead.email} • {lead.phone}
+								{getMainEmail(lead.email)} • {lead.phone}
 							</div>
 						</div>
 
