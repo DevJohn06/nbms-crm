@@ -9,6 +9,7 @@
 		CheckCircle2,
 		AlertCircle,
 		Save,
+		Loader2,
 		ExternalLink,
 		Info,
 		Layers,
@@ -515,11 +516,11 @@
 				href={data.activeVerticalId ? `/funnel/${data.activeVerticalId}` : '/funnel'}
 				target="_blank"
 				rel="noopener noreferrer"
-				class="btn-secondary text-xs inline-flex items-center gap-2 self-start md:self-auto shadow-xs cursor-pointer"
+				title="Preview Landing Page"
+				aria-label="Preview Landing Page"
+				class="btn-secondary !p-2 inline-flex items-center justify-center self-start md:self-auto shadow-xs cursor-pointer"
 			>
-				<Sparkles class="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-				Preview Landing Page
-				<ExternalLink class="w-3.5 h-3.5 text-slate-400" />
+				<ExternalLink class="w-4 h-4" />
 			</a>
 		</div>
 	</div>
@@ -625,11 +626,17 @@
 								{/if}
 							</button>
 
-							<button type="submit" disabled={isSavingSection} class="btn-primary text-xs flex items-center gap-2 shadow-sm cursor-pointer whitespace-nowrap">
+							<button
+								type="submit"
+								disabled={isSavingSection}
+								title={isSavingSection ? 'Saving...' : 'Save Changes'}
+								aria-label={isSavingSection ? 'Saving...' : 'Save Changes'}
+								class="btn-primary !p-2 rounded-xl flex items-center justify-center shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+							>
 								{#if isSavingSection}
-									<span>Saving...</span>
+									<Loader2 class="w-4 h-4 animate-spin" />
 								{:else}
-									<Save class="w-4 h-4" /> Save Changes
+									<Save class="w-4 h-4" />
 								{/if}
 							</button>
 						</div>
@@ -755,11 +762,17 @@
 								{/if}
 							</button>
 
-							<button type="submit" disabled={isSavingSection} class="btn-primary text-xs flex items-center gap-2 shadow-sm cursor-pointer whitespace-nowrap">
+							<button
+								type="submit"
+								disabled={isSavingSection}
+								title={isSavingSection ? 'Saving...' : 'Save Changes'}
+								aria-label={isSavingSection ? 'Saving...' : 'Save Changes'}
+								class="btn-primary !p-2 rounded-xl flex items-center justify-center shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+							>
 								{#if isSavingSection}
-									<span>Saving...</span>
+									<Loader2 class="w-4 h-4 animate-spin" />
 								{:else}
-									<Save class="w-4 h-4" /> Save Changes
+									<Save class="w-4 h-4" />
 								{/if}
 							</button>
 						</div>
@@ -896,11 +909,17 @@
 								{/if}
 							</button>
 
-							<button type="submit" disabled={isSavingSection} class="btn-primary text-xs flex items-center gap-2 shadow-sm cursor-pointer whitespace-nowrap">
+							<button
+								type="submit"
+								disabled={isSavingSection}
+								title={isSavingSection ? 'Saving...' : 'Save Changes'}
+								aria-label={isSavingSection ? 'Saving...' : 'Save Changes'}
+								class="btn-primary !p-2 rounded-xl flex items-center justify-center shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+							>
 								{#if isSavingSection}
-									<span>Saving...</span>
+									<Loader2 class="w-4 h-4 animate-spin" />
 								{:else}
-									<Save class="w-4 h-4" /> Save Changes
+									<Save class="w-4 h-4" />
 								{/if}
 							</button>
 						</div>
@@ -1062,11 +1081,17 @@
 								{/if}
 							</button>
 
-							<button type="submit" disabled={isSavingSection} class="btn-primary text-xs flex items-center gap-2 shadow-sm cursor-pointer whitespace-nowrap">
+							<button
+								type="submit"
+								disabled={isSavingSection}
+								title={isSavingSection ? 'Saving...' : 'Save Changes'}
+								aria-label={isSavingSection ? 'Saving...' : 'Save Changes'}
+								class="btn-primary !p-2 rounded-xl flex items-center justify-center shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+							>
 								{#if isSavingSection}
-									<span>Saving...</span>
+									<Loader2 class="w-4 h-4 animate-spin" />
 								{:else}
-									<Save class="w-4 h-4" /> Save Changes
+									<Save class="w-4 h-4" />
 								{/if}
 							</button>
 						</div>
@@ -1148,11 +1173,17 @@
 								{/if}
 							</button>
 
-							<button type="submit" disabled={isSavingSection} class="btn-primary text-xs flex items-center gap-2 shadow-sm cursor-pointer whitespace-nowrap">
+							<button
+								type="submit"
+								disabled={isSavingSection}
+								title={isSavingSection ? 'Saving...' : 'Save Changes'}
+								aria-label={isSavingSection ? 'Saving...' : 'Save Changes'}
+								class="btn-primary !p-2 rounded-xl flex items-center justify-center shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+							>
 								{#if isSavingSection}
-									<span>Saving...</span>
+									<Loader2 class="w-4 h-4 animate-spin" />
 								{:else}
-									<Save class="w-4 h-4" /> Save Changes
+									<Save class="w-4 h-4" />
 								{/if}
 							</button>
 						</div>
@@ -1280,11 +1311,17 @@
 								{/if}
 							</button>
 
-							<button type="submit" disabled={isSavingSection} class="btn-primary text-xs flex items-center gap-2 shadow-sm cursor-pointer whitespace-nowrap">
+							<button
+								type="submit"
+								disabled={isSavingSection}
+								title={isSavingSection ? 'Saving...' : 'Save Changes'}
+								aria-label={isSavingSection ? 'Saving...' : 'Save Changes'}
+								class="btn-primary !p-2 rounded-xl flex items-center justify-center shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+							>
 								{#if isSavingSection}
-									<span>Saving...</span>
+									<Loader2 class="w-4 h-4 animate-spin" />
 								{:else}
-									<Save class="w-4 h-4" /> Save Changes
+									<Save class="w-4 h-4" />
 								{/if}
 							</button>
 						</div>
@@ -1374,11 +1411,17 @@
 								{/if}
 							</button>
 
-							<button type="submit" disabled={isSavingSection} class="btn-primary text-xs flex items-center gap-2 shadow-sm cursor-pointer whitespace-nowrap">
+							<button
+								type="submit"
+								disabled={isSavingSection}
+								title={isSavingSection ? 'Saving...' : 'Save Changes'}
+								aria-label={isSavingSection ? 'Saving...' : 'Save Changes'}
+								class="btn-primary !p-2 rounded-xl flex items-center justify-center shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+							>
 								{#if isSavingSection}
-									<span>Saving...</span>
+									<Loader2 class="w-4 h-4 animate-spin" />
 								{:else}
-									<Save class="w-4 h-4" /> Save Changes
+									<Save class="w-4 h-4" />
 								{/if}
 							</button>
 						</div>
