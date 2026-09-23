@@ -26,13 +26,13 @@ export async function getIntakeCmsSections(verticalId: string = 'mmj-dispensary'
 		.where(
 			targetVerticalId === 'mmj-dispensary'
 				? or(
-						eq(intakeCms.verticalId, 'mmj-dispensary'),
-						sql`${intakeCms.id} NOT LIKE '%__%'`
-				  )
+					eq(intakeCms.verticalId, 'mmj-dispensary'),
+					sql`${intakeCms.id} NOT LIKE '%__%'`
+				)
 				: or(
-						eq(intakeCms.verticalId, targetVerticalId),
-						sql`${intakeCms.id} LIKE ${targetVerticalId + '__%'}`
-				  )
+					eq(intakeCms.verticalId, targetVerticalId),
+					sql`${intakeCms.id} LIKE ${targetVerticalId + '__%'}`
+				)
 		);
 
 	// Fetch vertical info if available
@@ -291,12 +291,12 @@ export async function getIntakeCmsSections(verticalId: string = 'mmj-dispensary'
 			const inferredTemplateType: CmsTemplateType = (
 				parsedContent.templateType || (
 					rawSectionId.startsWith('hero') ? 'hero' :
-					rawSectionId.startsWith('process_flow') ? 'process_flow' :
-					rawSectionId.startsWith('how_it_works') ? 'how_it_works' :
-					rawSectionId.startsWith('about') ? 'about' :
-					rawSectionId.startsWith('contact') ? 'contact' :
-					rawSectionId.startsWith('faqs') ? 'faqs' :
-					rawSectionId.startsWith('footer') ? 'footer' : 'about'
+						rawSectionId.startsWith('process_flow') ? 'process_flow' :
+							rawSectionId.startsWith('how_it_works') ? 'how_it_works' :
+								rawSectionId.startsWith('about') ? 'about' :
+									rawSectionId.startsWith('contact') ? 'contact' :
+										rawSectionId.startsWith('faqs') ? 'faqs' :
+											rawSectionId.startsWith('footer') ? 'footer' : 'about'
 				)
 			);
 
@@ -457,12 +457,12 @@ export async function duplicateCmsSection(verticalId: string = 'mmj-dispensary',
 
 	const templateType: CmsTemplateType = sourceSection.content?.templateType || (
 		sourceSectionId.startsWith('hero') ? 'hero' :
-		sourceSectionId.startsWith('process_flow') ? 'process_flow' :
-		sourceSectionId.startsWith('how_it_works') ? 'how_it_works' :
-		sourceSectionId.startsWith('about') ? 'about' :
-		sourceSectionId.startsWith('contact') ? 'contact' :
-		sourceSectionId.startsWith('faqs') ? 'faqs' :
-		sourceSectionId.startsWith('footer') ? 'footer' : 'about'
+			sourceSectionId.startsWith('process_flow') ? 'process_flow' :
+				sourceSectionId.startsWith('how_it_works') ? 'how_it_works' :
+					sourceSectionId.startsWith('about') ? 'about' :
+						sourceSectionId.startsWith('contact') ? 'contact' :
+							sourceSectionId.startsWith('faqs') ? 'faqs' :
+								sourceSectionId.startsWith('footer') ? 'footer' : 'about'
 	);
 
 	const newSectionId = `${templateType}_${Date.now()}`;
@@ -510,20 +510,21 @@ export async function deleteCmsSection(verticalId: string = 'mmj-dispensary', se
 	await db.delete(intakeCms).where(
 		or(
 			eq(intakeCms.id, compoundId),
-			eq(intakeCms.id, sectionId)
+			eq(intakeCms.id, sectionId),
+			eq(intakeCms.sectionId, sectionId)
 		)
 	);
 
 	const { sectionOrder } = await getIntakeCmsSections(targetVerticalId);
 	const updatedOrder = sectionOrder.filter((id) => id !== sectionId);
 
-	await updateCmsSection(
-		targetVerticalId,
-		'section_order',
-		'Section Order Configuration',
-		'Custom section layout order for public intake page',
-		{ order: updatedOrder }
-	);
+await updateCmsSection(
+	targetVerticalId,
+	'section_order',
+	'Section Order Configuration',
+	'Custom section layout order for public intake page',
+	{ order: updatedOrder }
+);
 
-	return { success: true };
+return { success: true };
 }

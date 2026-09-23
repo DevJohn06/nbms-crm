@@ -46,7 +46,8 @@ export const actions: Actions = {
 
 	saveSectionOrder: async ({ request }) => {
 		const formData = await request.formData();
-		const verticalId = formData.get('verticalId')?.toString() || 'mmj-dispensary';
+		const allVerticals = await getAllVerticals();
+		const verticalId = formData.get('verticalId')?.toString() || (allVerticals[0]?.id || '');
 		const orderJson = formData.get('orderJson')?.toString();
 
 		if (!orderJson) {
@@ -68,7 +69,8 @@ export const actions: Actions = {
 
 	duplicateSection: async ({ request }) => {
 		const formData = await request.formData();
-		const verticalId = formData.get('verticalId')?.toString() || 'mmj-dispensary';
+		const allVerticals = await getAllVerticals();
+		const verticalId = formData.get('verticalId')?.toString() || (allVerticals[0]?.id || '');
 		const sectionId = formData.get('sectionId')?.toString();
 
 		if (!sectionId) {
@@ -90,7 +92,8 @@ export const actions: Actions = {
 
 	deleteSection: async ({ request }) => {
 		const formData = await request.formData();
-		const verticalId = formData.get('verticalId')?.toString() || 'mmj-dispensary';
+		const allVerticals = await getAllVerticals();
+		const verticalId = formData.get('verticalId')?.toString() || (allVerticals[0]?.id || '');
 		const sectionId = formData.get('sectionId')?.toString();
 
 		if (!sectionId) {

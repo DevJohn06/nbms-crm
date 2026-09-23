@@ -138,7 +138,11 @@
 		}
 	}
 
-	async function duplicateSectionAction(secId: string) {
+	async function duplicateSectionAction(secId: string, event?: Event) {
+		if (event) {
+			event.preventDefault();
+			event.stopPropagation();
+		}
 		isDuplicating = true;
 		const formData = new FormData();
 		formData.append('verticalId', data.activeVerticalId || '');
@@ -149,12 +153,12 @@
 				method: 'POST',
 				body: formData
 			});
-			const result = await res.json();
-			if (res.ok && result.type !== 'failure') {
+			const result = await res.json().catch(() => null);
+			if (res.ok && result?.type !== 'failure') {
 				toastStore.success('Section Duplicated', 'New section copy created successfully.');
 				window.location.reload();
 			} else {
-				const errMsg = result.data?.error || 'Failed to duplicate section.';
+				const errMsg = result?.data?.error || 'Failed to duplicate section.';
 				toastStore.error('Duplication Failed', String(errMsg));
 			}
 		} catch (e) {
@@ -164,7 +168,11 @@
 		}
 	}
 
-	async function deleteSectionAction(secId: string) {
+	async function deleteSectionAction(secId: string, event?: Event) {
+		if (event) {
+			event.preventDefault();
+			event.stopPropagation();
+		}
 		const meta = getSectionMeta(secId);
 		if (!confirm(`Are you sure you want to delete "${meta.name}"?`)) return;
 
@@ -178,12 +186,14 @@
 				method: 'POST',
 				body: formData
 			});
-			if (res.ok) {
+			const result = await res.json().catch(() => null);
+			if (res.ok && result?.type !== 'failure') {
 				toastStore.success('Section Deleted', 'Section removed from layout.');
 				activeTab = 'hero';
 				window.location.reload();
 			} else {
-				toastStore.error('Delete Failed', 'Could not delete section.');
+				const errMsg = result?.data?.error || 'Could not delete section.';
+				toastStore.error('Delete Failed', String(errMsg));
 			}
 		} catch (e) {
 			toastStore.error('Delete Failed', 'An unexpected error occurred.');
@@ -706,7 +716,7 @@
 						<div class="flex items-center gap-2 self-end sm:self-auto">
 							<button
 								type="button"
-								onclick={() => duplicateSectionAction(activeTab)}
+								onclick={(e) => duplicateSectionAction(activeTab, e)}
 								disabled={isDuplicating}
 								title="Duplicate this section"
 								class="btn-secondary !p-2 text-xs flex items-center gap-1.5 cursor-pointer"
@@ -718,7 +728,7 @@
 							{#if currentMeta.isDuplicate}
 								<button
 									type="button"
-									onclick={() => deleteSectionAction(activeTab)}
+									onclick={(e) => deleteSectionAction(activeTab, e)}
 									disabled={isDeleting}
 									title="Delete duplicated section"
 									class="p-2 rounded-xl transition-all border flex items-center justify-center cursor-pointer shadow-xs bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-950/70 dark:text-rose-400 dark:border-rose-800 hover:bg-rose-200"
@@ -883,7 +893,7 @@
 						<div class="flex items-center gap-2 self-end sm:self-auto">
 							<button
 								type="button"
-								onclick={() => duplicateSectionAction(activeTab)}
+								onclick={(e) => duplicateSectionAction(activeTab, e)}
 								disabled={isDuplicating}
 								title="Duplicate this section"
 								class="btn-secondary !p-2 text-xs flex items-center gap-1.5 cursor-pointer"
@@ -895,7 +905,7 @@
 							{#if currentMeta.isDuplicate}
 								<button
 									type="button"
-									onclick={() => deleteSectionAction(activeTab)}
+									onclick={(e) => deleteSectionAction(activeTab, e)}
 									disabled={isDeleting}
 									title="Delete duplicated section"
 									class="p-2 rounded-xl transition-all border flex items-center justify-center cursor-pointer shadow-xs bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-950/70 dark:text-rose-400 dark:border-rose-800 hover:bg-rose-200"
@@ -1071,7 +1081,7 @@
 						<div class="flex items-center gap-2 self-end sm:self-auto">
 							<button
 								type="button"
-								onclick={() => duplicateSectionAction(activeTab)}
+								onclick={(e) => duplicateSectionAction(activeTab, e)}
 								disabled={isDuplicating}
 								title="Duplicate this section"
 								class="btn-secondary !p-2 text-xs flex items-center gap-1.5 cursor-pointer"
@@ -1083,7 +1093,7 @@
 							{#if currentMeta.isDuplicate}
 								<button
 									type="button"
-									onclick={() => deleteSectionAction(activeTab)}
+									onclick={(e) => deleteSectionAction(activeTab, e)}
 									disabled={isDeleting}
 									title="Delete duplicated section"
 									class="p-2 rounded-xl transition-all border flex items-center justify-center cursor-pointer shadow-xs bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-950/70 dark:text-rose-400 dark:border-rose-800 hover:bg-rose-200"
@@ -1284,7 +1294,7 @@
 						<div class="flex items-center gap-2 self-end sm:self-auto">
 							<button
 								type="button"
-								onclick={() => duplicateSectionAction(activeTab)}
+								onclick={(e) => duplicateSectionAction(activeTab, e)}
 								disabled={isDuplicating}
 								title="Duplicate this section"
 								class="btn-secondary !p-2 text-xs flex items-center gap-1.5 cursor-pointer"
@@ -1296,7 +1306,7 @@
 							{#if currentMeta.isDuplicate}
 								<button
 									type="button"
-									onclick={() => deleteSectionAction(activeTab)}
+									onclick={(e) => deleteSectionAction(activeTab, e)}
 									disabled={isDeleting}
 									title="Delete duplicated section"
 									class="p-2 rounded-xl transition-all border flex items-center justify-center cursor-pointer shadow-xs bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-950/70 dark:text-rose-400 dark:border-rose-800 hover:bg-rose-200"
@@ -1417,7 +1427,7 @@
 						<div class="flex items-center gap-2 self-end sm:self-auto">
 							<button
 								type="button"
-								onclick={() => duplicateSectionAction(activeTab)}
+								onclick={(e) => duplicateSectionAction(activeTab, e)}
 								disabled={isDuplicating}
 								title="Duplicate this section"
 								class="btn-secondary !p-2 text-xs flex items-center gap-1.5 cursor-pointer"
@@ -1429,7 +1439,7 @@
 							{#if currentMeta.isDuplicate}
 								<button
 									type="button"
-									onclick={() => deleteSectionAction(activeTab)}
+									onclick={(e) => deleteSectionAction(activeTab, e)}
 									disabled={isDeleting}
 									title="Delete duplicated section"
 									class="p-2 rounded-xl transition-all border flex items-center justify-center cursor-pointer shadow-xs bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-950/70 dark:text-rose-400 dark:border-rose-800 hover:bg-rose-200"
@@ -1596,7 +1606,7 @@
 						<div class="flex items-center gap-2 self-end sm:self-auto">
 							<button
 								type="button"
-								onclick={() => duplicateSectionAction(activeTab)}
+								onclick={(e) => duplicateSectionAction(activeTab, e)}
 								disabled={isDuplicating}
 								title="Duplicate this section"
 								class="btn-secondary !p-2 text-xs flex items-center gap-1.5 cursor-pointer"
@@ -1608,7 +1618,7 @@
 							{#if currentMeta.isDuplicate}
 								<button
 									type="button"
-									onclick={() => deleteSectionAction(activeTab)}
+									onclick={(e) => deleteSectionAction(activeTab, e)}
 									disabled={isDeleting}
 									title="Delete duplicated section"
 									class="p-2 rounded-xl transition-all border flex items-center justify-center cursor-pointer shadow-xs bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-950/70 dark:text-rose-400 dark:border-rose-800 hover:bg-rose-200"
@@ -1737,7 +1747,7 @@
 						<div class="flex items-center gap-2 self-end sm:self-auto">
 							<button
 								type="button"
-								onclick={() => duplicateSectionAction(activeTab)}
+								onclick={(e) => duplicateSectionAction(activeTab, e)}
 								disabled={isDuplicating}
 								title="Duplicate this section"
 								class="btn-secondary !p-2 text-xs flex items-center gap-1.5 cursor-pointer"
@@ -1749,7 +1759,7 @@
 							{#if currentMeta.isDuplicate}
 								<button
 									type="button"
-									onclick={() => deleteSectionAction(activeTab)}
+									onclick={(e) => deleteSectionAction(activeTab, e)}
 									disabled={isDeleting}
 									title="Delete duplicated section"
 									class="p-2 rounded-xl transition-all border flex items-center justify-center cursor-pointer shadow-xs bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-950/70 dark:text-rose-400 dark:border-rose-800 hover:bg-rose-200"
@@ -1890,7 +1900,7 @@
 						<div class="flex items-center gap-1 flex-shrink-0">
 							<button
 								type="button"
-								onclick={() => duplicateSectionAction(secId)}
+								onclick={(e) => duplicateSectionAction(secId, e)}
 								title="Duplicate section"
 								class="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-purple-50 dark:hover:bg-purple-900/40 text-slate-600 hover:text-purple-700 dark:text-slate-400 dark:hover:text-purple-300 cursor-pointer"
 							>
@@ -1900,7 +1910,7 @@
 							{#if meta.isDuplicate}
 								<button
 									type="button"
-									onclick={() => deleteSectionAction(secId)}
+									onclick={(e) => deleteSectionAction(secId, e)}
 									title="Delete duplicate section"
 									class="p-1.5 rounded-lg border border-rose-200 dark:border-rose-900/40 hover:bg-rose-50 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 cursor-pointer"
 								>
