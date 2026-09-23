@@ -17,12 +17,14 @@
 	let { data, children } = $props();
 
 	let currentPath = $derived($page.url.pathname);
-	let isDispensaryHost = $derived(
+	let isPublicHost = $derived(
 		typeof window !== 'undefined' &&
-			(window.location.hostname.startsWith('dispensary.') ||
+			(window.location.hostname.startsWith('page.') ||
+				window.location.hostname.includes('page.nbmsinc.com') ||
+				window.location.hostname.startsWith('dispensary.') ||
 				window.location.hostname.includes('dispensary.nbmsinc.com'))
 	);
-	let isPublicFunnel = $derived(currentPath.startsWith('/funnel') || isDispensaryHost);
+	let isPublicFunnel = $derived(currentPath.startsWith('/funnel') || isPublicHost);
 	let isLoginPage = $derived(currentPath.startsWith('/login'));
 	let user = $derived(data.user);
 
