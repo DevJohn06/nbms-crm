@@ -2,8 +2,10 @@ import { db } from './db';
 import { intakeCms, verticals } from './db/schema';
 import { eq, or, sql } from 'drizzle-orm';
 
+export type CmsTemplateType = 'hero' | 'about' | 'how_it_works' | 'contact' | 'process_flow' | 'faqs' | 'footer';
+
 export interface CmsSectionData {
-	id: 'hero' | 'about' | 'how_it_works' | 'contact' | 'process_flow' | 'faqs' | 'footer';
+	id: string;
 	title: string;
 	subtitle: string;
 	content: any;
@@ -43,6 +45,8 @@ export async function getIntakeCmsSections(verticalId: string = 'mmj-dispensary'
 			title: 'ATM Payment Processing Solutions',
 			subtitle: 'Apply Today, Be In Business Tomorrow!',
 			content: {
+				templateType: 'hero',
+				sectionName: 'Hero Section',
 				badge: 'ATM Payment Processing Solutions',
 				tagline: 'THEY DECLINE. WE APPROVE.',
 				primaryCta: 'Get Info',
@@ -57,6 +61,8 @@ export async function getIntakeCmsSections(verticalId: string = 'mmj-dispensary'
 			subtitle:
 				"An ATM merchant account isn't a standard bank account but a specialized service allowing businesses to process electronic payments (cards, digital wallets) by acting as a temporary holding account for customer funds before transferring them to your regular business checking account, facilitated by a merchant service provider and an acquiring bank, essential for modern non-cash transactions and often involving fees.",
 			content: {
+				templateType: 'process_flow',
+				sectionName: 'Process Flow & Key Points',
 				primaryCta: 'Get Info',
 				secondaryCta: 'Book A Call',
 				keyPoints: [
@@ -94,6 +100,8 @@ export async function getIntakeCmsSections(verticalId: string = 'mmj-dispensary'
 			title: 'High-Risk Business Categories',
 			subtitle: 'Understanding processor guidelines, risk classification, and high-risk merchant placement.',
 			content: {
+				templateType: 'about',
+				sectionName: 'About Section',
 				description:
 					"The first thing to understand about high-risk businesses is that your processor will determine whether you fall into one of their high-risk categories when you apply for a merchant account. Either you’re high-risk, or you’re not – there is no middle ground. Beyond that, it gets complicated as every processor has their own unique guidelines for determining whether you’re in the high-risk category. While some business types, will almost always be placed in the high-risk group, others may or may not be. Some merchant services providers have very strict guidelines for determining high-risk status, while others use more relaxed criteria. If you’re considering a particular provider, check their website or contact them directly to see if they find your business to be high-risk. This can save you a lot of time and effort in wasted applications to providers who aren’t going to approve you.\n\nHow a merchant services provider treats a high-risk business can also vary widely. Many providers, particularly those that try to offer merchant services at the lowest possible prices, simply do not accept any high-risk businesses at all. This helps to reduce their exposure to fraud and keeps costs low for their existing clients. You will find most providers will allow certain high-risk companies, but will charge you significantly higher rates and fees for your merchant account due to the elevated risk they’re accepting by giving you a merchant account. There’s also a third category of providers who specialize in placing high-risk businesses. While their rates and fees aren’t a good deal for non-high-risk merchants, they can often provide a merchant account for high-risk businesses that have been turned down by other providers.",
 				transitionNotice:
@@ -106,6 +114,8 @@ export async function getIntakeCmsSections(verticalId: string = 'mmj-dispensary'
 			title: 'NBMS Pin Debit Cashless ATM Terminals',
 			subtitle: 'State-of-the-art EMV & PCI compliant payment terminals engineered for countertop checkout, home delivery, and zero merchant fees.',
 			content: {
+				templateType: 'how_it_works',
+				sectionName: 'Product Showcase & Services',
 				hideSection: false,
 				features: [
 					{
@@ -178,6 +188,8 @@ export async function getIntakeCmsSections(verticalId: string = 'mmj-dispensary'
 			title: 'Merchant Support & Priority Assistance',
 			subtitle: 'Our dedicated account management team is here to answer all your processing questions.',
 			content: {
+				templateType: 'contact',
+				sectionName: 'Contact & Support',
 				hideSection: false,
 				email: 'sales@nbmsinc.com',
 				phone: '(877) 817-2257',
@@ -191,6 +203,8 @@ export async function getIntakeCmsSections(verticalId: string = 'mmj-dispensary'
 			title: 'Frequently Asked Questions',
 			subtitle: 'Everything you need to know about ATM processing, high-risk approval, PCI security, and settlements.',
 			content: {
+				templateType: 'faqs',
+				sectionName: 'FAQs Accordion',
 				hideSection: false,
 				items: [
 					{
@@ -234,6 +248,8 @@ export async function getIntakeCmsSections(verticalId: string = 'mmj-dispensary'
 			title: 'Footer Section',
 			subtitle: 'Footer call to action banner and footer links.',
 			content: {
+				templateType: 'footer',
+				sectionName: 'Footer & Final CTA',
 				ctaBanner: {
 					title: 'Ready to Get Started with NBMS?',
 					subtitle: 'Start processing cashless Pin Debit payments with zero merchant fees and daily direct bank deposits.',
@@ -248,6 +264,8 @@ export async function getIntakeCmsSections(verticalId: string = 'mmj-dispensary'
 
 	const defaultOrder = ['hero', 'process_flow', 'how_it_works', 'about', 'contact', 'faqs', 'footer'];
 	let sectionOrder = [...defaultOrder];
+	let hasSavedOrder = false;
+	let savedOrderList: string[] = [];
 
 	for (const rec of records) {
 		const rawSectionId = rec.sectionId || rec.id.replace(/^.+__/, '');
@@ -255,14 +273,8 @@ export async function getIntakeCmsSections(verticalId: string = 'mmj-dispensary'
 			try {
 				const parsed = JSON.parse(rec.contentJson);
 				if (parsed && Array.isArray(parsed.order) && parsed.order.length > 0) {
-					const validIds = ['hero', 'how_it_works', 'process_flow', 'about', 'contact', 'faqs', 'footer'];
-					const savedOrder = parsed.order.filter((id: string) => validIds.includes(id));
-					for (const validId of validIds) {
-						if (!savedOrder.includes(validId)) {
-							savedOrder.push(validId);
-						}
-					}
-					sectionOrder = savedOrder;
+					hasSavedOrder = true;
+					savedOrderList = parsed.order;
 				}
 			} catch (e) {
 				console.error('Failed to parse section_order JSON', e);
@@ -276,16 +288,76 @@ export async function getIntakeCmsSections(verticalId: string = 'mmj-dispensary'
 			}
 
 			const parsedContent = JSON.parse(rec.contentJson);
+			const inferredTemplateType: CmsTemplateType = (
+				parsedContent.templateType || (
+					rawSectionId.startsWith('hero') ? 'hero' :
+					rawSectionId.startsWith('process_flow') ? 'process_flow' :
+					rawSectionId.startsWith('how_it_works') ? 'how_it_works' :
+					rawSectionId.startsWith('about') ? 'about' :
+					rawSectionId.startsWith('contact') ? 'contact' :
+					rawSectionId.startsWith('faqs') ? 'faqs' :
+					rawSectionId.startsWith('footer') ? 'footer' : 'about'
+				)
+			);
+
+			const defaultNameMap: Record<string, string> = {
+				hero: 'Hero Section',
+				process_flow: 'Process Flow & Key Points',
+				how_it_works: 'Product Showcase & Services',
+				about: 'About Section',
+				contact: 'Contact & Support',
+				faqs: 'FAQs Accordion',
+				footer: 'Footer & Final CTA'
+			};
+
+			const inferredSectionName = parsedContent.sectionName || defaultNameMap[inferredTemplateType] || 'Custom Section';
 
 			defaults[rawSectionId] = {
-				id: rawSectionId as any,
+				id: rawSectionId,
 				title: rec.title,
 				subtitle: rec.subtitle || '',
-				content: { ...defaults[rawSectionId]?.content, ...parsedContent },
+				content: {
+					templateType: inferredTemplateType,
+					sectionName: inferredSectionName,
+					...defaults[rawSectionId]?.content,
+					...parsedContent
+				},
 				updatedAt: rec.updatedAt
 			};
 		} catch (e) {
 			console.error(`Failed to parse CMS JSON for section ${rec.id}`, e);
+		}
+	}
+
+	if (hasSavedOrder) {
+		const existingIds = new Set<string>();
+		for (const rec of records) {
+			const rawSectionId = rec.sectionId || rec.id.replace(/^.+__/, '');
+			if (rawSectionId !== 'section_order') {
+				existingIds.add(rawSectionId);
+			}
+		}
+		for (const k of Object.keys(defaults)) {
+			existingIds.add(k);
+		}
+
+		const validSaved = savedOrderList.filter((id) => existingIds.has(id));
+		for (const id of defaultOrder) {
+			if (!validSaved.includes(id)) {
+				validSaved.push(id);
+			}
+		}
+		for (const id of existingIds) {
+			if (!validSaved.includes(id)) {
+				validSaved.push(id);
+			}
+		}
+		sectionOrder = validSaved;
+	} else {
+		for (const id of Object.keys(defaults)) {
+			if (id !== 'section_order' && !sectionOrder.includes(id)) {
+				sectionOrder.push(id);
+			}
 		}
 	}
 
@@ -372,4 +444,86 @@ export async function updateCmsSection(
 	}
 
 	return updated;
+}
+
+export async function duplicateCmsSection(verticalId: string = 'mmj-dispensary', sourceSectionId: string) {
+	const targetVerticalId = (verticalId || 'mmj-dispensary').toLowerCase();
+	const { sections, sectionOrder } = await getIntakeCmsSections(targetVerticalId);
+
+	const sourceSection = sections[sourceSectionId];
+	if (!sourceSection) {
+		throw new Error(`Source section '${sourceSectionId}' not found.`);
+	}
+
+	const templateType: CmsTemplateType = sourceSection.content?.templateType || (
+		sourceSectionId.startsWith('hero') ? 'hero' :
+		sourceSectionId.startsWith('process_flow') ? 'process_flow' :
+		sourceSectionId.startsWith('how_it_works') ? 'how_it_works' :
+		sourceSectionId.startsWith('about') ? 'about' :
+		sourceSectionId.startsWith('contact') ? 'contact' :
+		sourceSectionId.startsWith('faqs') ? 'faqs' :
+		sourceSectionId.startsWith('footer') ? 'footer' : 'about'
+	);
+
+	const newSectionId = `${templateType}_${Date.now()}`;
+	const currentName = sourceSection.content?.sectionName || sourceSection.title || 'Section';
+	const newSectionName = `${currentName} (Copy)`;
+	const newTitle = sourceSection.title;
+	const newSubtitle = sourceSection.subtitle || '';
+
+	const newContent = {
+		...sourceSection.content,
+		templateType,
+		sectionName: newSectionName
+	};
+
+	await updateCmsSection(targetVerticalId, newSectionId, newTitle, newSubtitle, newContent);
+
+	// Insert into sectionOrder right after sourceSectionId
+	const updatedOrder = [...sectionOrder];
+	const sourceIdx = updatedOrder.indexOf(sourceSectionId);
+	if (sourceIdx !== -1) {
+		updatedOrder.splice(sourceIdx + 1, 0, newSectionId);
+	} else {
+		updatedOrder.push(newSectionId);
+	}
+
+	await updateCmsSection(
+		targetVerticalId,
+		'section_order',
+		'Section Order Configuration',
+		'Custom section layout order for public intake page',
+		{ order: updatedOrder }
+	);
+
+	return {
+		newSectionId,
+		sectionName: newSectionName,
+		templateType
+	};
+}
+
+export async function deleteCmsSection(verticalId: string = 'mmj-dispensary', sectionId: string) {
+	const targetVerticalId = (verticalId || 'mmj-dispensary').toLowerCase();
+	const compoundId = `${targetVerticalId}__${sectionId}`;
+
+	await db.delete(intakeCms).where(
+		or(
+			eq(intakeCms.id, compoundId),
+			eq(intakeCms.id, sectionId)
+		)
+	);
+
+	const { sectionOrder } = await getIntakeCmsSections(targetVerticalId);
+	const updatedOrder = sectionOrder.filter((id) => id !== sectionId);
+
+	await updateCmsSection(
+		targetVerticalId,
+		'section_order',
+		'Section Order Configuration',
+		'Custom section layout order for public intake page',
+		{ order: updatedOrder }
+	);
+
+	return { success: true };
 }

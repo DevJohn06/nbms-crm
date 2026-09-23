@@ -1,5 +1,5 @@
 import { fail, type Actions } from '@sveltejs/kit';
-import { getIntakeCmsSections, updateCmsSection } from '$lib/server/cms';
+import { getIntakeCmsSections, updateCmsSection, duplicateCmsSection, deleteCmsSection } from '$lib/server/cms';
 import { getAllVerticals } from '$lib/server/verticals';
 import type { PageServerLoad } from './$types';
 
@@ -35,7 +35,7 @@ export const actions: Actions = {
 			await updateCmsSection(verticalId, sectionId, title, subtitle, content);
 			return {
 				success: true,
-				message: `${sectionId.toUpperCase()} section for ${verticalId} updated successfully!`,
+				message: `Section updated successfully!`,
 				savedSectionId: sectionId
 			};
 		} catch (err: any) {
@@ -63,6 +63,49 @@ export const actions: Actions = {
 		} catch (err: any) {
 			console.error('Failed to save section order:', err);
 			return fail(400, { error: 'Database error saving section order.' });
+		}
+	},
+
+	duplicateSection: async ({ request }) => {
+		const formData = await request.formData();
+		const verticalId = formData.get('verticalId')?.toString() || 'mmj-dispensary';
+		const sectionId = formData.get('sectionId')?.toString();
+
+		if (!sectionId) {
+			return fail(400, { error: 'Section ID to duplicate is required.' });
+		}
+
+		try {
+			const result = await duplicateCmsSection(verticalId, sectionId);
+			return {
+				success: true,
+				message: `Section duplicated successfully! New Section: ${result.sectionName}`,
+				newSectionId: result.newSectionId
+			};
+		} catch (err: any) {
+			console.error('Failed to duplicate section:', err);
+			return fail(400, { error: err?.message || 'Failed to duplicate section.' });
+		}
+	},
+
+	deleteSection: async ({ request }) => {
+		const formData = await request.formData();
+		const verticalId = formData.get('verticalId')?.toString() || 'mmj-dispensary';
+		const sectionId = formData.get('sectionId')?.toString();
+
+		if (!sectionId) {
+			return fail(400, { error: 'Section ID to delete is required.' });
+		}
+
+		try {
+			await deleteCmsSection(verticalId, sectionId);
+			return {
+				success: true,
+				message: `Section deleted successfully!`
+			};
+		} catch (err: any) {
+			console.error('Failed to delete section:', err);
+			return fail(400, { error: err?.message || 'Failed to delete section.' });
 		}
 	}
 };
