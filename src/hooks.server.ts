@@ -9,19 +9,29 @@ export const handle: Handle = async ({ event, resolve }) => {
 		event.url.hostname ||
 		'';
 
+	const isPageDomain =
+		host.startsWith('page.') ||
+		host.includes('page.nbmsinc.com');
+
 	const isDispensarySubdomain =
 		host.startsWith('dispensary.') ||
 		host.includes('dispensary.nbmsinc.com');
 
-	// Domain Redirect: If accessing /funnel from crm domain or main domain, redirect to https://dispensary.nbmsinc.com/funnel
+	const pathname = event.url.pathname;
+	const isLocalHost = host.includes('localhost') || host.includes('127.0.0.1');
+
+	// Domain Redirect: Redirect legacy /funnel or dispensary subdomain requests to https://page.nbmsinc.com/[slug]
 	if (
-		!isDispensarySubdomain &&
-		(event.url.pathname === '/funnel' || event.url.pathname === '/funnel/mmj-dispensary') &&
-		!host.includes('localhost') &&
-		!host.includes('127.0.0.1')
+		!isPageDomain &&
+		!isLocalHost &&
+		(pathname.startsWith('/funnel') || isDispensarySubdomain)
 	) {
-		const targetDomain = 'dispensary.nbmsinc.com';
-		const redirectTarget = `https://${targetDomain}/funnel${event.url.search}`;
+		const targetDomain = 'page.nbmsinc.com';
+		let redirectPath = pathname.replace(/^\/funnel\/?/, '');
+		if (redirectPath === 'mmj-dispensary') {
+			redirectPath = '';
+		}
+		const redirectTarget = `https://${targetDomain}/${redirectPath}${event.url.search}`;
 		throw redirect(307, redirectTarget);
 	}
 
@@ -42,10 +52,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 		}
 	}
 
-	const pathname = event.url.pathname;
-
-	// Define public unauthenticated routes (dispensary subdomain, intake funnels, public api, asset requests)
+	// Define public unauthenticated routes (page domain, dispensary subdomain, intake funnels, public api, asset requests)
 	const isPublicRoute =
+		isPageDomain ||
 		isDispensarySubdomain ||
 		pathname.startsWith('/login') ||
 		pathname.startsWith('/funnel') ||

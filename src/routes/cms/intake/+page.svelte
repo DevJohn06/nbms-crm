@@ -666,9 +666,6 @@
 						{/if}
 
 						<div class="flex items-center gap-3 min-w-0">
-							<div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105 {activeTab === secId ? 'bg-purple-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}">
-								<meta.icon class="w-4 h-4 {activeTab === secId ? 'text-white' : meta.colorClass}" />
-							</div>
 							<div class="min-w-0">
 								<p class="text-xs font-extrabold truncate">{idx + 1}. {meta.name}</p>
 								<div class="flex items-center gap-1.5 mt-0.5">
@@ -1892,7 +1889,6 @@
 								#{idx + 1}
 							</div>
 							<div class="flex items-center gap-2 min-w-0">
-								<meta.icon class="w-4 h-4 {meta.colorClass} flex-shrink-0" />
 								<span class="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">{meta.name}</span>
 							</div>
 						</div>
