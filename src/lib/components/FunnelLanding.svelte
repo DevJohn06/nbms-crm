@@ -386,21 +386,21 @@
 
 						<div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 w-full">
 							<div class="space-y-6">
-								<div class="bg-[#3c4652]/70 backdrop-blur-xs px-6 py-5 sm:px-8 sm:py-6 md:px-9 md:py-7 shadow-2xl space-y-3.5 w-fit max-w-4xl">
+								<div class="bg-[#3c4652]/70 backdrop-blur-xs px-6 py-5 sm:px-8 sm:py-6 md:px-9 md:py-7 shadow-2xl space-y-3.5 w-full max-w-[100%] md:max-w-[72%] lg:max-w-[65%]">
 									{#if !sec?.content?.hideTitle}
-										<h1 class="text-2xl sm:text-3xl md:text-[36px] lg:text-[40px] font-normal text-white tracking-wide font-serif leading-tight whitespace-normal md:whitespace-nowrap">
+										<h1 class="text-2xl sm:text-3xl md:text-[36px] lg:text-[40px] font-normal text-white tracking-wide font-serif leading-tight whitespace-normal break-words">
 											{sec?.title || 'ATM Payment Processing Solutions'}
 										</h1>
 									{/if}
 
 									{#if !sec?.content?.hideSubtitle}
-										<p class="text-base sm:text-xl md:text-[22px] font-normal text-white tracking-normal leading-snug">
+										<p class="text-base sm:text-xl md:text-[22px] font-normal text-white tracking-normal leading-snug whitespace-normal break-words">
 											{sec?.subtitle || 'Apply Today, Be In Business Tomorrow!'}
 										</p>
 									{/if}
 
 									{#if !sec?.content?.hideTagline}
-										<p class="text-sm sm:text-base md:text-[17px] font-bold uppercase tracking-wider text-white pt-1">
+										<p class="text-sm sm:text-base md:text-[17px] font-bold uppercase tracking-wider text-white pt-1 whitespace-normal break-words">
 											{sec?.content?.tagline || 'THEY DECLINE. WE APPROVE.'}
 										</p>
 									{/if}
@@ -433,7 +433,7 @@
 									</div>
 								{/if}
 
-								<div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
+								<div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 max-w-[100%] md:max-w-[72%] lg:max-w-[65%]">
 									<div class="p-2.5 rounded-xl border text-center flex items-center justify-center gap-2 font-bold text-[11px] bg-white/95 border-slate-300 text-slate-900 shadow-xs">
 										<ShieldCheck class="w-4 h-4 text-[#1f71c1] flex-shrink-0" />
 										<span>PCI Compliance</span>

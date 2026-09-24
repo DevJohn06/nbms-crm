@@ -206,6 +206,28 @@ async function main() {
 		});
 		console.log('✓ Synced Section Order to Turso.');
 
+		// 7. Tribal Hero Section
+		await client.execute({
+			sql: `INSERT OR REPLACE INTO intake_cms (id, vertical_id, section_id, title, subtitle, content_json, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+			args: [
+				'tribal__hero',
+				'tribal',
+				'hero',
+				'Tribal Payment Processing Solutions',
+				'Sovereignty-Compliant, Fast Approvals & Zero Fee Processing',
+				JSON.stringify({
+					badge: 'Tribal Payment Processing Solutions',
+					tagline: 'THEY DECLINE. WE APPROVE.',
+					primaryCta: 'Get Info',
+					secondaryCta: 'Book A Call',
+					badges: ['Next-Day Funding', 'Zero Processing Fee Options', 'PCI Compliant'],
+					bgImage: '/images/tribal_hero_bg.jpg'
+				}),
+				now
+			]
+		});
+		console.log('✓ Synced Tribal Hero section with bgImage to Turso.');
+
 		// Verify records in Turso
 		const verify = await client.execute('SELECT id, title FROM intake_cms');
 		console.log('\n--- VERIFIED TURSO INTAKE CMS RECORDS ---');
