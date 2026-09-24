@@ -39,6 +39,8 @@ export async function getIntakeCmsSections(verticalId: string = 'mmj-dispensary'
 	const [vInfo] = await db.select().from(verticals).where(eq(verticals.id, targetVerticalId));
 	const verticalName = vInfo?.name || (targetVerticalId === 'mmj-dispensary' ? 'MMJ Dispensary' : targetVerticalId);
 
+	const defaultHeroBg = targetVerticalId === 'mmj-dispensary' ? '/images/tfi_hero_bg.jpg' : '/images/tribal_hero_bg.jpg';
+
 	const defaults: Record<string, CmsSectionData> = {
 		hero: {
 			id: 'hero',
@@ -51,6 +53,7 @@ export async function getIntakeCmsSections(verticalId: string = 'mmj-dispensary'
 				tagline: 'THEY DECLINE. WE APPROVE.',
 				primaryCta: 'Get Info',
 				secondaryCta: 'Book A Call',
+				bgImage: defaultHeroBg,
 				badges: ['PCI Compliance', 'No Credit Check', '24 Hr Settlement']
 			},
 			updatedAt: new Date().toISOString()

@@ -258,6 +258,7 @@
 	let heroTagline = $state('');
 	let heroCta = $state('');
 	let heroSecondaryCta = $state('');
+	let heroBgImage = $state('');
 	let heroHideBadge = $state(false);
 	let heroHideCtas = $state(false);
 	let heroHideSection = $state(false);
@@ -358,6 +359,7 @@
 					heroTagline = currentSec?.content?.tagline || 'THEY DECLINE. WE APPROVE.';
 					heroCta = currentSec?.content?.primaryCta || 'Get Info';
 					heroSecondaryCta = currentSec?.content?.secondaryCta || 'Book A Call';
+					heroBgImage = currentSec?.content?.bgImage || currentSec?.content?.backgroundImage || '/images/tribal_hero_bg.jpg';
 					heroHideBadge = !!currentSec?.content?.hideBadge;
 					heroHideCtas = !!currentSec?.content?.hideCtas;
 					heroHideSection = !!currentSec?.content?.hideSection;
@@ -477,6 +479,7 @@
 			tagline: heroTagline,
 			primaryCta: heroCta,
 			secondaryCta: heroSecondaryCta,
+			bgImage: heroBgImage,
 			hideBadge: heroHideBadge,
 			hideCtas: heroHideCtas,
 			hideSection: heroHideSection
@@ -797,6 +800,17 @@
 								name="subtitle"
 								required
 								bind:value={heroSubtitle}
+								class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-slate-100 focus:border-purple-600 shadow-xs"
+							/>
+						</div>
+
+						<div>
+							<label for="hero-bg-image" class="font-bold text-slate-800 dark:text-slate-300 block mb-1">Hero Background Image Path / URL</label>
+							<input
+								id="hero-bg-image"
+								type="text"
+								bind:value={heroBgImage}
+								placeholder="/images/tribal_hero_bg.jpg"
 								class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-slate-100 focus:border-purple-600 shadow-xs"
 							/>
 						</div>

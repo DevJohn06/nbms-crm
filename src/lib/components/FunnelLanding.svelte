@@ -369,7 +369,7 @@
 					<section id={secId} class="w-full relative overflow-hidden transition-all bg-[#ccd4dc] min-h-[460px] sm:min-h-[520px] flex items-center border-b border-slate-300 rounded-3xl my-4">
 						<div
 							class="absolute inset-0 bg-cover bg-right md:bg-[center_right_12%] bg-no-repeat w-full h-full pointer-events-none opacity-95"
-							style="background-image: url('/images/tfi_hero_bg.jpg');"
+							style="background-image: url('{sec?.content?.bgImage || sec?.content?.backgroundImage || '/images/tfi_hero_bg.jpg'}');"
 						></div>
 						<div
 							class="absolute inset-0 pointer-events-none"
