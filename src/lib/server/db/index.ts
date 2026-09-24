@@ -244,6 +244,30 @@ export async function initDatabase() {
 			console.log(`[VERTICALS SEED] Initial default vertical created: MMJ Dispensary (mmj-dispensary)`);
 		}
 
+		// Seed initial Tribal Vertical
+		const tribalVerticalCheck = await client.execute({
+			sql: `SELECT id FROM verticals WHERE id = 'tribal'`
+		});
+
+		if (tribalVerticalCheck.rows.length === 0) {
+			const now = new Date().toISOString();
+			await client.execute({
+				sql: `INSERT OR IGNORE INTO verticals (id, name, slug, description, subdomain, is_default, created_at, updated_at)
+				      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+				args: [
+					'tribal',
+					'Tribal',
+					'tribal',
+					'Specialized Payment Processing Solutions for Tribal & Sovereign Cannabis Dispensaries',
+					'tribal',
+					0,
+					now,
+					now
+				]
+			});
+			console.log(`[VERTICALS SEED] Initial vertical created: Tribal (tribal)`);
+		}
+
 		// Backfill existing leads, calls, and CMS entries without vertical_id
 		await client.execute(`UPDATE leads SET vertical_id = 'mmj-dispensary' WHERE vertical_id IS NULL OR vertical_id = '';`);
 		await client.execute(`UPDATE booked_calls SET vertical_id = 'mmj-dispensary' WHERE vertical_id IS NULL OR vertical_id = '';`);

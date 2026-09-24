@@ -581,9 +581,9 @@
 			</p>
 		</div>
 
-		<div class="flex flex-wrap items-center gap-3">
+		<div class="flex items-center gap-2 shrink-0 flex-nowrap">
 			{#if data.allVerticals && data.allVerticals.length > 0}
-				<div class="flex items-center gap-2 bg-white dark:bg-slate-900 border border-purple-200 dark:border-purple-800/80 rounded-xl px-3 py-1.5 shadow-2xs">
+				<div class="flex items-center gap-2 bg-white dark:bg-slate-900 border border-purple-200 dark:border-purple-800/80 rounded-xl px-3 h-9 shadow-2xs">
 					<span class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Vertical:</span>
 					<select
 						value={data.activeVerticalId || ''}
@@ -606,7 +606,7 @@
 				rel="noopener noreferrer"
 				title="Preview Landing Page"
 				aria-label="Preview Landing Page"
-				class="btn-secondary !p-2 inline-flex items-center justify-center self-start md:self-auto shadow-xs cursor-pointer"
+				class="btn-secondary h-9 w-9 !p-0 inline-flex items-center justify-center shrink-0 shadow-xs cursor-pointer rounded-xl"
 			>
 				<ExternalLink class="w-4 h-4" />
 			</a>
