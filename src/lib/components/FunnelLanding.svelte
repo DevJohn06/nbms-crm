@@ -433,22 +433,24 @@
 									</div>
 								{/if}
 
-								<div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 max-w-[100%] md:max-w-[72%] lg:max-w-[65%]">
-									<div class="p-2.5 rounded-xl border text-center flex items-center justify-center gap-2 font-bold text-[11px] bg-white/95 border-slate-300 text-slate-900 shadow-xs">
-										<ShieldCheck class="w-4 h-4 text-[#1f71c1] flex-shrink-0" />
-										<span>PCI Compliance</span>
+								{#if !sec?.content?.hideBadges}
+									{@const heroBadgesList = sec?.content?.badges?.length ? sec.content.badges : ['PCI Compliance', 'No Credit Check', '24 Hr Settlement']}
+									<div class="grid grid-cols-1 sm:grid-cols-{Math.min(heroBadgesList.length, 4)} gap-2.5 pt-2 max-w-[100%] md:max-w-[72%] lg:max-w-[65%]">
+										{#each heroBadgesList as badgeItem, idx}
+											{@const badgeText = typeof badgeItem === 'string' ? badgeItem : badgeItem?.title || badgeItem?.name || String(badgeItem)}
+											<div class="p-2.5 rounded-xl border text-center flex items-center justify-center gap-2 font-bold text-[11px] bg-white/95 border-slate-300 text-slate-900 shadow-xs">
+												{#if idx % 3 === 0}
+													<ShieldCheck class="w-4 h-4 text-[#1f71c1] flex-shrink-0" />
+												{:else if idx % 3 === 1}
+													<CheckCircle2 class="w-4 h-4 text-[#1f71c1] flex-shrink-0" />
+												{:else}
+													<Clock class="w-4 h-4 text-[#1f71c1] flex-shrink-0" />
+												{/if}
+												<span>{badgeText}</span>
+											</div>
+										{/each}
 									</div>
-
-									<div class="p-2.5 rounded-xl border text-center flex items-center justify-center gap-2 font-extrabold text-[11px] bg-white/95 border-slate-300 text-slate-900 shadow-xs">
-										<CheckCircle2 class="w-4 h-4 text-[#1f71c1] flex-shrink-0" />
-										<span>No Credit Check</span>
-									</div>
-
-									<div class="p-2.5 rounded-xl border text-center flex items-center justify-center gap-2 font-bold text-[11px] bg-white/95 border-slate-300 text-slate-900 shadow-xs">
-										<Clock class="w-4 h-4 text-[#1f71c1] flex-shrink-0" />
-										<span>24 Hr Settlement</span>
-									</div>
-								</div>
+								{/if}
 							</div>
 						</div>
 					</section>

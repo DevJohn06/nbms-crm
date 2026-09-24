@@ -259,7 +259,9 @@
 	let heroCta = $state('');
 	let heroSecondaryCta = $state('');
 	let heroBgImage = $state('');
+	let heroBadges = $state<string[]>(['PCI Compliance', 'No Credit Check', '24 Hr Settlement']);
 	let heroHideBadge = $state(false);
+	let heroHideBadges = $state(false);
 	let heroHideCtas = $state(false);
 	let heroHideSection = $state(false);
 
@@ -360,7 +362,13 @@
 					heroCta = currentSec?.content?.primaryCta || 'Get Info';
 					heroSecondaryCta = currentSec?.content?.secondaryCta || 'Book A Call';
 					heroBgImage = currentSec?.content?.bgImage || currentSec?.content?.backgroundImage || '/images/tribal_hero_bg.jpg';
+					if (currentSec?.content?.badges && Array.isArray(currentSec.content.badges)) {
+						heroBadges = currentSec.content.badges.map((b: any) => typeof b === 'string' ? b : b.title || b.name || String(b));
+					} else {
+						heroBadges = ['PCI Compliance', 'No Credit Check', '24 Hr Settlement'];
+					}
 					heroHideBadge = !!currentSec?.content?.hideBadge;
+					heroHideBadges = !!currentSec?.content?.hideBadges;
 					heroHideCtas = !!currentSec?.content?.hideCtas;
 					heroHideSection = !!currentSec?.content?.hideSection;
 				} else if (meta.templateType === 'process_flow') {
@@ -471,6 +479,14 @@
 		faqItems = faqItems.filter((_, i) => i !== idx);
 	}
 
+	function addHeroBadge() {
+		heroBadges = [...heroBadges, 'New Feature Badge'];
+	}
+
+	function removeHeroBadge(idx: number) {
+		heroBadges = heroBadges.filter((_, i) => i !== idx);
+	}
+
 	let heroContentJson = $derived(
 		JSON.stringify({
 			templateType: 'hero',
@@ -480,7 +496,9 @@
 			primaryCta: heroCta,
 			secondaryCta: heroSecondaryCta,
 			bgImage: heroBgImage,
+			badges: heroBadges,
 			hideBadge: heroHideBadge,
+			hideBadges: heroHideBadges,
 			hideCtas: heroHideCtas,
 			hideSection: heroHideSection
 		})
@@ -875,6 +893,57 @@
 										class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-slate-100 focus:border-purple-600 shadow-xs"
 									/>
 								</div>
+							</div>
+						</div>
+
+						<div class="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
+							<div class="flex items-center justify-between">
+								<div>
+									<h4 class="font-black text-xs text-slate-800 dark:text-slate-300 uppercase tracking-wider">Hero Feature Badges (3 Bottom Pills)</h4>
+									<p class="text-[11px] text-slate-500 dark:text-slate-400">Dynamic feature labels displayed at the bottom of the hero section.</p>
+								</div>
+								<div class="flex items-center gap-2">
+									<button
+										type="button"
+										onclick={() => (heroHideBadges = !heroHideBadges)}
+										title={heroHideBadges ? 'Unhide Feature Badges' : 'Hide Feature Badges'}
+										class="p-1.5 rounded-lg border transition-all flex items-center justify-center cursor-pointer shadow-xs {heroHideBadges ? 'bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-950/70 dark:text-rose-400 dark:border-rose-800 hover:bg-rose-200' : 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'}"
+									>
+										{#if heroHideBadges}
+											<EyeOff class="w-4 h-4 text-rose-600 dark:text-rose-400" />
+										{:else}
+											<Eye class="w-4 h-4 text-slate-600 dark:text-slate-300" />
+										{/if}
+									</button>
+									<button
+										type="button"
+										onclick={addHeroBadge}
+										class="px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-100 text-purple-900 border border-purple-300 dark:bg-purple-950/70 dark:text-purple-300 dark:border-purple-800 hover:bg-purple-200 flex items-center gap-1 cursor-pointer"
+									>
+										<Plus class="w-3.5 h-3.5" />
+										<span>Add Badge</span>
+									</button>
+								</div>
+							</div>
+
+							<div class="space-y-2 {heroHideBadges ? 'opacity-50' : ''}">
+								{#each heroBadges as badge, idx}
+									<div class="flex items-center gap-2">
+										<input
+											type="text"
+											bind:value={heroBadges[idx]}
+											placeholder="Feature badge label..."
+											class="flex-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 focus:border-purple-600 shadow-xs"
+										/>
+										<button
+											type="button"
+											onclick={() => removeHeroBadge(idx)}
+											class="p-2 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 border border-slate-200 dark:border-slate-800 cursor-pointer"
+										>
+											<Trash2 class="w-4 h-4" />
+										</button>
+									</div>
+								{/each}
 							</div>
 						</div>
 					</div>
